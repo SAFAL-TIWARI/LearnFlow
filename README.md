@@ -69,7 +69,6 @@ npm install
 # Run development server
 npm start
 
-## '''
 📂 Sample Subject Mapping Structure
 
 {
