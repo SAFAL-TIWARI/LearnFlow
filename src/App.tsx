@@ -13,6 +13,7 @@ import StudyTimer from "./pages/tools/StudyTimer";
 import ExamScheduler from "./pages/tools/ExamScheduler";
 import NoteOrganizer from "./pages/tools/NoteOrganizer";
 import { SpeedInsights } from "@vercel/speed-insights/react";
+import { Analytics } from "@vercel/analytics/react"
 
 // Create a client
 const queryClient = new QueryClient();
@@ -45,6 +46,7 @@ const App = () => {
         </CustomSessionProvider>
       </ErrorBoundary>
       <SpeedInsights />
+      <Analytics/>
     </React.StrictMode>
   );
 };
