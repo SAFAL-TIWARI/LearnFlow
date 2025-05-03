@@ -1,73 +1,113 @@
-# Welcome to your Lovable project
+# 📚 LearnFlow – Student Learning Portal
 
-## Project info
+Welcome to **LearnFlow**, a responsive and dynamic web application designed to streamline access to academic learning resources for students, based on their **Year → Semester → Branch → Subject** flow.
 
-**URL**: https://lovable.dev/projects/70fbfacd-09c9-4a53-b689-492c887c5316
+---
 
-## How can I edit this code?
+## 🚀 Features
 
-There are several ways of editing your application.
+- 🔐 **Authentication System**
+  - Google Sign-In
+  - Protected access for learning resources
 
-**Use Lovable**
+- 📁 **Smart Resource Filtering**
+  - Dynamic subject display based on selected Year, Semester, and Branch
+  - Learning materials (Assignments, Practicals, Lab Work, Syllabus) shown **only for selected subjects**
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/70fbfacd-09c9-4a53-b689-492c887c5316) and start prompting.
+- 📌 **Navigation Buttons (Top & Footer)**
+  - **About Us** – Shows platform info
+  - **Tools** – Access a set of educational tools and utilities
+  - **Resources** – Filter resources by Year → Sem → Branch → Subject
+  - All footer buttons replicate top navbar functionality
 
-Changes made via Lovable will be committed automatically to this repo.
+- 🌙 **Dark/Light Mode Toggle**
+  - Switch themes with a smooth toggle button
 
-**Use your preferred IDE**
+- 🎓 **Subject-Specific Learning Materials**
+  - Organized per subject to avoid shared/common material confusion
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- 🧠 **Branch-Specific Subjects**
+  - Example: For `CSE (IoT)` → `1st Year → 2nd Sem`, subjects include:
+    - CHB 101, ITC 101, CSL 110, MAB 102, HUB 101, CSA 103
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+---
 
-Follow these steps:
+## 🏗️ Project Structure
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+learnflow/
+│
+├── assets/ # Icons, logos, subject metadata
+├── components/ # Reusable UI components (Navbar, Footer, SubjectCard, etc.)
+├── pages/ # Main pages (Home, Resources, Tools, About Us)
+├── data/ # JSON files with subject mappings and resources
+├── public/ # Static assets
+├── styles/ # CSS/SCSS styles
+├── App.js # Main app component
+└── README.md
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+yaml
+Copy
+Edit
 
-# Step 3: Install the necessary dependencies.
-npm i
+---
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+## 🛠️ Tech Stack
 
-**Edit a file directly in GitHub**
+- **Frontend**: HTML5, CSS3, JavaScript (React.js)
+- **Authentication**: Firebase Auth (Google Sign-In)
+- **Data Handling**: JSON & modular state management
+- **Deployment**: [Vercel](https://vercel.com/) / [Netlify](https://www.netlify.com/)
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+---
 
-**Use GitHub Codespaces**
+## 🔧 How to Run Locally
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```bash
+# Clone the repository
+git clone https://github.com/your-username/learnflow.git
+cd learnflow
 
-## What technologies are used for this project?
+# Install dependencies
+npm install
 
-This project is built with:
+# Run development server
+npm start
+📂 Sample Subject Mapping Structure
+json
+Copy
+Edit
+{
+  "1st": {
+    "2nd": {
+      "CSE (IoT)": [
+        "CHB 101", "ITC 101", "CSL 110", "MAB 102", "HUB 101", "CSA 103"
+      ]
+    }
+  }
+}
+🌐 Live Demo
+🔗 View LearnFlow Live
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+🤝 Contributors
+👨‍💻 Safal Tiwari – Developer, Designer
 
-## How can I deploy this project?
+📜 License
+This project is licensed under the MIT License. See LICENSE file for details.
 
-Simply open [Lovable](https://lovable.dev/projects/70fbfacd-09c9-4a53-b689-492c887c5316) and click on Share -> Publish.
+📩 Feedback
+Have suggestions or want to contribute more features? Feel free to open an Issue or Pull Request.
 
-## Can I connect a custom domain to my Lovable project?
+yaml
+Copy
+Edit
 
-Yes, you can!
+---
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Let me know if you'd like the `LICENSE` file or deployment badge (e.g., Vercel/Netlify) added too.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+
+
+
+
+
+
