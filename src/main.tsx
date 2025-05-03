@@ -1,3 +1,4 @@
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 // Import environment check first
 import './lib/env-check'
