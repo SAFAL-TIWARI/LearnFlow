@@ -45,10 +45,6 @@ learnflow/
 ├── App.js # Main app component
 └── README.md
 
-yaml
-Copy
-Edit
-
 ---
 
 ## 🛠️ Tech Stack
@@ -72,10 +68,10 @@ npm install
 
 # Run development server
 npm start
+
+
 📂 Sample Subject Mapping Structure
-json
-Copy
-Edit
+
 {
   "1st": {
     "2nd": {
@@ -85,8 +81,8 @@ Edit
     }
   }
 }
-🌐 Live Demo
-🔗 View LearnFlow Live
+
+🔗 View LearnFlow Live 
 
 🤝 Contributors
 👨‍💻 Safal Tiwari – Developer, Designer
@@ -97,17 +93,6 @@ This project is licensed under the MIT License. See LICENSE file for details.
 📩 Feedback
 Have suggestions or want to contribute more features? Feel free to open an Issue or Pull Request.
 
-yaml
-Copy
-Edit
-
 ---
 
 Let me know if you'd like the `LICENSE` file or deployment badge (e.g., Vercel/Netlify) added too.
-
-
-
-
-
-
-
