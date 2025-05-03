@@ -12,6 +12,7 @@ import CGPACalculator from "./pages/tools/CGPACalculator";
 import StudyTimer from "./pages/tools/StudyTimer";
 import ExamScheduler from "./pages/tools/ExamScheduler";
 import NoteOrganizer from "./pages/tools/NoteOrganizer";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -43,6 +44,7 @@ const App = () => {
           </QueryClientProvider>
         </CustomSessionProvider>
       </ErrorBoundary>
+      <SpeedInsights />
     </React.StrictMode>
   );
 };
@@ -62,6 +64,7 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
     console.error("Application error:", error, errorInfo);
   }
 
+  
   render() {
     if (this.state.hasError) {
       return (
