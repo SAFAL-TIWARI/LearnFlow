@@ -220,8 +220,21 @@ const ChatbotWidget: React.FC = () => {
     let retries = 0;
     let success = false;
 
+    // Define API endpoints to try
+    const apiEndpoints = [
+      'http://localhost:3001/api/chat',  // Local development
+      '/api/chat',                       // Same-origin relative path
+      `${window.location.origin}/api/chat` // Absolute path using current origin
+    ];
+
     while (retries <= maxRetries && !success) {
+      // Try each endpoint in order
+      const endpointIndex = Math.min(retries, apiEndpoints.length - 1);
+      const currentEndpoint = apiEndpoints[endpointIndex];
+      
       try {
+        console.log(`Attempt ${retries + 1}/${maxRetries + 1} using endpoint: ${currentEndpoint}`);
+        
         // Get all previous messages for context (last 5 messages for context)
         const contextMessages = isCommand 
           ? [userMessage] 
@@ -245,14 +258,14 @@ const ChatbotWidget: React.FC = () => {
         };
 
         // Call backend API
-        const response = await fetch('http://localhost:3001/api/chat', {
+        const response = await fetch(currentEndpoint, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(payload),
           // Add timeout to prevent hanging requests
-          signal: AbortSignal.timeout(30000) // 30 second timeout for longer operations
+          signal: AbortSignal.timeout(15000) // 15 second timeout
         });
 
         if (!response.ok) {
@@ -288,10 +301,19 @@ const ChatbotWidget: React.FC = () => {
         
         // Only show error message if all retries failed
         if (retries > maxRetries) {
-          // Add friendly error message
+          // Generate a fallback response on the client side if server is unreachable
+          let fallbackResponse = 'Sorry, I couldn\'t connect to the server right now. Try again later.';
+          
+          // Simple fallback responses based on user input
+          if (trimmedInput.toLowerCase().includes('hello') || trimmedInput.toLowerCase().includes('hi')) {
+            fallbackResponse = "Hello! I'm LearnFlow Assistant. I'm having trouble connecting to my knowledge base right now, but I'll try to help as best I can.";
+          } else if (trimmedInput.toLowerCase().includes('help')) {
+            fallbackResponse = "I'd like to help, but I'm having connection issues. Please try again later or check the Resources section for immediate assistance.";
+          }
+          
           const errorMessage: Message = {
             role: 'assistant',
-            content: 'Sorry, I couldn\'t fetch that right now. Try again.',
+            content: fallbackResponse,
             timestamp: new Date()
           };
           

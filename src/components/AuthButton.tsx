@@ -17,7 +17,17 @@ export default function AuthButton() {
     try {
       setIsLoading(true);
       setError(null);
-      await signIn("google", { callbackUrl: window.location.origin });
+      
+      // Check if we're on mobile
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      
+      if (isMobile) {
+        // For mobile, use a relative URL to avoid 404 errors
+        window.location.href = '/api/auth/signin/google';
+      } else {
+        // For desktop, use the normal signIn function
+        await signIn("google", { callbackUrl: window.location.origin });
+      }
     } catch (err) {
       console.error("Sign in error:", err);
       setError("Failed to sign in. Please try again.");

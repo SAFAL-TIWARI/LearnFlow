@@ -10,9 +10,34 @@ export default function SmartAuthButton() {
     // Check if NextAuth is working by looking for errors
     const checkNextAuth = () => {
       try {
+        // Check for auth parameters in URL (for mobile redirect)
+        if (typeof window !== 'undefined') {
+          const urlParams = new URLSearchParams(window.location.search);
+          const authStatus = urlParams.get('auth');
+          
+          if (authStatus === 'success') {
+            // If we have a successful auth from the URL, use the fallback
+            // This is for mobile devices that were redirected
+            setNextAuthFailed(true);
+            setIsLoading(false);
+            
+            // Remove the auth parameters from the URL without refreshing
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+            return;
+          }
+        }
+        
         // Create a test function to see if we can access NextAuth
         const testNextAuth = () => {
           try {
+            // Check if we're on mobile - if so, use fallback for simplicity
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            if (isMobile) {
+              console.log('Mobile device detected, using fallback auth');
+              return false;
+            }
+            
             // Check if process.env is properly defined
             if (typeof window !== 'undefined' && 
                 (!window.process || !window.process.env || !window.process.env.NEXTAUTH_URL)) {

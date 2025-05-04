@@ -30,9 +30,21 @@ export default function FallbackAuthButton() {
   const handleSignIn = async () => {
     setIsLoading(true);
     try {
-      const session = await signIn();
-      setUserAuthenticated(true);
-      setUserName(session.user.name);
+      // Check if we're on mobile
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      
+      if (isMobile) {
+        // For mobile, use a simpler approach
+        // Just create a guest session directly without redirects
+        const session = await signIn();
+        setUserAuthenticated(true);
+        setUserName(session.user.name);
+      } else {
+        // For desktop, use the normal flow
+        const session = await signIn();
+        setUserAuthenticated(true);
+        setUserName(session.user.name);
+      }
     } catch (e) {
       console.error('Failed to sign in', e);
     } finally {
