@@ -1,54 +1,66 @@
-
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <!-- Google AdSense Verification -->
-    <meta name="google-adsense-account" content="ca-pub-1178405148130113">
 
-    <!-- Meta tags -->
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>LearnFlow Student Zone</title>
-    <meta name="description" content="LearnFlow - Your Academic Journey, Simplified" />
-    <meta name="author" content="LearnFlow" />
-    
-    <!-- Theme script to prevent flash of unstyled content -->
-    <script>
-      // Check for dark mode preference
-      (function() {
-        const isDarkMode = localStorage.getItem('theme') === 'dark' || 
-          (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        
-        if (isDarkMode) {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
-      })();
-    </script>
+<head>
+  <!-- Google AdSense Verification -->
+  <meta name="google-adsense-account" content="ca-pub-1178405148130113">
 
-    <meta property="og:title" content="LearnFlow Student Zone" />
-    <meta property="og:description" content="Access all your course materials in one place. Find resources by year, semester, branch, and subject." />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://i.im.ge/2025/05/04/vAtvI4.LearnFlow.png" />
+  <!-- Meta tags -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LearnFlow Student Zone</title>
+  <meta name="description" content="LearnFlow - Your Academic Journey, Simplified" />
+  <meta name="author" content="LearnFlow" />
 
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@learnflow_edu" />
-    <meta name="twitter:image" content="https://i.im.ge/2025/05/04/vAtvI4.LearnFlow.png" />
-    
-    <!-- Google Font - Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Theme script to prevent flash of unstyled content -->
+  <script>
+    // Check for dark mode preference
+    (function () {
+      const isDarkMode = localStorage.getItem('theme') === 'dark' ||
+        (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
-    <!-- Google Adsense Script -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1178405148130113"
-     crossorigin="anonymous"></script>
-    
-  </head>
-  
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+      if (isDarkMode) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    })();
+  </script>
+
+  <meta property="og:title" content="LearnFlow Student Zone" />
+  <meta property="og:description"
+    content="Access all your course materials in one place. Find resources by year, semester, branch, and subject." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://i.im.ge/2025/05/04/vAtvI4.LearnFlow.png" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@learnflow_edu" />
+  <meta name="twitter:image" content="https://i.im.ge/2025/05/04/vAtvI4.LearnFlow.png" />
+
+  <!-- Google Font - Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Google Adsense Script -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1178405148130113"
+    crossorigin="anonymous"></script>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BYPTPHM5LY"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'G-BYPTPHM5LY');
+  </script>
+
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>
