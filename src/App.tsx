@@ -12,6 +12,8 @@ import CGPACalculator from "./pages/tools/CGPACalculator";
 import StudyTimer from "./pages/tools/StudyTimer";
 import ExamScheduler from "./pages/tools/ExamScheduler";
 import NoteOrganizer from "./pages/tools/NoteOrganizer";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react"
 
@@ -36,6 +38,10 @@ const App = () => {
                   <Route path="/tools/study-timer" element={<StudyTimer />} />
                   <Route path="/tools/exam-scheduler" element={<ExamScheduler />} />
                   <Route path="/tools/note-organizer" element={<NoteOrganizer />} />
+                  
+                  {/* Legal Pages */}
+                  <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                  <Route path="/terms-of-service" element={<TermsOfService />} />
                   
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
