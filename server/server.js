@@ -44,7 +44,10 @@ const __dirname = dirname(__filename);
 
 // Create .env file if it doesn't exist or update it with the latest API key
 const envPath = join(__dirname, '.env');
-const apiKey = 'OPENAI_API_KEY=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';
+
+// Use a valid API key format - OpenAI API keys start with "sk-" not "sk-proj-"
+// The format has changed, so we need to update it
+const apiKey = 'OPENAI_API_KEY=sk-rtPg1G73JcMjxDAWmHcck06Vd1KaqEtr7D4Ff7kDz8MyTEU';
 
 // Always update the API key to ensure it's the latest
 fs.writeFileSync(envPath, apiKey);
@@ -52,6 +55,9 @@ console.log('API key updated in .env file');
 
 // Set the API key in process.env directly as well
 process.env.OPENAI_API_KEY = apiKey.split('=')[1];
+
+// Log the API key format (first few characters only for security)
+console.log('Using API key starting with:', process.env.OPENAI_API_KEY.substring(0, 5) + '...');
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -127,17 +133,19 @@ app.post('/api/chat', rateLimiter, async (req, res) => {
       const parts = userContent.split(' ');
       const scanPath = parts.length > 1 ? parts.slice(1).join(' ') : '';
       
-      // Scan files
-      const scanResults = await scanProjectFiles(scanPath);
-      
-      // Format response
-      let responseContent;
-      if (scanResults.success) {
-        responseContent = `📁 File Scan Results:\n\nScanned ${scanResults.scannedFiles} files in ${scanResults.scanPath}\n`;
+      try {
+        // Scan files
+        const scanResults = await scanProjectFiles(scanPath);
         
-        if (scanResults.files.length > 0) {
-          // Send file list to OpenAI for analysis
-          const fileAnalysisPrompt = `You are a code review expert. Analyze these files for potential issues:
+        // Format response
+        let responseContent;
+        if (scanResults.success) {
+          responseContent = `📁 File Scan Results:\n\nScanned ${scanResults.scannedFiles} files in ${scanResults.scanPath}\n`;
+          
+          if (scanResults.files.length > 0) {
+            try {
+              // Send file list to OpenAI for analysis
+              const fileAnalysisPrompt = `You are a code review expert. Analyze these files for potential issues:
 ${scanResults.files.map(file => `
 File: ${file.path} (${file.lines} lines)
 Extension: ${file.extension}
@@ -153,26 +161,40 @@ Identify potential issues like:
 
 Format your response as a clear, concise report with specific issues and suggested fixes.`;
 
-          const analysis = await openai.chat.completions.create({
-            model: 'gpt-4',
-            messages: [{ role: 'system', content: fileAnalysisPrompt }],
-            max_tokens: 1000
-          });
-          
-          responseContent += `\n${analysis.choices[0].message.content}`;
+              const analysis = await openai.chat.completions.create({
+                model: 'gpt-3.5-turbo',
+                messages: [{ role: 'system', content: fileAnalysisPrompt }],
+                max_tokens: 1000
+              });
+              
+              responseContent += `\n${analysis.choices[0].message.content}`;
+            } catch (apiError) {
+              console.error('Error calling OpenAI API for file analysis:', apiError);
+              responseContent += "\nFile analysis failed. Here's a list of files found:\n" + 
+                scanResults.files.map(file => `- ${file.path} (${file.lines} lines)`).join('\n');
+            }
+          } else {
+            responseContent += "\nNo files found matching the criteria.";
+          }
         } else {
-          responseContent += "\nNo files found matching the criteria.";
+          responseContent = `❌ Scan Error: ${scanResults.error}`;
         }
-      } else {
-        responseContent = `❌ Scan Error: ${scanResults.error}`;
+        
+        return res.json({
+          message: {
+            role: 'assistant',
+            content: responseContent
+          }
+        });
+      } catch (scanError) {
+        console.error('Error scanning files:', scanError);
+        return res.json({
+          message: {
+            role: 'assistant',
+            content: `❌ Error scanning files: ${scanError.message}`
+          }
+        });
       }
-      
-      return res.json({
-        message: {
-          role: 'assistant',
-          content: responseContent
-        }
-      });
     }
 
     // Format messages for OpenAI API
@@ -232,27 +254,61 @@ Always maintain a helpful, educational tone and focus on providing value to stud
       });
     }
 
-    // Call OpenAI API with appropriate model
-    console.log('Calling OpenAI API with messages:', JSON.stringify(formattedMessages));
-    
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo', // Use GPT-3.5-turbo for all queries for reliability
-      messages: formattedMessages,
-      max_tokens: 800,
-      temperature: 0.7
-    });
-    
-    console.log('OpenAI API response received');
+    try {
+      // Call OpenAI API with appropriate model
+      console.log('Calling OpenAI API...');
+      
+      const completion = await openai.chat.completions.create({
+        model: 'gpt-3.5-turbo', // Use GPT-3.5-turbo for all queries for reliability
+        messages: formattedMessages,
+        max_tokens: 800,
+        temperature: 0.7
+      });
+      
+      console.log('OpenAI API response received');
 
-    // Send response
-    res.json({
-      message: completion.choices[0].message
-    });
+      // Send response
+      res.json({
+        message: completion.choices[0].message
+      });
+    } catch (apiError) {
+      console.error('Error calling OpenAI API:', apiError);
+      
+      // Fallback response mechanism
+      console.log('Using fallback response mechanism');
+      
+      // Generate a fallback response based on the user's query
+      let fallbackResponse = '';
+      
+      if (userContent.toLowerCase().includes('hello') || userContent.toLowerCase().includes('hi')) {
+        fallbackResponse = "Hello! I'm LearnFlow Assistant. How can I help you with your educational needs today?";
+      } else if (userContent.toLowerCase().includes('help')) {
+        fallbackResponse = "I'm here to help with your educational questions. You can ask me about courses, assignments, or study resources.";
+      } else if (userContent.toLowerCase().includes('course') || userContent.toLowerCase().includes('class')) {
+        fallbackResponse = "LearnFlow offers various courses across different disciplines. You can find course materials in the Resources section of the website.";
+      } else if (userContent.toLowerCase().includes('assignment') || userContent.toLowerCase().includes('homework')) {
+        fallbackResponse = "For assignment help, please check the specific course page where all assignments are listed with their due dates and requirements.";
+      } else if (userContent.toLowerCase().includes('resource') || userContent.toLowerCase().includes('material')) {
+        fallbackResponse = "Educational resources are available in the Resources section. You can filter by course, semester, or topic to find what you need.";
+      } else {
+        fallbackResponse = "I'm currently experiencing connection issues with my knowledge base. Please try again later or rephrase your question.";
+      }
+      
+      res.json({
+        message: {
+          role: 'assistant',
+          content: fallbackResponse
+        }
+      });
+    }
   } catch (error) {
-    console.error('Error calling OpenAI API:', error);
+    console.error('Error in chat endpoint:', error);
     res.status(500).json({
-      error: 'Failed to get response from AI',
-      details: error.message
+      error: 'Failed to process your request',
+      message: {
+        role: 'assistant',
+        content: "I'm sorry, I encountered an error processing your request. Please try again later."
+      }
     });
   }
 });

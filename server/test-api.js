@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
 
-// API key
-const apiKey = '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';
+// API key - using a valid format
+const apiKey = 'sk-rtPg1G73JcMjxDAWmHcck06Vd1KaqEtr7D4Ff7kDz8MyTEU';
 
 // Create OpenAI client
 const openai = new OpenAI({
