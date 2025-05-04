@@ -36,7 +36,7 @@ npm install
 Create a `.env` file in the `server` directory with the following content:
 
 ```
-OPENAI_API_KEY=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
+OPENAI_API_KEY=your_openai_api_key_here
 PORT=3001
 ```
 
