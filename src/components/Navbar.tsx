@@ -157,7 +157,7 @@ const Navbar: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 rounded-full bg-learnflow-100 flex items-center justify-center text-learnflow-600 font-bold">
-                      IoT
+                     Stu
                     </div>
                     <div>
                       <h4 className="font-medium text-gray-900 dark:text-gray-100">SAFAL TIWARI</h4>
