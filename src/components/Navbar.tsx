@@ -16,7 +16,7 @@ const Navbar: React.FC = () => {
     if (aboutDialogOpen) {
       timeoutId = window.setTimeout(() => {
         setAboutDialogOpen(false);
-      }, 10000);
+      }, 20000);
     }
     return () => {
       if (timeoutId) clearTimeout(timeoutId);

@@ -14,6 +14,8 @@ import ExamScheduler from "./pages/tools/ExamScheduler";
 import NoteOrganizer from "./pages/tools/NoteOrganizer";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
+import ChatbotWidget from "./components/Chatbot/ChatbotWidget";
+import { ThemeProvider } from "./hooks/useTheme";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react"
 
@@ -24,32 +26,37 @@ const App = () => {
   return (
     <React.StrictMode>
       <ErrorBoundary>
-        <CustomSessionProvider>
-          <QueryClientProvider client={queryClient}>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<Index />} />
+        <ThemeProvider>
+          <CustomSessionProvider>
+            <QueryClientProvider client={queryClient}>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    
+                    {/* Tool Routes */}
+                    <Route path="/tools/cgpa-calculator" element={<CGPACalculator />} />
+                    <Route path="/tools/study-timer" element={<StudyTimer />} />
+                    <Route path="/tools/exam-scheduler" element={<ExamScheduler />} />
+                    <Route path="/tools/note-organizer" element={<NoteOrganizer />} />
+                    
+                    {/* Legal Pages */}
+                    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                    <Route path="/terms-of-service" element={<TermsOfService />} />
+                    
+                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
                   
-                  {/* Tool Routes */}
-                  <Route path="/tools/cgpa-calculator" element={<CGPACalculator />} />
-                  <Route path="/tools/study-timer" element={<StudyTimer />} />
-                  <Route path="/tools/exam-scheduler" element={<ExamScheduler />} />
-                  <Route path="/tools/note-organizer" element={<NoteOrganizer />} />
-                  
-                  {/* Legal Pages */}
-                  <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                  <Route path="/terms-of-service" element={<TermsOfService />} />
-                  
-                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </BrowserRouter>
-            </TooltipProvider>
-          </QueryClientProvider>
-        </CustomSessionProvider>
+                  {/* Chatbot Widget */}
+                  <ChatbotWidget />
+                </BrowserRouter>
+              </TooltipProvider>
+            </QueryClientProvider>
+          </CustomSessionProvider>
+        </ThemeProvider>
       </ErrorBoundary>
       <SpeedInsights />
       <Analytics/>
