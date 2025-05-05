@@ -2,6 +2,27 @@
  * Educational utilities for the LearnFlow chatbot
  */
 
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+// Get the directory name
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Load website navigation data
+let websiteNavigation = {};
+try {
+  const navigationPath = path.join(__dirname, '../data/websiteNavigation.json');
+  const navigationData = fs.readFileSync(navigationPath, 'utf8');
+  websiteNavigation = JSON.parse(navigationData);
+  console.log('Loaded website navigation data');
+} catch (error) {
+  console.error('Error loading website navigation data:', error);
+  websiteNavigation = { pages: [], departments: [], semesters: [], resources: [] };
+}
+
 // Course information database (simplified example)
 export const courseDatabase = {
   'CHB101': {
@@ -148,4 +169,54 @@ export function extractCourseCode(query) {
   }
   
   return null;
+}
+
+/**
+ * Get website navigation information based on a query
+ * @param {string} query - User query
+ * @returns {string} - Navigation information
+ */
+export function getWebsiteNavigationInfo(query) {
+  const lowercaseQuery = query.toLowerCase();
+  let navigationInfo = '';
+  
+  // Check for page-related queries
+  if (websiteNavigation.pages) {
+    for (const page of websiteNavigation.pages) {
+      if (lowercaseQuery.includes(page.name.toLowerCase())) {
+        navigationInfo += `\nThe ${page.name} page can be found at ${page.path}. ${page.description}\n`;
+      }
+    }
+  }
+  
+  // Check for department-related queries
+  if (websiteNavigation.departments) {
+    for (const dept of websiteNavigation.departments) {
+      if (lowercaseQuery.includes(dept.code.toLowerCase()) || 
+          lowercaseQuery.includes(dept.name.toLowerCase())) {
+        navigationInfo += `\nThe ${dept.name} (${dept.code}) department page can be found at ${dept.path}. It offers courses: ${dept.courses.join(', ')}.\n`;
+      }
+    }
+  }
+  
+  // Check for semester-related queries
+  if (websiteNavigation.semesters) {
+    for (const sem of websiteNavigation.semesters) {
+      const semRegex = new RegExp(`\\b${sem.number}(st|nd|rd|th)?\\s+sem(ester)?\\b`, 'i');
+      if (semRegex.test(lowercaseQuery)) {
+        navigationInfo += `\nThe ${sem.name} page can be found at ${sem.path}. It includes courses: ${sem.courses.join(', ')}.\n`;
+      }
+    }
+  }
+  
+  // Check for resource-related queries
+  if (websiteNavigation.resources) {
+    for (const resource of websiteNavigation.resources) {
+      if (lowercaseQuery.includes(resource.name.toLowerCase())) {
+        navigationInfo += `\nThe ${resource.name} can be found at ${resource.path}. ${resource.description}\n`;
+      }
+    }
+  }
+  
+  return navigationInfo;
 }

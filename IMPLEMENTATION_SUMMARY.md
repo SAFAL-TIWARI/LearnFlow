@@ -2,7 +2,7 @@
 
 ## Overview
 
-We've implemented a professional, responsive AI chatbot for the LearnFlow educational website that provides intelligent responses to student queries using OpenAI's GPT models. The chatbot is designed to handle multi-turn conversations, answer educational questions, provide coding help, and assist with navigation on the platform.
+We've implemented a professional, responsive AI chatbot for the LearnFlow educational website that provides intelligent responses to student queries using Google's Gemini API. The chatbot is designed to handle multi-turn conversations, answer educational questions, provide coding help, and assist with navigation on the platform.
 
 ## Components Implemented
 
@@ -43,7 +43,7 @@ We've implemented a professional, responsive AI chatbot for the LearnFlow educat
 ## Key Features
 
 1. **Intelligent Educational Responses**
-   - The chatbot uses GPT-3.5-turbo for most queries and GPT-4 for complex questions
+   - The chatbot uses Google's Gemini Pro model for all queries
    - Enhanced system prompts provide educational context
    - Course-specific knowledge for relevant responses
 
@@ -59,7 +59,7 @@ We've implemented a professional, responsive AI chatbot for the LearnFlow educat
    - Provides suggestions for fixing problems
 
 4. **Security Features**
-   - API key stored securely on the server
+   - Gemini API key stored securely on the server
    - Rate limiting to prevent abuse
    - Input validation and sanitization
    - Error handling with user-friendly messages

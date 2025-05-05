@@ -1,10 +1,10 @@
 # LearnFlow AI Chatbot
 
-A professional, responsive AI chatbot for the LearnFlow educational website that provides intelligent responses to student queries using OpenAI's GPT models.
+A professional, responsive AI chatbot for the LearnFlow educational website that provides intelligent responses to student queries using Google's Gemini API.
 
 ## Overview
 
-The LearnFlow Chatbot is a floating widget that appears in the bottom-right corner of the website. It allows users to ask questions and get AI-powered responses using OpenAI's GPT-3.5 and GPT-4 models.
+The LearnFlow Chatbot is a floating widget that appears in the bottom-right corner of the website. It allows users to ask questions and get AI-powered responses using Google's Gemini Pro model.
 
 ## Features
 
@@ -41,7 +41,7 @@ npm install
 Create a `.env` file in the `server` directory with the following content:
 
 ```
-OPENAI_API_KEY=your_openai_api_key_here
+GEMINI_API_KEY=AIzaSyCOj3Extd63rPuOIHmhbSZNz2lqJwamAwk
 PORT=3001
 ```
 
@@ -129,7 +129,7 @@ npm run build
 
 ## Security Features
 
-- **API Key Protection**: The OpenAI API key is stored securely on the server side and never exposed to the client
+- **API Key Protection**: The Google Gemini API key is stored securely on the server side and never exposed to the client
 - **Rate Limiting**: Prevents abuse of the API with a token bucket rate limiter
 - **Input Validation**: All user inputs are validated before processing
 - **Error Handling**: Comprehensive error handling with user-friendly messages

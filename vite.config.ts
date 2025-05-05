@@ -9,8 +9,10 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    // Enable history API fallback for SPA routing
+    historyApiFallback: true,
   },
-  base: "./", // Use relative paths for assets
+  base: "/", // Use absolute paths for assets
   plugins: [
     react(),
     nextAuthPlugin(),

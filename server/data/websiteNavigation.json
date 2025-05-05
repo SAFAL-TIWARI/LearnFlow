@@ -1,0 +1,135 @@
+{
+  "pages": [
+    {
+      "name": "Home",
+      "path": "/",
+      "description": "The main landing page of LearnFlow with featured courses and announcements."
+    },
+    {
+      "name": "Courses",
+      "path": "/courses",
+      "description": "Browse all available courses by semester, department, or instructor."
+    },
+    {
+      "name": "Resources",
+      "path": "/resources",
+      "description": "Access study materials, textbooks, and supplementary learning resources."
+    },
+    {
+      "name": "Assignments",
+      "path": "/assignments",
+      "description": "View and submit assignments for enrolled courses."
+    },
+    {
+      "name": "Calendar",
+      "path": "/calendar",
+      "description": "Academic calendar with important dates, deadlines, and events."
+    },
+    {
+      "name": "Profile",
+      "path": "/profile",
+      "description": "Manage your student profile, settings, and preferences."
+    },
+    {
+      "name": "Help Center",
+      "path": "/help",
+      "description": "Get assistance with using the LearnFlow platform and troubleshooting issues."
+    }
+  ],
+  "departments": [
+    {
+      "code": "CSE",
+      "name": "Computer Science and Engineering",
+      "path": "/departments/cse",
+      "courses": ["CSE101", "CSE201", "CSE301", "CSE401"]
+    },
+    {
+      "code": "EEE",
+      "name": "Electrical and Electronic Engineering",
+      "path": "/departments/eee",
+      "courses": ["EEE101", "EEE201", "EEE301", "EEE401"]
+    },
+    {
+      "code": "ME",
+      "name": "Mechanical Engineering",
+      "path": "/departments/me",
+      "courses": ["ME101", "ME201", "ME301", "ME401"]
+    },
+    {
+      "code": "CHB",
+      "name": "Chemistry and Biochemistry",
+      "path": "/departments/chb",
+      "courses": ["CHB101", "CHB201", "CHB301", "CHB401"]
+    },
+    {
+      "code": "PHY",
+      "name": "Physics",
+      "path": "/departments/phy",
+      "courses": ["PHY101", "PHY201", "PHY301", "PHY401"]
+    },
+    {
+      "code": "MTH",
+      "name": "Mathematics",
+      "path": "/departments/mth",
+      "courses": ["MTH101", "MTH201", "MTH301", "MTH401"]
+    }
+  ],
+  "semesters": [
+    {
+      "number": 1,
+      "name": "First Semester",
+      "path": "/semesters/1",
+      "courses": ["CSE101", "EEE101", "ME101", "CHB101", "PHY101", "MTH101"]
+    },
+    {
+      "number": 2,
+      "name": "Second Semester",
+      "path": "/semesters/2",
+      "courses": ["CSE201", "EEE201", "ME201", "CHB201", "PHY201", "MTH201"]
+    },
+    {
+      "number": 3,
+      "name": "Third Semester",
+      "path": "/semesters/3",
+      "courses": ["CSE301", "EEE301", "ME301", "CHB301", "PHY301", "MTH301"]
+    },
+    {
+      "number": 4,
+      "name": "Fourth Semester",
+      "path": "/semesters/4",
+      "courses": ["CSE401", "EEE401", "ME401", "CHB401", "PHY401", "MTH401"]
+    }
+  ],
+  "resources": [
+    {
+      "name": "Textbooks",
+      "path": "/resources/textbooks",
+      "description": "Access digital textbooks for all courses."
+    },
+    {
+      "name": "Lecture Notes",
+      "path": "/resources/lecture-notes",
+      "description": "Download lecture notes and presentations."
+    },
+    {
+      "name": "Lab Manuals",
+      "path": "/resources/lab-manuals",
+      "description": "Access laboratory manuals and experiment guides."
+    },
+    {
+      "name": "Past Papers",
+      "path": "/resources/past-papers",
+      "description": "Practice with previous years' exam papers."
+    },
+    {
+      "name": "Video Lectures",
+      "path": "/resources/video-lectures",
+      "description": "Watch recorded lectures and tutorials."
+    },
+    {
+      "name": "Software Tools",
+      "path": "/resources/software-tools",
+      "description": "Download and access required software for courses."
+    }
+  ]
+}

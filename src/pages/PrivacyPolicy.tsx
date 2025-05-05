@@ -1,24 +1,35 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import '../styles/legal-pages.css';
 
 const PrivacyPolicy: React.FC = () => {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     // Set document title
     document.title = 'Privacy Policy - LearnFlow';
     
     // Fetch the HTML content from the privacy-policy.html file
     fetch('/privacy-policy.html')
-      .then(response => response.text())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Failed to load privacy policy (${response.status})`);
+        }
+        return response.text();
+      })
       .then(html => {
         const contentDiv = document.getElementById('privacy-policy-content');
         if (contentDiv) {
           contentDiv.innerHTML = html;
+          setLoading(false);
         }
       })
       .catch(error => {
         console.error('Error loading privacy policy:', error);
+        setError(error.message);
+        setLoading(false);
       });
   }, []);
 
@@ -27,13 +38,23 @@ const PrivacyPolicy: React.FC = () => {
       <Navbar />
       <main className="flex-grow container mx-auto px-4 py-8">
         <div id="privacy-policy-content" className="prose dark:prose-invert max-w-none legal-content">
-          {/* Content will be loaded here */}
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-6"></div>
-            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full mb-4"></div>
-            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6 mb-4"></div>
-            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full mb-4"></div>
-          </div>
+          {loading && (
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-6"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full mb-4"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6 mb-4"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full mb-4"></div>
+            </div>
+          )}
+          {error && (
+            <div className="text-center py-8">
+              <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Privacy Policy</h2>
+              <p className="text-gray-700 dark:text-gray-300 mb-6">{error}</p>
+              <p className="text-gray-600 dark:text-gray-400">
+                Please try refreshing the page or contact support if the problem persists.
+              </p>
+            </div>
+          )}
         </div>
       </main>
       <Footer />

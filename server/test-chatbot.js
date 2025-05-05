@@ -1,8 +1,8 @@
-import OpenAI from 'openai';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import fs from 'fs';
+import fetch from 'node-fetch';
 
 // Load environment variables
 dotenv.config();
@@ -11,20 +11,19 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+// Google Gemini API key
+const GEMINI_API_KEY = 'AIzaSyCOj3Extd63rPuOIHmhbSZNz2lqJwamAwk';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent';
+
 // Create .env file if it doesn't exist
 const envPath = join(__dirname, '.env');
 if (!fs.existsSync(envPath)) {
   fs.writeFileSync(
     envPath,
-    'OPENAI_API_KEY=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'
+    `GEMINI_API_KEY=${GEMINI_API_KEY}`
   );
-  console.log('.env file created with API key');
+  console.log('.env file created with Gemini API key');
 }
-
-// Create OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
 
 // Test queries
 const testQueries = [
@@ -48,22 +47,41 @@ Always maintain a helpful, educational tone and focus on providing value to stud
 
 // Test function
 async function testChatbot() {
-  console.log("🤖 Testing LearnFlow Chatbot...\n");
+  console.log("🤖 Testing LearnFlow Chatbot with Gemini API...\n");
   
   for (const query of testQueries) {
     console.log(`📝 Query: ${query}`);
     
     try {
-      const completion = await openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
-        messages: [
-          { role: 'system', content: systemMessage },
-          { role: 'user', content: query }
-        ],
-        max_tokens: 500
+      const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                { text: `${systemMessage}\n\nUser query: ${query}` }
+              ]
+            }
+          ],
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 800
+          }
+        })
       });
       
-      console.log(`🔍 Response: ${completion.choices[0].message.content}\n`);
+      const data = await response.json();
+      
+      if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+        const responseText = data.candidates[0].content.parts[0].text;
+        console.log(`🔍 Response: ${responseText}\n`);
+      } else {
+        console.error('❌ Invalid response format from Gemini API:', JSON.stringify(data, null, 2));
+      }
+      
       console.log("---------------------------------------------------\n");
     } catch (error) {
       console.error(`❌ Error: ${error.message}`);

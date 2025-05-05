@@ -3,6 +3,9 @@ import { useTheme } from '../../hooks/useTheme';
 import { MessageSquare, Send, X, Loader2 } from 'lucide-react';
 import './ChatbotWidget.css';
 
+// Google Gemini API key - This is only for reference, actual API calls go through the backend
+// const GEMINI_API_KEY = 'AIzaSyCOj3Extd63rPuOIHmhbSZNz2lqJwamAwk';
+
 interface Message {
   role: 'user' | 'assistant' | 'system';
   content: string;
@@ -95,7 +98,7 @@ const ChatbotWidget: React.FC = () => {
     const addWelcomeMessage = () => {
       const welcomeMessage: Message = {
         role: 'assistant',
-        content: 'Hello! I\'m LearnFlow Assistant. How can I help you with your educational needs today?',
+        content: 'Hello! I\'m LearnFlow Assistant powered by Google Gemini. How can I help you with your educational needs today?',
         timestamp: new Date()
       };
       setMessages([welcomeMessage]);
@@ -248,10 +251,20 @@ const ChatbotWidget: React.FC = () => {
         // Add system message
         const systemMessage = {
           role: 'system',
-          content: 'You are a helpful educational assistant for LearnFlow platform.'
+          content: `You are a helpful educational assistant for LearnFlow platform powered by Google Gemini.
+          
+You can answer questions about:
+1. Educational topics and concepts
+2. Programming and coding help
+3. Study techniques and learning strategies
+4. LearnFlow website navigation and features
+5. Course materials and resources
+6. Current events and general knowledge
+
+Always provide helpful, accurate, and educational responses.`
         };
 
-        // Prepare the payload according to OpenAI API requirements
+        // Prepare the payload for Gemini API
         const payload = {
           messages: [systemMessage, ...recentMessages],
           userId: 'user-' + Date.now() // Simple user identifier
@@ -306,9 +319,9 @@ const ChatbotWidget: React.FC = () => {
           
           // Simple fallback responses based on user input
           if (trimmedInput.toLowerCase().includes('hello') || trimmedInput.toLowerCase().includes('hi')) {
-            fallbackResponse = "Hello! I'm LearnFlow Assistant. I'm having trouble connecting to my knowledge base right now, but I'll try to help as best I can.";
+            fallbackResponse = "Hello! I'm LearnFlow Assistant powered by Google Gemini. I'm having trouble connecting to my knowledge base right now, but I'll try to help as best I can.";
           } else if (trimmedInput.toLowerCase().includes('help')) {
-            fallbackResponse = "I'd like to help, but I'm having connection issues. Please try again later or check the Resources section for immediate assistance.";
+            fallbackResponse = "I'd like to help, but I'm having connection issues with the Gemini API. Please try again later or check the Resources section for immediate assistance.";
           }
           
           const errorMessage: Message = {
@@ -493,10 +506,17 @@ const ChatbotWidget: React.FC = () => {
             </button>
             <button 
               className="suggestion-chip"
-              onClick={() => setInput("Where can I find 2nd semester CSE IoT materials?")}
+              onClick={() => setInput("What are the latest advancements in quantum computing?")}
               disabled={isLoading}
             >
-              2nd sem IoT materials
+              Quantum computing news
+            </button>
+            <button 
+              className="suggestion-chip"
+              onClick={() => setInput("How do I find the course materials for CSE 2nd semester?")}
+              disabled={isLoading}
+            >
+              Find CSE materials
             </button>
           </div>
         </div>

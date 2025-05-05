@@ -1,31 +1,44 @@
-import OpenAI from 'openai';
+import fetch from 'node-fetch';
 
-// API key - using a valid format
-const apiKey = 'sk-rtPg1G73JcMjxDAWmHcck06Vd1KaqEtr7D4Ff7kDz8MyTEU';
+// Google Gemini API key
+const GEMINI_API_KEY = 'AIzaSyCOj3Extd63rPuOIHmhbSZNz2lqJwamAwk';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent';
 
-// Create OpenAI client
-const openai = new OpenAI({
-  apiKey: apiKey
-});
-
-async function testOpenAI() {
+async function testGeminiAPI() {
   try {
-    console.log('Testing OpenAI API connection...');
+    console.log('Testing Google Gemini API connection...');
     
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: [
-        { role: 'system', content: 'You are a helpful assistant.' },
-        { role: 'user', content: 'Hello, are you working?' }
-      ],
-      max_tokens: 50
+    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              { text: "Hello, are you working?" }
+            ]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 100
+        }
+      })
     });
     
-    console.log('API Response:', completion.choices[0].message);
-    console.log('✅ OpenAI API connection successful!');
+    const data = await response.json();
+    
+    if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+      console.log('API Response:', data.candidates[0].content.parts[0].text);
+      console.log('✅ Google Gemini API connection successful!');
+    } else {
+      console.error('❌ Invalid response format from Gemini API:', JSON.stringify(data, null, 2));
+    }
   } catch (error) {
-    console.error('❌ Error connecting to OpenAI API:', error);
+    console.error('❌ Error connecting to Google Gemini API:', error);
   }
 }
 
-testOpenAI();
+testGeminiAPI();

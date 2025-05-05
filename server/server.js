@@ -1,17 +1,28 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import OpenAI from 'openai';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import fs from 'fs';
+import fetch from 'node-fetch';
 import { scanProjectFiles } from './utils/fileScannerUtils.js';
 import { 
   getCourseInfo, 
   getSemesterResources, 
   isNavigationQuery,
-  extractCourseCode
+  extractCourseCode,
+  getWebsiteNavigationInfo
 } from './utils/educationalUtils.js';
+import {
+  getQueryContext,
+  searchResources,
+  extractResourceInfo
+} from './utils/websiteKnowledgeUtils.js';
+import {
+  needsWebSearch,
+  performWebSearch,
+  getWebSearchContext
+} from './utils/webSearchUtils.js';
 
 // Load environment variables
 dotenv.config();
@@ -20,10 +31,9 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Create OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+// Google Gemini API key
+const GEMINI_API_KEY = 'AIzaSyCOj3Extd63rPuOIHmhbSZNz2lqJwamAwk';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent';
 
 // Middleware
 app.use(cors({
@@ -45,19 +55,18 @@ const __dirname = dirname(__filename);
 // Create .env file if it doesn't exist or update it with the latest API key
 const envPath = join(__dirname, '.env');
 
-// Use a valid API key format - OpenAI API keys start with "sk-" not "sk-proj-"
-// The format has changed, so we need to update it
-const apiKey = 'OPENAI_API_KEY=sk-rtPg1G73JcMjxDAWmHcck06Vd1KaqEtr7D4Ff7kDz8MyTEU';
+// Store the Gemini API key in .env
+const apiKey = `GEMINI_API_KEY=${GEMINI_API_KEY}`;
 
 // Always update the API key to ensure it's the latest
 fs.writeFileSync(envPath, apiKey);
-console.log('API key updated in .env file');
+console.log('Gemini API key updated in .env file');
 
 // Set the API key in process.env directly as well
-process.env.OPENAI_API_KEY = apiKey.split('=')[1];
+process.env.GEMINI_API_KEY = GEMINI_API_KEY;
 
 // Log the API key format (first few characters only for security)
-console.log('Using API key starting with:', process.env.OPENAI_API_KEY.substring(0, 5) + '...');
+console.log('Using Gemini API key starting with:', process.env.GEMINI_API_KEY.substring(0, 5) + '...');
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -144,7 +153,7 @@ app.post('/api/chat', rateLimiter, async (req, res) => {
           
           if (scanResults.files.length > 0) {
             try {
-              // Send file list to OpenAI for analysis
+              // Send file list to Gemini for analysis
               const fileAnalysisPrompt = `You are a code review expert. Analyze these files for potential issues:
 ${scanResults.files.map(file => `
 File: ${file.path} (${file.lines} lines)
@@ -161,15 +170,37 @@ Identify potential issues like:
 
 Format your response as a clear, concise report with specific issues and suggested fixes.`;
 
-              const analysis = await openai.chat.completions.create({
-                model: 'gpt-3.5-turbo',
-                messages: [{ role: 'system', content: fileAnalysisPrompt }],
-                max_tokens: 1000
+              // Call Gemini API for file analysis
+              const analysisResponse = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  contents: [
+                    {
+                      parts: [
+                        { text: fileAnalysisPrompt }
+                      ]
+                    }
+                  ],
+                  generationConfig: {
+                    temperature: 0.3,
+                    maxOutputTokens: 1000
+                  }
+                })
               });
               
-              responseContent += `\n${analysis.choices[0].message.content}`;
+              const analysisData = await analysisResponse.json();
+              
+              if (analysisData.candidates && analysisData.candidates[0] && analysisData.candidates[0].content) {
+                const analysisText = analysisData.candidates[0].content.parts[0].text;
+                responseContent += `\n${analysisText}`;
+              } else {
+                throw new Error('Invalid response format from Gemini API');
+              }
             } catch (apiError) {
-              console.error('Error calling OpenAI API for file analysis:', apiError);
+              console.error('Error calling Gemini API for file analysis:', apiError);
               responseContent += "\nFile analysis failed. Here's a list of files found:\n" + 
                 scanResults.files.map(file => `- ${file.path} (${file.lines} lines)`).join('\n');
             }
@@ -197,12 +228,6 @@ Format your response as a clear, concise report with specific issues and suggest
       }
     }
 
-    // Format messages for OpenAI API
-    const formattedMessages = messages.map(msg => ({
-      role: msg.role,
-      content: msg.content
-    }));
-
     // Enhance system message with educational context
     let systemMessage = 'You are LearnFlow Assistant, an advanced AI for an educational platform. ';
     
@@ -210,7 +235,9 @@ Format your response as a clear, concise report with specific issues and suggest
     const courseCode = extractCourseCode(userContent);
     if (courseCode) {
       const courseInfo = getCourseInfo(courseCode);
-      systemMessage += `\nThe user is asking about ${courseCode}: ${courseInfo.name}. This course covers: ${courseInfo.topics.join(', ')}. `;
+      if (courseInfo) {
+        systemMessage += `\nThe user is asking about ${courseCode}: ${courseInfo.name}. This course covers: ${courseInfo.topics.join(', ')}. `;
+      }
     }
     
     // Check if query is related to navigation
@@ -226,6 +253,31 @@ Format your response as a clear, concise report with specific issues and suggest
           systemMessage += `\nSemester ${semNumber} resources are located at ${semResources.path} and include courses: ${semResources.courses.join(', ')}. `;
         }
       }
+      
+      // Add website navigation information
+      const navigationInfo = getWebsiteNavigationInfo(userContent);
+      if (navigationInfo) {
+        systemMessage += navigationInfo;
+      }
+    }
+    
+    // Add website knowledge context
+    const websiteContext = getQueryContext(userContent);
+    if (websiteContext) {
+      systemMessage += `\n${websiteContext}`;
+    }
+    
+    // Add web search context if needed
+    if (needsWebSearch(userContent)) {
+      try {
+        console.log('Performing web search for:', userContent);
+        const webSearchContext = await getWebSearchContext(userContent);
+        if (webSearchContext) {
+          systemMessage += `\nI've searched the web for information related to this query. Here are some relevant results: ${webSearchContext}`;
+        }
+      } catch (searchError) {
+        console.error('Error performing web search:', searchError);
+      }
     }
     
     // Complete the system message with general instructions
@@ -237,42 +289,63 @@ When answering:
 2. For coding questions, provide well-commented code snippets
 3. For resource questions, give specific paths where materials can be found
 4. For course-specific questions, reference relevant course materials and topics
+5. For general knowledge questions, use your knowledge to provide accurate and up-to-date information
+6. For website-specific questions, guide users to the appropriate section of the LearnFlow website
+
+If the user asks about content on the LearnFlow website, try to provide direct links or paths to the relevant pages.
+If the user asks about academic topics not specific to LearnFlow, provide comprehensive educational answers.
 
 Always maintain a helpful, educational tone and focus on providing value to students.`;
 
-    // Add or replace system message
-    if (formattedMessages.some(msg => msg.role === 'system')) {
-      formattedMessages.forEach(msg => {
-        if (msg.role === 'system') {
-          msg.content = systemMessage;
-        }
-      });
-    } else {
-      formattedMessages.unshift({
-        role: 'system',
-        content: systemMessage
-      });
-    }
+    // Get conversation history (last 5 messages for context)
+    const conversationHistory = messages.slice(-5).map(msg => msg.content).join('\n');
+    
+    // Combine system message with user query and conversation history
+    const fullPrompt = `${systemMessage}\n\nConversation history:\n${conversationHistory}\n\nUser query: ${userContent}`;
 
     try {
-      // Call OpenAI API with appropriate model
-      console.log('Calling OpenAI API...');
+      // Call Gemini API
+      console.log('Calling Gemini API...');
       
-      const completion = await openai.chat.completions.create({
-        model: 'gpt-3.5-turbo', // Use GPT-3.5-turbo for all queries for reliability
-        messages: formattedMessages,
-        max_tokens: 800,
-        temperature: 0.7
+      const geminiResponse = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                { text: fullPrompt }
+              ]
+            }
+          ],
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 800
+          }
+        })
       });
       
-      console.log('OpenAI API response received');
+      const geminiData = await geminiResponse.json();
+      
+      console.log('Gemini API response received');
 
-      // Send response
-      res.json({
-        message: completion.choices[0].message
-      });
+      if (geminiData.candidates && geminiData.candidates[0] && geminiData.candidates[0].content) {
+        const responseText = geminiData.candidates[0].content.parts[0].text;
+        
+        // Send response
+        res.json({
+          message: {
+            role: 'assistant',
+            content: responseText
+          }
+        });
+      } else {
+        throw new Error('Invalid response format from Gemini API');
+      }
     } catch (apiError) {
-      console.error('Error calling OpenAI API:', apiError);
+      console.error('Error calling Gemini API:', apiError);
       
       // Fallback response mechanism
       console.log('Using fallback response mechanism');

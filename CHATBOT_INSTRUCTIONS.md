@@ -2,7 +2,7 @@
 
 ## Overview
 
-The LearnFlow Chatbot is a floating widget that appears in the bottom-right corner of the website. It allows students to ask questions and get AI-powered responses using OpenAI's GPT models.
+The LearnFlow Chatbot is a floating widget that appears in the bottom-right corner of the website. It allows students to ask questions and get AI-powered responses using Google's Gemini API.
 
 ## Quick Start
 
@@ -26,7 +26,7 @@ If the chatbot is not working properly:
    - Make sure the terminal window running the server is still open
    - Check for any error messages in the terminal
 
-2. Test the OpenAI API connection:
+2. Test the Gemini API connection:
    - Run `node server/test-api.js` to verify the API key is working
 
 3. Check browser console for errors:

@@ -65,12 +65,25 @@ const Footer: React.FC = () => {
           <p className="text-center text-gray-600 dark:text-gray-400 text-sm">
             © 2025 LearnFlow | All rights reserved.
           </p>
-          {/* <a href="/privacy-policy.html">Privacy Policy</a> | <a href="/terms-of-service.html">Terms of Service</a> */}
           <div className="text-center">
-          <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-400 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors">Privacy Policy</a>
-          <span className="mx-2 text-gray-600 dark:text-gray-400">|</span>
-          <a href="/terms-of-service" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-400 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors">Terms of Service</a>
-        </div>
+            <a 
+              href="/privacy-policy" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-gray-600 dark:text-gray-400 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors"
+            >
+              Privacy Policy
+            </a>
+            <span className="mx-2 text-gray-600 dark:text-gray-400">|</span>
+            <a 
+              href="/terms-of-service" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-gray-600 dark:text-gray-400 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors"
+            >
+              Terms of Service
+            </a>
+          </div>
 
         </div>
       </div>
