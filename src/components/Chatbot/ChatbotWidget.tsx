@@ -225,9 +225,10 @@ const ChatbotWidget: React.FC = () => {
 
     // Define API endpoints to try
     const apiEndpoints = [
-      'http://localhost:3001/api/chat',  // Local development
-      '/api/chat',                       // Same-origin relative path
-      `${window.location.origin}/api/chat` // Absolute path using current origin
+      'https://learnflow.vercel.app/api/chat', // Vercel deployment (replace with your actual Vercel URL)
+      '/api/chat',                             // Same-origin relative path
+      `${window.location.origin}/api/chat`,    // Absolute path using current origin
+      'http://localhost:3001/api/chat'         // Local development (fallback)
     ];
 
     while (retries <= maxRetries && !success) {

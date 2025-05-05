@@ -395,7 +395,12 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// Start the server if not in a serverless environment
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
+// Export the Express app for serverless environments (Vercel)
+export default app;
