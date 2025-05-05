@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../../hooks/useTheme';
-import { MessageSquare, Send, X, Loader2 } from 'lucide-react';
+import { MessageSquare, Send, X, Loader2, Maximize2, Minimize2 } from 'lucide-react';
 import './ChatbotWidget.css';
 
 // Google Gemini API key - This is only for reference, actual API calls go through the backend
@@ -43,6 +43,7 @@ const COMMANDS = [
 
 const ChatbotWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isMaximized, setIsMaximized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -132,6 +133,14 @@ const ChatbotWidget: React.FC = () => {
 
   const toggleChat = () => {
     setIsOpen(!isOpen);
+  };
+  
+  const toggleMaximize = () => {
+    setIsMaximized(!isMaximized);
+    // Scroll to bottom when maximizing/minimizing
+    setTimeout(() => {
+      scrollToBottom();
+    }, 100);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -406,9 +415,12 @@ Always provide helpful, accurate, and educational responses.`
         {isOpen ? <X size={24} /> : <MessageSquare size={24} />}
       </button>
 
+      {/* Overlay for maximized chat */}
+      {isOpen && isMaximized && <div className="chat-overlay" onClick={toggleMaximize}></div>}
+
       {/* Chat window */}
       {isOpen && (
-        <div className="chat-window">
+        <div className={`chat-window ${isMaximized ? 'maximized' : ''}`}>
           <div className="chat-header">
             <h3>LearnFlow Assistant</h3>
             <div className="header-actions">
@@ -419,6 +431,14 @@ Always provide helpful, accurate, and educational responses.`
                 title="Show available commands"
               >
                 ?
+              </button>
+              <button 
+                className="maximize-btn"
+                onClick={toggleMaximize}
+                aria-label={isMaximized ? "Minimize chat" : "Maximize chat"}
+                title={isMaximized ? "Minimize chat" : "Maximize chat"}
+              >
+                {isMaximized ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
               </button>
               <button 
                 className="close-btn"
