@@ -5,8 +5,17 @@ export async function middleware(req: NextRequest) {
   // Get the pathname of the request
   const path = req.nextUrl.pathname;
 
+  // Special handling for sitemap.xml
+  if (path === '/sitemap.xml') {
+    return NextResponse.next({
+      headers: {
+        'Content-Type': 'application/xml; charset=utf-8',
+      },
+    });
+  }
+
   // Define paths that are considered public
-  const publicPaths = ['/', '/api/auth'];
+  const publicPaths = ['/', '/api/auth', '/privacy-policy', '/terms-of-service', '/sitemap.xml', '/robots.txt'];
 
   // Check if the path is public
   const isPublicPath = publicPaths.some(publicPath => 

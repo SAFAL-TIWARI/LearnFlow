@@ -15,6 +15,13 @@
   ],
   "routes": [
     {
+      "src": "/sitemap.xml",
+      "dest": "/api/sitemap",
+      "headers": {
+        "Content-Type": "application/xml; charset=utf-8"
+      }
+    },
+    {
       "src": "/api/(.*)",
       "dest": "server/server.js"
     },
