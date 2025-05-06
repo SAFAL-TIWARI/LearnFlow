@@ -25,19 +25,24 @@ const queryClient = new QueryClient();
 
 const App = () => {
   React.useEffect(() => {
-    // Check if there's a redirect parameter in the URL
+    // Check if there's a path parameter in the URL
     const urlParams = new URLSearchParams(window.location.search);
-    const redirectPath = urlParams.get('redirect');
+    const pathParam = urlParams.get('path');
     
-    if (redirectPath) {
-      // Remove the redirect parameter from the URL
-      const newUrl = window.location.pathname;
-      window.history.replaceState({}, document.title, newUrl);
+    // Check for INITIAL_PATH from the window object (set in our static HTML files)
+    const initialPath = (window as any).INITIAL_PATH;
+    
+    if (pathParam) {
+      // Remove the path parameter from the URL
+      window.history.replaceState({}, document.title, window.location.pathname);
       
       // Navigate to the specified path
-      if (redirectPath === 'privacy-policy' || redirectPath === 'terms-of-service') {
-        window.open('/' + redirectPath, '_blank');
+      if (pathParam === 'privacy-policy' || pathParam === 'terms-of-service') {
+        window.history.pushState({}, document.title, '/' + pathParam);
       }
+    } else if (initialPath) {
+      // If INITIAL_PATH is set, ensure we're on that path
+      window.history.replaceState({}, document.title, initialPath);
     }
   }, []);
 

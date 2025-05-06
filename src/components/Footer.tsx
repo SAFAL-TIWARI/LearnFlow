@@ -67,27 +67,23 @@ const Footer: React.FC = () => {
             © 2025 LearnFlow | All rights reserved.
           </p>
           <div className="text-center">
-            <a 
-              href="/privacy-policy" 
-              onClick={(e) => {
-                e.preventDefault();
-                window.open('/privacy-policy', '_blank');
-              }}
+            <Link 
+              to="/privacy-policy" 
+              target="_blank" 
+              rel="noopener noreferrer"
               className="text-gray-600 dark:text-gray-400 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors cursor-pointer"
             >
               Privacy Policy
-            </a>
+            </Link>
             <span className="mx-2 text-gray-600 dark:text-gray-400">|</span>
-            <a 
-              href="/terms-of-service" 
-              onClick={(e) => {
-                e.preventDefault();
-                window.open('/terms-of-service', '_blank');
-              }}
+            <Link 
+              to="/terms-of-service" 
+              target="_blank" 
+              rel="noopener noreferrer"
               className="text-gray-600 dark:text-gray-400 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors cursor-pointer"
             >
               Terms of Service
-            </a>
+            </Link>
           </div>
 
         </div>

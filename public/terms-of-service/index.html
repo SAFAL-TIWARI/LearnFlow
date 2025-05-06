@@ -3,15 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="refresh" content="0;url=/">
   <title>Terms of Service - LearnFlow</title>
+  <link rel="stylesheet" href="/index.css">
+  <script>
+    // This ensures the React app loads and renders the Terms of Service component
+    window.INITIAL_PATH = "/terms-of-service";
+  </script>
 </head>
 <body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
   <script>
-    window.location.href = '/';
-    setTimeout(() => {
-      window.open('/terms-of-service', '_self');
-    }, 100);
+    // Fallback if direct script loading doesn't work
+    if (!document.querySelector('script[src="/src/main.tsx"]')) {
+      window.location.href = '/?path=terms-of-service';
+    }
   </script>
 </body>
 </html>
