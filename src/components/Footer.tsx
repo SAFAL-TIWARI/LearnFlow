@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { InstagramIcon, LinkedInIcon, GitHubIcon, YouTubeIcon } from './Icons';
 import { scrollToSection } from '../utils/scrollUtils';
 
@@ -68,18 +69,22 @@ const Footer: React.FC = () => {
           <div className="text-center">
             <a 
               href="/privacy-policy" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-gray-600 dark:text-gray-400 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors"
+              onClick={(e) => {
+                e.preventDefault();
+                window.open('/privacy-policy', '_blank');
+              }}
+              className="text-gray-600 dark:text-gray-400 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors cursor-pointer"
             >
               Privacy Policy
             </a>
             <span className="mx-2 text-gray-600 dark:text-gray-400">|</span>
             <a 
               href="/terms-of-service" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-gray-600 dark:text-gray-400 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors"
+              onClick={(e) => {
+                e.preventDefault();
+                window.open('/terms-of-service', '_blank');
+              }}
+              className="text-gray-600 dark:text-gray-400 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors cursor-pointer"
             >
               Terms of Service
             </a>

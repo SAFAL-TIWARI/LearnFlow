@@ -24,6 +24,23 @@ import { Analytics } from "@vercel/analytics/react"
 const queryClient = new QueryClient();
 
 const App = () => {
+  React.useEffect(() => {
+    // Check if there's a redirect parameter in the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectPath = urlParams.get('redirect');
+    
+    if (redirectPath) {
+      // Remove the redirect parameter from the URL
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, newUrl);
+      
+      // Navigate to the specified path
+      if (redirectPath === 'privacy-policy' || redirectPath === 'terms-of-service') {
+        window.open('/' + redirectPath, '_blank');
+      }
+    }
+  }, []);
+
   return (
     <React.StrictMode>
       <ErrorBoundary>
