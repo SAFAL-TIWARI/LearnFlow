@@ -31,13 +31,17 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Google Gemini API key
-const GEMINI_API_KEY = 'AIzaSyCOj3Extd63rPuOIHmhbSZNz2lqJwamAwk';
+// Google Gemini API configuration
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent';
+
+// Get API key from environment variable
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyCOj3Extd63rPuOIHmhbSZNz2lqJwamAwk'; // Fallback for development
 
 // Middleware
 app.use(cors({
-  origin: '*', // Allow all origins for development
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://learnflow.vercel.app', 'https://www.learnflow.app'] // Restrict in production
+    : '*', // Allow all origins for development
   methods: ['GET', 'POST'],
   credentials: true
 }));
@@ -52,21 +56,8 @@ app.use((req, res, next) => {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Create .env file if it doesn't exist or update it with the latest API key
-const envPath = join(__dirname, '.env');
-
-// Store the Gemini API key in .env
-const apiKey = `GEMINI_API_KEY=${GEMINI_API_KEY}`;
-
-// Always update the API key to ensure it's the latest
-fs.writeFileSync(envPath, apiKey);
-console.log('Gemini API key updated in .env file');
-
-// Set the API key in process.env directly as well
-process.env.GEMINI_API_KEY = GEMINI_API_KEY;
-
 // Log the API key format (first few characters only for security)
-console.log('Using Gemini API key starting with:', process.env.GEMINI_API_KEY.substring(0, 5) + '...');
+console.log('Using Gemini API key starting with:', GEMINI_API_KEY.substring(0, 5) + '...');
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

@@ -41,7 +41,7 @@ npm install
 Create a `.env` file in the `server` directory with the following content:
 
 ```
-GEMINI_API_KEY=AIzaSyCOj3Extd63rPuOIHmhbSZNz2lqJwamAwk
+GEMINI_API_KEY=your_gemini_api_key_here
 PORT=3001
 ```
 

@@ -41,15 +41,49 @@ export async function initializeResourceDatabase() {
   try {
     // Create resources directory if it doesn't exist
     if (!fs.existsSync(RESOURCES_DIR)) {
-      fs.mkdirSync(RESOURCES_DIR, { recursive: true });
-      console.log('Created resources directory');
+      try {
+        fs.mkdirSync(RESOURCES_DIR, { recursive: true });
+        console.log('Created resources directory');
+      } catch (mkdirError) {
+        console.warn('Could not create resources directory:', mkdirError.message);
+        // Continue execution even if directory creation fails
+      }
+    }
+    
+    // Create required subdirectories
+    const requiredDirs = [
+      path.join(RESOURCES_DIR, 'assignments'),
+      path.join(RESOURCES_DIR, 'notes'),
+      path.join(RESOURCES_DIR, 'lab-manuals')
+    ];
+    
+    for (const dir of requiredDirs) {
+      if (!fs.existsSync(dir)) {
+        try {
+          fs.mkdirSync(dir, { recursive: true });
+          console.log(`Created directory: ${dir}`);
+        } catch (mkdirError) {
+          console.warn(`Could not create directory ${dir}:`, mkdirError.message);
+          // Continue execution even if directory creation fails
+        }
+      }
     }
     
     // Scan resources directory
     await scanResourceDirectory();
     
-    // Load downloads.json if it exists
+    // Create empty downloads.json if it doesn't exist
     const downloadsPath = path.join(RESOURCES_DIR, 'downloads.json');
+    if (!fs.existsSync(downloadsPath)) {
+      try {
+        fs.writeFileSync(downloadsPath, JSON.stringify([], null, 2));
+        console.log('Created empty downloads.json file');
+      } catch (writeError) {
+        console.warn('Could not create downloads.json:', writeError.message);
+      }
+    }
+    
+    // Load downloads.json if it exists
     if (fs.existsSync(downloadsPath)) {
       try {
         const downloadsData = await readFileAsync(downloadsPath, 'utf8');
@@ -70,7 +104,13 @@ export async function initializeResourceDatabase() {
     return resourceDatabase;
   } catch (error) {
     console.error('Error initializing resource database:', error);
-    return null;
+    // Return empty database instead of null to prevent further errors
+    return {
+      assignments: [],
+      notes: [],
+      labManuals: [],
+      downloads: []
+    };
   }
 }
 
@@ -82,28 +122,60 @@ async function scanResourceDirectory() {
     // Check if resources directory exists
     if (!fs.existsSync(RESOURCES_DIR)) {
       console.warn('Resources directory does not exist');
+      // Initialize with empty arrays
+      resourceDatabase.assignments = [];
+      resourceDatabase.notes = [];
+      resourceDatabase.labManuals = [];
       return;
     }
     
     // Scan assignments directory
     const assignmentsDir = path.join(RESOURCES_DIR, 'assignments');
-    if (fs.existsSync(assignmentsDir)) {
-      resourceDatabase.assignments = await scanDirectory(assignmentsDir, INDEXABLE_EXTENSIONS);
+    try {
+      if (fs.existsSync(assignmentsDir)) {
+        resourceDatabase.assignments = await scanDirectory(assignmentsDir, INDEXABLE_EXTENSIONS);
+      } else {
+        resourceDatabase.assignments = [];
+        console.log('Assignments directory does not exist, using empty array');
+      }
+    } catch (err) {
+      console.warn('Error scanning assignments directory:', err.message);
+      resourceDatabase.assignments = [];
     }
     
     // Scan notes directory
     const notesDir = path.join(RESOURCES_DIR, 'notes');
-    if (fs.existsSync(notesDir)) {
-      resourceDatabase.notes = await scanDirectory(notesDir, INDEXABLE_EXTENSIONS);
+    try {
+      if (fs.existsSync(notesDir)) {
+        resourceDatabase.notes = await scanDirectory(notesDir, INDEXABLE_EXTENSIONS);
+      } else {
+        resourceDatabase.notes = [];
+        console.log('Notes directory does not exist, using empty array');
+      }
+    } catch (err) {
+      console.warn('Error scanning notes directory:', err.message);
+      resourceDatabase.notes = [];
     }
     
     // Scan lab manuals directory
     const labManualsDir = path.join(RESOURCES_DIR, 'lab-manuals');
-    if (fs.existsSync(labManualsDir)) {
-      resourceDatabase.labManuals = await scanDirectory(labManualsDir, INDEXABLE_EXTENSIONS);
+    try {
+      if (fs.existsSync(labManualsDir)) {
+        resourceDatabase.labManuals = await scanDirectory(labManualsDir, INDEXABLE_EXTENSIONS);
+      } else {
+        resourceDatabase.labManuals = [];
+        console.log('Lab manuals directory does not exist, using empty array');
+      }
+    } catch (err) {
+      console.warn('Error scanning lab manuals directory:', err.message);
+      resourceDatabase.labManuals = [];
     }
   } catch (error) {
     console.error('Error scanning resource directory:', error);
+    // Initialize with empty arrays in case of error
+    resourceDatabase.assignments = [];
+    resourceDatabase.notes = [];
+    resourceDatabase.labManuals = [];
   }
 }
 
@@ -115,19 +187,42 @@ async function scanResourceDirectory() {
  */
 async function scanDirectory(dir, extensions = []) {
   try {
-    const entries = await readdirAsync(dir);
+    // Check if directory exists before attempting to read it
+    if (!fs.existsSync(dir)) {
+      console.warn(`Directory does not exist: ${dir}`);
+      return [];
+    }
+    
+    let entries;
+    try {
+      entries = await readdirAsync(dir);
+    } catch (readError) {
+      console.warn(`Could not read directory ${dir}:`, readError.message);
+      return [];
+    }
+    
     const files = [];
     
     for (const entry of entries) {
       const fullPath = path.join(dir, entry);
       
       try {
+        // Check if path exists before getting stats
+        if (!fs.existsSync(fullPath)) {
+          continue;
+        }
+        
         const stat = await statAsync(fullPath);
         
         if (stat.isDirectory()) {
           // Recursively scan subdirectories
-          const subFiles = await scanDirectory(fullPath, extensions);
-          files.push(...subFiles);
+          try {
+            const subFiles = await scanDirectory(fullPath, extensions);
+            files.push(...subFiles);
+          } catch (subDirError) {
+            console.warn(`Error scanning subdirectory ${fullPath}:`, subDirError.message);
+            // Continue with other entries
+          }
         } else if (extensions.includes(path.extname(entry).toLowerCase())) {
           // Add file info to the list
           const relativePath = path.relative(PROJECT_ROOT, fullPath);
@@ -141,13 +236,14 @@ async function scanDirectory(dir, extensions = []) {
           });
         }
       } catch (err) {
-        console.error(`Error accessing ${fullPath}:`, err.message);
+        console.warn(`Error accessing ${fullPath}:`, err.message);
+        // Continue with other entries
       }
     }
     
     return files;
   } catch (err) {
-    console.error(`Error scanning directory ${dir}:`, err.message);
+    console.warn(`Error scanning directory ${dir}:`, err.message);
     return [];
   }
 }
