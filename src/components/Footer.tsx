@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { InstagramIcon, LinkedInIcon, GitHubIcon, YouTubeIcon } from './Icons';
 import { scrollToSection } from '../utils/scrollUtils';
+import ExternalLink from './ExternalLink';
 
 const Footer: React.FC = () => {
   return (
@@ -67,23 +67,19 @@ const Footer: React.FC = () => {
             © 2025 LearnFlow | All rights reserved.
           </p>
           <div className="text-center">
-            <Link 
+            <ExternalLink 
               to="/privacy-policy" 
-              target="_blank" 
-              rel="noopener noreferrer"
               className="text-gray-600 dark:text-gray-400 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors cursor-pointer"
             >
               Privacy Policy
-            </Link>
+            </ExternalLink>
             <span className="mx-2 text-gray-600 dark:text-gray-400">|</span>
-            <Link 
+            <ExternalLink 
               to="/terms-of-service" 
-              target="_blank" 
-              rel="noopener noreferrer"
               className="text-gray-600 dark:text-gray-400 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors cursor-pointer"
             >
               Terms of Service
-            </Link>
+            </ExternalLink>
           </div>
 
         </div>
