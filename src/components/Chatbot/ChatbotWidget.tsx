@@ -412,7 +412,12 @@ Always provide helpful, accurate, and educational responses.`
         onClick={toggleChat}
         aria-label={isOpen ? "Close chat" : "Open chat"}
       >
-        {isOpen ? <X size={24} /> : <MessageSquare size={24} />}
+        {isOpen ? <X size={24} /> : (
+          <div className="flex items-center gap-2">
+            <MessageSquare size={24} />
+            <span className="chat-label">Chat</span>
+          </div>
+        )}
       </button>
 
       {/* Overlay for maximized chat */}
