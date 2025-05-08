@@ -24,6 +24,9 @@ import {
   getWebSearchContext
 } from './utils/webSearchUtils.js';
 
+require('dotenv').config();
+
+
 // Load environment variables
 dotenv.config();
 
@@ -35,7 +38,7 @@ const PORT = process.env.PORT || 3001;
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent';
 
 // Get API key from environment variable
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyCOj3Extd63rPuOIHmhbSZNz2lqJwamAwk'; // Fallback for development
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY  // Fallback for development
 
 // Middleware
 app.use(cors({
