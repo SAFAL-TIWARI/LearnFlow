@@ -9,7 +9,7 @@ const Hero: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-learnflow-800 to-learnflow-purple-dark">Learning Made Simple</span>
+            <span className="text-learnflow-800">Learning Made Simple</span>
           </h1>
           
           <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
