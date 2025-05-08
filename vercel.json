@@ -33,12 +33,16 @@
       "dest": "/index.html"
     }
   ],
+  "rewrites": [
+    { "source": "/privacy-policy", "destination": "/privacy-policy.html" },
+    { "source": "/terms-of-service", "destination": "/terms-of-service.html" }
+  ],
   "env": {
     "GEMINI_API_KEY": "AIzaSyCOj3Extd63rPuOIHmhbSZNz2lqJwamAwk",
     "NODE_ENV": "production",
     "PORT": "3000",
-    "VITE_GOOGLE_CLIENT_ID": "YOUR_GOOGLE_CLIENT_ID",
-    "VITE_GOOGLE_CLIENT_SECRET": "YOUR_GOOGLE_CLIENT_SECRET",
+    "VITE_GOOGLE_CLIENT_ID": "254202388116-agb34f15l78121lrj2gl9bknbkin874l.apps.googleusercontent.com",
+    "VITE_GOOGLE_CLIENT_SECRET": "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",
     "VITE_NEXTAUTH_SECRET": "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",
     "VITE_NEXTAUTH_URL": "https://learnflow.vercel.app"
   }
