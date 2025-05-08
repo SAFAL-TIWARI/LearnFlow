@@ -5,7 +5,6 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { HelmetProvider } from 'react-helmet-async';
 import CustomSessionProvider from "./components/CustomSessionProvider";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -50,42 +49,40 @@ const App = () => {
   return (
     <React.StrictMode>
       <ErrorBoundary>
-        <HelmetProvider>
-          <ThemeProvider>
-            <CustomSessionProvider>
-              <QueryClientProvider client={queryClient}>
-                <TooltipProvider>
-                  <Toaster />
-                  <Sonner />
-                  <BrowserRouter>
-                    <Routes>
-                      <Route path="/" element={<Index />} />
-                      
-                      {/* Tool Routes */}
-                      <Route path="/tools/cgpa-calculator" element={<CGPACalculator />} />
-                      <Route path="/tools/study-timer" element={<StudyTimer />} />
-                      <Route path="/tools/exam-scheduler" element={<ExamScheduler />} />
-                      <Route path="/tools/note-organizer" element={<NoteOrganizer />} />
-                      
-                      {/* Legal Pages */}
-                      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                      <Route path="/terms-of-service" element={<TermsOfService />} />
-                      
-                      {/* Auth Pages */}
-                      <Route path="/auth-error" element={<AuthError />} />
-                      
-                      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
+        <ThemeProvider>
+          <CustomSessionProvider>
+            <QueryClientProvider client={queryClient}>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
                     
-                    {/* Chatbot Widget */}
-                    <ChatbotWidget />
-                  </BrowserRouter>
-                </TooltipProvider>
-              </QueryClientProvider>
-            </CustomSessionProvider>
-          </ThemeProvider>
-        </HelmetProvider>
+                    {/* Tool Routes */}
+                    <Route path="/tools/cgpa-calculator" element={<CGPACalculator />} />
+                    <Route path="/tools/study-timer" element={<StudyTimer />} />
+                    <Route path="/tools/exam-scheduler" element={<ExamScheduler />} />
+                    <Route path="/tools/note-organizer" element={<NoteOrganizer />} />
+                    
+                    {/* Legal Pages */}
+                    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                    <Route path="/terms-of-service" element={<TermsOfService />} />
+                    
+                    {/* Auth Pages */}
+                    <Route path="/auth-error" element={<AuthError />} />
+                    
+                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                  
+                  {/* Chatbot Widget */}
+                  <ChatbotWidget />
+                </BrowserRouter>
+              </TooltipProvider>
+            </QueryClientProvider>
+          </CustomSessionProvider>
+        </ThemeProvider>
       </ErrorBoundary>
       <SpeedInsights />
       <Analytics/>

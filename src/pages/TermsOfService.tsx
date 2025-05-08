@@ -1,40 +1,16 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import SEO from '../components/SEO';
 import '../styles/legal-pages.css';
 
 const TermsOfService: React.FC = () => {
-  // Define structured data for the Terms of Service page
-  const termsStructuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'WebPage',
-    name: 'Terms of Service - LearnFlow',
-    description: 'Read the terms and conditions for using LearnFlow\'s educational platform and student productivity tools.',
-    url: 'https://learn-flow-seven.vercel.app/terms-of-service',
-    mainEntity: {
-      '@type': 'WebPageElement',
-      mainContentOfPage: {
-        '@type': 'WebContent',
-        about: {
-          '@type': 'Thing',
-          name: 'Terms and Conditions'
-        },
-        datePublished: '2025-05-04',
-        dateModified: '2025-05-04'
-      }
-    }
-  };
+  useEffect(() => {
+    // Set document title
+    document.title = 'Terms of Service - LearnFlow';
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen">
-      <SEO 
-        title="Terms of Service | LearnFlow Student Zone"
-        description="Read the terms and conditions for using LearnFlow's educational platform and student productivity tools."
-        keywords="terms of service, terms and conditions, LearnFlow terms, student platform terms"
-        canonicalUrl="https://learn-flow-seven.vercel.app/terms-of-service"
-        structuredData={termsStructuredData}
-      />
       <Navbar />
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="prose dark:prose-invert max-w-none legal-content">

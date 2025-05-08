@@ -22,18 +22,13 @@ declare global {
 if (typeof window !== 'undefined') {
   if (!window.process) {
     window.process = {
-      env: {
-        NODE_ENV: import.meta.env.MODE === 'production' ? 'production' : 'development'
-      },
-      browser: true
-    } as typeof window.process;
+      env: {}
+    };
   }
   
   // Ensure process.env exists
   if (!window.process.env) {
-    window.process.env = {
-      NODE_ENV: import.meta.env.MODE === 'production' ? 'production' : 'development'
-    };
+    window.process.env = {};
   }
   
   // Add environment variables

@@ -3,12 +3,8 @@ import { useTheme } from '../../hooks/useTheme';
 import { MessageSquare, Send, X, Loader2, Maximize2, Minimize2 } from 'lucide-react';
 import './ChatbotWidget.css';
 
-const config = require('./config');
-console.log(config.geminiApiKey);
-
-
 // Google Gemini API key - This is only for reference, actual API calls go through the backend
-const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY ;
+// const GEMINI_API_KEY = 'AIzaSyCOj3Extd63rPuOIHmhbSZNz2lqJwamAwk';
 
 interface Message {
   role: 'user' | 'assistant' | 'system';
