@@ -130,9 +130,24 @@ const ChatbotWidget: React.FC = () => {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+  
+  // Helper function to focus on the input field
+  const focusInputField = (delay = 100) => {
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, delay);
+  };
 
   const toggleChat = () => {
-    setIsOpen(!isOpen);
+    const newIsOpen = !isOpen;
+    setIsOpen(newIsOpen);
+    
+    // If opening the chat, focus on the input field
+    if (newIsOpen) {
+      focusInputField(300); // Slightly longer delay to allow animation to complete
+    }
   };
   
   const toggleMaximize = () => {
@@ -170,6 +185,10 @@ const ChatbotWidget: React.FC = () => {
           timestamp: new Date()
         };
         setMessages(prev => [...prev, helpMessage]);
+        
+        // Focus on input field after command response
+        focusInputField();
+        
         return true;
         
       case '/clear':
@@ -181,6 +200,10 @@ const ChatbotWidget: React.FC = () => {
         };
         setMessages([clearMessage]);
         sessionStorage.removeItem('chatMessages');
+        
+        // Focus on input field after command response
+        focusInputField();
+        
         return true;
         
       default:
@@ -206,6 +229,10 @@ const ChatbotWidget: React.FC = () => {
       setMessages([clearMessage]);
       sessionStorage.removeItem('chatMessages');
       setInput('');
+      
+      // Focus on input field after reset
+      focusInputField();
+      
       return;
     }
     
@@ -318,6 +345,9 @@ Always provide helpful, accurate, and educational responses.`
 
         setMessages(prev => [...prev, assistantMessage]);
         success = true;
+        
+        // Focus on input field after receiving response
+        focusInputField();
       } catch (error) {
         console.error(`Error sending message (attempt ${retries + 1}/${maxRetries + 1}):`, error);
         retries++;
@@ -341,6 +371,9 @@ Always provide helpful, accurate, and educational responses.`
           };
           
           setMessages(prev => [...prev, errorMessage]);
+          
+          // Focus on input field after error message
+          focusInputField();
         } else {
           // Wait before retrying (exponential backoff)
           await new Promise(resolve => setTimeout(resolve, 1000 * retries));
@@ -378,9 +411,7 @@ Always provide helpful, accurate, and educational responses.`
   const selectCommand = (command: string) => {
     setInput(command + ' ');
     setShowCommandSuggestions(false);
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
+    focusInputField(0)
   };
   
   // Format message content with markdown-like syntax
@@ -516,30 +547,39 @@ Always provide helpful, accurate, and educational responses.`
           
           {/* Educational suggestions */}
           <div className="suggestion-chips">
-            <button 
+            {/* <button 
               className="suggestion-chip"
               onClick={() => setInput("Explain the concept of nanomaterials in CHB 101.")}
               disabled={isLoading}
             >
-              Nanomaterials in CHB 101
-            </button>
+              Nanomaterials in CHB 101 */}
+            {/* </button> */}
             <button 
               className="suggestion-chip"
-              onClick={() => setInput("Give me Python code for a bubble sort algorithm.")}
+              onClick={() => {
+                setInput("Give me Python code for a bubble sort algorithm.");
+                focusInputField(0);
+              }}
               disabled={isLoading}
             >
               Bubble sort in Python
             </button>
             <button 
               className="suggestion-chip"
-              onClick={() => setInput("What are the latest advancements in quantum computing?")}
+              onClick={() => {
+                setInput("What are the latest advancements in quantum computing?");
+                focusInputField(0);
+              }}
               disabled={isLoading}
             >
               Quantum computing news
             </button>
             <button 
               className="suggestion-chip"
-              onClick={() => setInput("How do I find the course materials for CSE 2nd semester?")}
+              onClick={() => {
+                setInput("How do I find the course materials for CSE 2nd semester?");
+                focusInputField(0);
+              }}
               disabled={isLoading}
             >
               Find CSE materials
