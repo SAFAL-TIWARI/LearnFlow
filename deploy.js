@@ -13,21 +13,44 @@ import { dirname } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Ensure .env file exists with Gemini API key
-const envPath = path.join(__dirname, 'server', '.env');
-const envContent = `GEMINI_API_KEY=AIzaSyCOj3Extd63rPuOIHmhbSZNz2lqJwamAwk
-PORT=3001
-NODE_ENV=production
-GOOGLE_SEARCH_API_KEY=
-GOOGLE_SEARCH_ENGINE_ID=017576662512468239146:omuauf_lfve
-VITE_GOOGLE_CLIENT_ID=YOUR_GOOGLE_CLIENT_ID
-VITE_GOOGLE_CLIENT_SECRET=YOUR_GOOGLE_CLIENT_SECRET
-VITE_NEXTAUTH_SECRET=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
-VITE_NEXTAUTH_URL=https://learnflow.vercel.app
-`;
+console.log('Checking environment setup...');
 
-console.log('Creating/updating .env file...');
-fs.writeFileSync(envPath, envContent);
+// For Vercel deployment, environment variables should be set in the Vercel dashboard
+// For local development, you should create your own .env files based on .env.example
+
+// Check if .env.example exists
+const envExamplePath = path.join(__dirname, '.env.example');
+if (!fs.existsSync(envExamplePath)) {
+  console.log('Creating .env.example file...');
+  const envExampleContent = `# API Keys (used by server)
+GEMINI_API_KEY=your_gemini_api_key_here
+GOOGLE_SEARCH_API_KEY=your_google_search_api_key_here
+GOOGLE_SEARCH_ENGINE_ID=your_google_search_engine_id_here
+
+# Auth Configuration (used by frontend)
+VITE_GOOGLE_CLIENT_ID=your_google_client_id_here
+VITE_GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+VITE_NEXTAUTH_SECRET=your_nextauth_secret_here
+# For local development use:
+# VITE_NEXTAUTH_URL=http://localhost:3000
+# For production use:
+VITE_NEXTAUTH_URL=https://your-deployment-url.vercel.app
+
+# Server Configuration
+NODE_ENV=production
+PORT=3000
+
+# Note: This is an example file. Create a .env file with your actual values.
+# Do NOT commit your actual .env file to version control!
+`;
+  fs.writeFileSync(envExamplePath, envExampleContent);
+  console.log('.env.example file created. Use this as a template for your own .env file.');
+} else {
+  console.log('.env.example file exists.');
+}
+
+console.log('Environment setup check complete.');
+console.log('IMPORTANT: For Vercel deployment, set all environment variables in the Vercel dashboard.');
 
 // Ensure resources directory exists
 const resourcesDir = path.join(__dirname, 'resources');

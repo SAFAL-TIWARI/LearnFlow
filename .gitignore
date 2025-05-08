@@ -22,4 +22,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+# Environment files
 .env
+.env.*
+!.env.example
+server/.env
+.vercel
+
+# Local development files
+*.local
