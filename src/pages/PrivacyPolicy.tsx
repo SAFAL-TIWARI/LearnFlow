@@ -1,16 +1,40 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import SEO from '../components/SEO';
 import '../styles/legal-pages.css';
 
 const PrivacyPolicy: React.FC = () => {
-  useEffect(() => {
-    // Set document title
-    document.title = 'Privacy Policy - LearnFlow';
-  }, []);
+  // Define structured data for the Privacy Policy page
+  const privacyPolicyStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: 'Privacy Policy - LearnFlow',
+    description: 'Learn how LearnFlow protects your privacy and manages your personal information when using our educational platform and student tools.',
+    url: 'https://learn-flow-seven.vercel.app/privacy-policy',
+    mainEntity: {
+      '@type': 'WebPageElement',
+      mainContentOfPage: {
+        '@type': 'WebContent',
+        about: {
+          '@type': 'Thing',
+          name: 'Privacy Policy'
+        },
+        datePublished: '2025-05-04',
+        dateModified: '2025-05-04'
+      }
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
+      <SEO 
+        title="Privacy Policy | LearnFlow Student Zone"
+        description="Learn how LearnFlow protects your privacy and manages your personal information when using our educational platform and student tools."
+        keywords="privacy policy, student data privacy, educational platform privacy, LearnFlow privacy"
+        canonicalUrl="https://learn-flow-seven.vercel.app/privacy-policy"
+        structuredData={privacyPolicyStructuredData}
+      />
       <Navbar />
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="prose dark:prose-invert max-w-none legal-content">
