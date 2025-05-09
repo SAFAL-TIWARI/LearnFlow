@@ -17,6 +17,7 @@ import TermsOfService from "./pages/TermsOfService";
 import AuthError from "./pages/auth-error";
 import ChatbotWidget from "./components/Chatbot/ChatbotWidget";
 import NotificationManager from "./components/NotificationManager";
+import ClickSparkAnimation from "./components/ClickSparkAnimation";
 import { ThemeProvider } from "./hooks/useTheme";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react"
@@ -82,6 +83,9 @@ const App = () => {
                   
                   {/* Notification Manager */}
                   <NotificationManager />
+                  
+                  {/* Click Spark Animation */}
+                  <ClickSparkAnimation />
                 </BrowserRouter>
               </TooltipProvider>
             </QueryClientProvider>
