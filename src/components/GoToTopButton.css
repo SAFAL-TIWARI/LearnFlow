@@ -1,0 +1,96 @@
+.go-to-top-container {
+  position: fixed;
+  bottom: 30px; /* Position it at the bottom */
+  right: 80px; /* Position to the left of the chat button */
+  z-index: 9998; /* One less than chatbot to ensure it doesn't overlay */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.go-to-top-container.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.go-to-top-button {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #0050fc;
+  color: white;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.go-to-top-button:hover {
+  background-color: #1d4ed8;
+  transform: scale(1.05);
+  box-shadow: 0px 5px 10px rgba(0, 76, 255, 0.632);
+}
+
+.tooltip {
+  position: absolute;
+  left: -90px;
+  background-color: #1f2937;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.tooltip.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.tooltip::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -6px;
+  transform: translateY(-50%);
+  border-width: 6px 0 6px 6px;
+  border-style: solid;
+  border-color: transparent transparent transparent #1f2937;
+}
+
+/* Dark theme support */
+.dark-theme .go-to-top-button {
+  background-color: #3b82f6;
+}
+
+.dark-theme .go-to-top-button:hover {
+  background-color: #2563eb;
+}
+
+.dark-theme .tooltip {
+  background-color: #374151;
+}
+
+.dark-theme .tooltip::after {
+  border-color: transparent transparent transparent #374151;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .go-to-top-container {
+    bottom: 30px; /* Keep at bottom on mobile */
+    right: 90px; /* Position to the left of the chat button */
+  }
+  
+  .go-to-top-button {
+    width: 45px;
+    height: 45px;
+  }
+}

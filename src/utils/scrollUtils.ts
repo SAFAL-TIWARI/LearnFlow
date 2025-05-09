@@ -8,3 +8,13 @@ export const scrollToSection = (sectionId: string) => {
     element.scrollIntoView({ behavior: 'smooth' });
   }
 };
+
+/**
+ * Utility function to scroll to the top of the page
+ */
+export const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+};

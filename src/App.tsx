@@ -16,6 +16,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import AuthError from "./pages/auth-error";
 import ChatbotWidget from "./components/Chatbot/ChatbotWidget";
+import GoToTopButton from "./components/GoToTopButton";
 import NotificationManager from "./components/NotificationManager";
 import ClickSparkAnimation from "./components/ClickSparkAnimation";
 import { ThemeProvider } from "./hooks/useTheme";
@@ -80,6 +81,9 @@ const App = () => {
                   
                   {/* Chatbot Widget */}
                   <ChatbotWidget />
+                  
+                  {/* Go To Top Button */}
+                  <GoToTopButton />
                   
                   {/* Notification Manager */}
                   <NotificationManager />
