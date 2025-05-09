@@ -4,6 +4,7 @@ import { useTheme } from '../hooks/useTheme';
 import { Dialog } from '@/components/ui/dialog';
 import { scrollToSection } from '../utils/scrollUtils';
 import SmartAuthButton from './SmartAuthButton';
+import NotificationButton from './NotificationButton';
 
 const Navbar: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
@@ -45,6 +46,7 @@ const Navbar: React.FC = () => {
             >
               Resources
             </button>
+            <NotificationButton />
             <button 
               onClick={() => setAboutDialogOpen(true)}
               className="text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors"
@@ -113,6 +115,9 @@ const Navbar: React.FC = () => {
             >
               Resources
             </button>
+            <div onClick={() => setIsMenuOpen(false)}>
+              <NotificationButton />
+            </div>
             <button 
               onClick={() => {
                 setAboutDialogOpen(true);

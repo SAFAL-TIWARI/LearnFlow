@@ -16,6 +16,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import AuthError from "./pages/auth-error";
 import ChatbotWidget from "./components/Chatbot/ChatbotWidget";
+import NotificationManager from "./components/NotificationManager";
 import { ThemeProvider } from "./hooks/useTheme";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react"
@@ -78,6 +79,9 @@ const App = () => {
                   
                   {/* Chatbot Widget */}
                   <ChatbotWidget />
+                  
+                  {/* Notification Manager */}
+                  <NotificationManager />
                 </BrowserRouter>
               </TooltipProvider>
             </QueryClientProvider>
