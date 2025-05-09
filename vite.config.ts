@@ -25,7 +25,6 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
-    // Copy PWA-related files to the dist folder
     copyPublicDir: true,
   }
 }));
