@@ -19,7 +19,7 @@ const StarBorder = <T extends React.ElementType = "button">({
 }: StarBorderProps<T>) => {
   const Component = as || "button";
   return (
-    <Component className={`relative inline-block py-[3px] overflow-hidden rounded-[20px] ${className}`} {...rest}>
+    <Component className={`relative inline-block py-[3px] overflow-hidden rounded-[20px] transition-transform duration-200 hover:scale-105 ${className}`} {...rest}>
       <div
         className="absolute w-[300%] h-[50%] opacity-70 bottom-[-11px] right-[-250%] rounded-full animate-star-movement-bottom z-0"
         style={{
