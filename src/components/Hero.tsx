@@ -3,6 +3,7 @@ import React from 'react';
 import { ArrowRight } from 'lucide-react';
 import { scrollToSection } from '../utils/scrollUtils';
 import BlurTextAnimation from './BlurTextAnimation';
+import ProximityTextAnimation from './ProximityTextAnimation';
 
 const Hero: React.FC = () => {
   return (
@@ -18,7 +19,11 @@ const Hero: React.FC = () => {
           </h1>
           
           <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
-            Access academic resources, track your progress, and enhance your learning journey with our suite of student tools.
+            <ProximityTextAnimation 
+              text="Access academic resources, track your progress, and enhance your learning   journey with our suite of student tools."
+              sensitivity={.15}
+              maxDistance={100}
+            />
           </p>
           
           <div className="flex flex-col sm:flex-row justify-center gap-4">
