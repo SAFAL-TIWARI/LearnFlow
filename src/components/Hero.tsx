@@ -2,6 +2,7 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
 import { scrollToSection } from '../utils/scrollUtils';
+import BlurTextAnimation from './BlurTextAnimation';
 
 const Hero: React.FC = () => {
   return (
@@ -9,7 +10,11 @@ const Hero: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6">
-            <span className="text-learnflow-800">Learning Made Simple</span>
+            <BlurTextAnimation 
+              text="Learning Made Simple" 
+              className="text-learnflow-800" 
+              speed={500}
+            />
           </h1>
           
           <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
