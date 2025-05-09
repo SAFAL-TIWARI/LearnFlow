@@ -7,6 +7,7 @@ import BranchSelector from './BranchSelector';
 import SubjectSelector from './SubjectSelector';
 import MaterialSelector from './MaterialSelector';
 import ResourceFiles from './ResourceFiles';
+import FadeInElement from './FadeInElement';
 
 const AcademicContent: React.FC = () => {
   const { state, resetSelections } = useAcademic();
@@ -16,10 +17,12 @@ const AcademicContent: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="max-w-5xl mx-auto">
           <div className="mb-6">
-            <h1 className="text-3xl font-bold mb-2 text-gray-800 dark:text-gray-100">Academic Resources</h1>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Find all the materials you need by selecting your year, semester, branch, and subject.
-            </p>
+            <FadeInElement delay={50} direction="up" distance={20} duration={600}>
+              <h1 className="text-3xl font-bold mb-2 text-gray-800 dark:text-gray-100">Academic Resources</h1>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                Find all the materials you need by selecting your year, semester, branch, and subject.
+              </p>
+            </FadeInElement>
             
             {/* Breadcrumb navigation */}
             {state.selectedYear !== null && (
@@ -94,14 +97,16 @@ const AcademicContent: React.FC = () => {
             )}
           </div>
           
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
-            <YearSelector />
-            <SemesterSelector />
-            <BranchSelector />
-            <SubjectSelector />
-            <MaterialSelector />
-            <ResourceFiles />
-          </div>
+          <FadeInElement delay={150} direction="up" distance={30} duration={800}>
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
+              <YearSelector />
+              <SemesterSelector />
+              <BranchSelector />
+              <SubjectSelector />
+              <MaterialSelector />
+              <ResourceFiles />
+            </div>
+          </FadeInElement>
         </div>
       </div>
     </div>
