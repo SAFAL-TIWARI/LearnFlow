@@ -15,18 +15,18 @@ interface Message {
 
 // List of available commands
 const COMMANDS = [
-  { 
-    command: '/scan', 
-    description: 'Scan project files for issues', 
-    usage: '/scan [directory]',
-    example: '/scan src/components'
-  },
-  { 
-    command: '/debug', 
-    description: 'Debug code issues in project files', 
-    usage: '/debug [directory]',
-    example: '/debug server'
-  },
+  // { 
+  //   command: '/scan', 
+  //   description: 'Scan project files for issues', 
+  //   usage: '/scan [directory]',
+  //   example: '/scan src/components'
+  // },
+  // { 
+  //   command: '/debug', 
+  //   description: 'Debug code issues in project files', 
+  //   usage: '/debug [directory]',
+  //   example: '/debug server'
+  // },
   { 
     command: '/clear', 
     description: 'Clear chat history', 
