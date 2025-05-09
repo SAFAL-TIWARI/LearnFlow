@@ -5,6 +5,7 @@ import { scrollToSection } from '../utils/scrollUtils';
 import BlurTextAnimation from './BlurTextAnimation';
 import ProximityTextAnimation from './ProximityTextAnimation';
 import FadeInElement from './FadeInElement';
+import StarBorder from './StarBorder';
 
 const Hero: React.FC = () => {
   return (
@@ -33,20 +34,28 @@ const Hero: React.FC = () => {
           
           <FadeInElement delay={500} direction="up" distance={30} duration={800}>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <button
+              <StarBorder
+                as="button"
                 onClick={() => scrollToSection('academic-resources')}
-                className="group px-8 py-3 bg-learnflow-600 hover:bg-learnflow-700 text-white rounded-full font-medium shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center"
+                className="group"
+                color="#0c8ee0" // Using learnflow-500 color
+                speed="2s"
               >
-                Get Started
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
+                <div className="flex items-center justify-center">
+                  Get Started
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </StarBorder>
               
-              <button 
+              <StarBorder
+                as="button"
                 onClick={() => scrollToSection('student-tools')}
-                className="px-8 py-3 bg-white dark:bg-gray-700 text-learnflow-600 dark:text-learnflow-400 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-full font-medium border border-gray-200 dark:border-gray-600 shadow-sm hover:shadow-md transition-all duration-300"
+                className="group"
+                color="#7c5cfc" // Using learnflow-purple color
+                speed="2s"
               >
                 Explore Tools
-              </button>
+              </StarBorder>
             </div>
           </FadeInElement>
         </div>

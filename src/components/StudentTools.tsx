@@ -13,6 +13,7 @@ import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { useNavigate } from 'react-router-dom';
 import FadeInElement from './FadeInElement';
+import StarBorder from './StarBorder';
 
 interface ToolProps {
   name: string;
@@ -109,16 +110,26 @@ const StudentTools: React.FC = () => {
                     </CardDescription>
                   </CardContent>
                   <CardFooter className="p-4 bg-gray-50 dark:bg-gray-700 flex justify-between items-center">
-                    <Button 
-                      onClick={() => handleToolClick(tool)}
-                      disabled={tool.comingSoon}
-                      className={`bg-learnflow-600 hover:bg-learnflow-700 text-white ${
-                        tool.comingSoon ? 'opacity-50 cursor-not-allowed' : ''
-                      }`}
-                      aria-label={`Launch ${tool.name} ${tool.comingSoon ? '(Coming Soon)' : ''}`}
-                    >
-                      Launch Tool
-                    </Button>
+                    {tool.comingSoon ? (
+                      <Button 
+                        disabled
+                        className="opacity-50 cursor-not-allowed"
+                        aria-label={`Launch ${tool.name} (Coming Soon)`}
+                      >
+                        Launch Tool
+                      </Button>
+                    ) : (
+                      <StarBorder
+                        as="button"
+                        onClick={() => handleToolClick(tool)}
+                        className=""
+                        color="#36aaf5" // Using learnflow-400 color
+                        speed={`${5 + index * 0.5}s`} // Slightly different speeds for each button
+                        aria-label={`Launch ${tool.name}`}
+                      >
+                        Launch Tool
+                      </StarBorder>
+                    )}
                     
                     {tool.comingSoon && (
                       <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100">
