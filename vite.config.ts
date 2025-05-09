@@ -24,4 +24,8 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    // Copy PWA-related files to the dist folder
+    copyPublicDir: true,
+  }
 }));
