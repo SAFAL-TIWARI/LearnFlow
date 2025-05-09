@@ -83,10 +83,10 @@ const StudentTools: React.FC = () => {
             
             return (
               <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow duration-300 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-                <CardHeader className="bg-gradient-to-r from-learnflow-800 to-learnflow-purple-dark text-white p-4">
+                <CardHeader className="text-white p-4" style={{ background: '#064b85', backgroundImage: 'none' }}>
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-xl font-bold">{tool.name}</CardTitle>
-                    <IconComponent className="w-8 h-8" />
+                    <IconComponent className="w-8 h-8" style={{ opacity: 1 }} />
                   </div>
                 </CardHeader>
                 <CardContent className="p-5">
