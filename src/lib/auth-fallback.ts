@@ -1,6 +1,7 @@
 /**
  * This file provides a fallback authentication mechanism when NextAuth fails
  */
+import { getRedirectUri, getGoogleCallbackUrl } from './redirect-uri-helper';
 
 // Store the authentication state in localStorage
 const AUTH_STORAGE_KEY = 'auth-fallback-state';
@@ -59,11 +60,14 @@ export const getSession = (): FallbackSession | null => {
  */
 export const signIn = async (): Promise<FallbackSession> => {
   try {
+    // Get the correct redirect URI using our helper
+    const redirectUri = getGoogleCallbackUrl();
+    
     // Attempt to redirect to Google's authentication page
     // This is a fallback approach when NextAuth isn't working
     window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + 
       'client_id=' + encodeURIComponent(getGoogleClientId()) + 
-      '&redirect_uri=' + encodeURIComponent(window.location.origin) + 
+      '&redirect_uri=' + encodeURIComponent(redirectUri) + 
       '&response_type=code' + 
       '&scope=openid%20email%20profile' + 
       '&prompt=select_account';

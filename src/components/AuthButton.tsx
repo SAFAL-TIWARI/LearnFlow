@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
+import { getRedirectUri } from "../lib/redirect-uri-helper";
 
 export default function AuthButton() {
   const { data: session, status } = useSession();
@@ -18,10 +19,13 @@ export default function AuthButton() {
       setIsLoading(true);
       setError(null);
       
+      // Get the correct callback URL using our helper
+      const callbackUrl = getRedirectUri();
+      
       // Use the standard NextAuth signIn function for both mobile and desktop
       // This will properly redirect to Google's authentication page
       await signIn("google", { 
-        callbackUrl: window.location.origin,
+        callbackUrl: callbackUrl,
         // Ensure we're using the proper redirect flow that shows the Google account selection page
         prompt: "select_account"
       });

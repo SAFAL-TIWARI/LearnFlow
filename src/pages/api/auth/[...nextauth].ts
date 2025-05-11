@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import { getRedirectUri, getGoogleCallbackUrl } from "../../../lib/redirect-uri-helper";
 
 // Get environment variables from window.process.env (for client-side)
 // or from import.meta.env (for server-side)
@@ -20,6 +21,7 @@ export const getEnv = (key: string): string => {
 const GOOGLE_CLIENT_ID = getEnv('GOOGLE_CLIENT_ID');
 const GOOGLE_CLIENT_SECRET = getEnv('GOOGLE_CLIENT_SECRET');
 const NEXTAUTH_SECRET = getEnv('NEXTAUTH_SECRET');
+const NEXTAUTH_URL = getRedirectUri();
 
 export default NextAuth({
   providers: [
@@ -32,7 +34,9 @@ export default NextAuth({
           access_type: "offline", // Get a refresh token
           response_type: "code"
         }
-      }
+      },
+      // Explicitly set the callback URL to match what's in Google Cloud Console
+      callbackUrl: getGoogleCallbackUrl()
     }),
   ],
   secret: NEXTAUTH_SECRET || "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",
@@ -40,6 +44,8 @@ export default NextAuth({
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
+  // Explicitly set the URL to ensure redirect URIs match what's in Google Cloud Console
+  url: NEXTAUTH_URL,
   callbacks: {
     async session({ session, token }) {
       if (session.user) {
@@ -55,10 +61,15 @@ export default NextAuth({
       return true;
     },
     async redirect({ url, baseUrl }) {
+      // Use our explicitly defined site URL
+      const siteUrl = NEXTAUTH_URL;
+      
       // Ensure we redirect back to the original site after authentication
-      if (url.startsWith(baseUrl)) return url;
-      if (url.startsWith("/")) return new URL(url, baseUrl).toString();
-      return baseUrl;
+      if (url.startsWith(siteUrl)) return url;
+      if (url.startsWith("/")) return new URL(url, siteUrl).toString();
+      
+      // If all else fails, redirect to the site root
+      return siteUrl;
     }
   },
   pages: {
