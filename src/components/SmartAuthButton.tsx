@@ -120,7 +120,7 @@ class AuthErrorBoundary extends React.Component<
   constructor(props: { children: React.ReactNode; fallback: React.ReactNode }) {
     super(props);
     this.state = { hasError: false };
-  }
+}
 
   static getDerivedStateFromError() {
     return { hasError: true };
@@ -138,3 +138,4 @@ class AuthErrorBoundary extends React.Component<
     return this.props.children;
   }
 }
+

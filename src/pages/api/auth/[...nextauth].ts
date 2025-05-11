@@ -18,8 +18,8 @@ export const getEnv = (key: string): string => {
   return (import.meta.env[`VITE_${key}`] as string) || '';
 };
 
-const GOOGLE_CLIENT_ID = getEnv('GOOGLE_CLIENT_ID');
-const GOOGLE_CLIENT_SECRET = getEnv('GOOGLE_CLIENT_SECRET');
+const GOOGLE_CLIENT_ID = getEnv('GOOGLE_CLIENT_ID') || 'GOOGLE_CLIENT_ID';
+const GOOGLE_CLIENT_SECRET = getEnv('GOOGLE_CLIENT_SECRET') || 'GOOGLE_CLIENT_SECRET';
 const NEXTAUTH_SECRET = getEnv('NEXTAUTH_SECRET');
 const NEXTAUTH_URL = getRedirectUri();
 

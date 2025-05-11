@@ -30,12 +30,8 @@ export default function FallbackAuthButton() {
   const handleSignIn = async () => {
     setIsLoading(true);
     try {
-      // Use the improved signIn function that redirects to Google's auth page
-      // This will work for both mobile and desktop
+      // Create a guest session
       const session = await signIn();
-      
-      // Note: The actual authentication will happen after redirect
-      // This is just to update the UI while redirecting
       setUserAuthenticated(true);
       setUserName(session.user.name);
     } catch (e) {
