@@ -26,11 +26,19 @@ export default NextAuth({
     GoogleProvider({
       clientId: GOOGLE_CLIENT_ID || "missing-client-id",
       clientSecret: GOOGLE_CLIENT_SECRET || "missing-client-secret",
+      authorization: {
+        params: {
+          prompt: "select_account", // Force Google to show the account selection screen
+          access_type: "offline", // Get a refresh token
+          response_type: "code"
+        }
+      }
     }),
   ],
   secret: NEXTAUTH_SECRET || "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",
   session: {
     strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
     async session({ session, token }) {
@@ -46,6 +54,12 @@ export default NextAuth({
       }
       return true;
     },
+    async redirect({ url, baseUrl }) {
+      // Ensure we redirect back to the original site after authentication
+      if (url.startsWith(baseUrl)) return url;
+      if (url.startsWith("/")) return new URL(url, baseUrl).toString();
+      return baseUrl;
+    }
   },
   pages: {
     signIn: "/",
