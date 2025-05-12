@@ -5,7 +5,7 @@ import React from 'react';
 
 export const SyllabusIcon: React.FC<{ className?: string }> = ({ className = 'w-6 h-6' }) => (
   <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6l4 2m4-8V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-8z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6h11M10 12h11M10 18h11M4 6h.01M4 12h.01M4 18h.01" />
   </svg>
 );
 export const AssignmentIcon: React.FC<{ className?: string }> = ({ className = 'w-6 h-6' }) => (
@@ -25,12 +25,17 @@ export const ComputerIcon: React.FC<{ className?: string }> = ({ className = 'w-
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
   </svg>
 );
+export const PyqIcon: React.FC<{ className?: string }> = ({ className = 'w-6 h-6' }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 4a2 2 0 0 1 2 2v14a1 1 0 0 1-1 1H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11zM9 8h6M9 12h6M9 16h4" />
+  </svg>
+);
 
 
 // File type icons
 export const PdfIcon: React.FC<{ className?: string }> = ({ className = 'w-5 h-5' }) => (
   <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M7 11.5v-6.5h-1c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h5v-3.5c0-1.1.9-2 2-2h3.5zm5 2.5h-2v2h2v-2zm7-10h-10c-.55 0-1 .45-1 1v9h5v4c0 .55.45 1 1 1h5c.55 0 1-.45 1-1v-13c0-.55-.45-1-1-1zm-1 13h-3v-2h-2v-2h5v4z" fill="#f44336"/>
+    <path d="M8 16h8M8 12h6M14 3v4a1 1 0 001 1h4M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z" fill="#f44338"/>
   </svg>
 );
 
@@ -51,6 +56,13 @@ export const DownloadIcon: React.FC<{ className?: string }> = ({ className = 'w-
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
   </svg>
 );
+export const ImageIcon: React.FC<{ className?: string }> = ({ className = 'w-5 h-5' }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4-4a3 3 0 014 0l4 4m-4-4l4-4M21 12V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2h14a2 2 0 002-2z" />
+  </svg>
+);
+
+
 
 // Social icons
 export const InstagramIcon: React.FC<{ className?: string }> = ({ className = 'w-5 h-5' }) => (
@@ -88,6 +100,8 @@ export const getMaterialIcon = (type: string) => {
       return <LabIcon />;
     case 'computer':
       return <ComputerIcon />;
+    case 'pyq':
+      return <PyqIcon />;
     default:
       return <SyllabusIcon />;
   }
@@ -102,7 +116,9 @@ export const getFileIcon = (type: string) => {
       return <DocIcon className="text-blue-500" />;
     case 'zip':
       return <ZipIcon className="text-yellow-500" />;
+    case 'image':
+      return <ImageIcon className="text-green-500" />;
     default:
-      return <PdfIcon className="text-gray-500" />;
+      return <DocIcon className="text-blue-500" />;
   }
 };

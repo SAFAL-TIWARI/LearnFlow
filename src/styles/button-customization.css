@@ -1,0 +1,73 @@
+/* 
+ * Button Size Customization
+ * 
+ * This file allows you to customize the size of various buttons in the LearnFlow application.
+ * Modify the CSS variables below to adjust button sizes according to your preferences.
+ */
+
+:root {
+  /* Launch Tool button size customization */
+  --launch-tool-padding-x: 1.5rem;  /* Horizontal padding */
+  --launch-tool-padding-y: 0.75rem; /* Vertical padding */
+  --launch-tool-font-size: 1rem;    /* Font size */
+  
+  /* Branch selector button size customization */
+  --branch-btn-padding-x: 1rem;     /* Horizontal padding */
+  --branch-btn-padding-y: 0.5rem;   /* Vertical padding */
+  --branch-btn-font-size: 0.875rem; /* Font size */
+  
+  /* Subject selector button size customization */
+  --subject-btn-padding-x: 0.75rem; /* Horizontal padding */
+  --subject-btn-padding-y: 0.375rem;/* Vertical padding */
+  --subject-btn-font-size: 0.75rem; /* Font size */
+  
+  /* Learning Materials button size customization */
+  --material-btn-padding-x: 2rem;   /* Horizontal padding */
+  --material-btn-padding-y: 1.5rem; /* Vertical padding */
+  --material-btn-font-size: 1.125rem;/* Font size */
+}
+
+/* Apply custom sizes to Launch Tool buttons */
+.launch-tool-btn,
+[aria-label^="Launch"] {
+  padding-left: var(--launch-tool-padding-x) !important;
+  padding-right: var(--launch-tool-padding-x) !important;
+  padding-top: var(--launch-tool-padding-y) !important;
+  padding-bottom: var(--launch-tool-padding-y) !important;
+  font-size: var(--launch-tool-font-size) !important;
+}
+
+/* Apply custom sizes to Branch selector buttons */
+.btn-branch {
+  padding-left: var(--branch-btn-padding-x) !important;
+  padding-right: var(--branch-btn-padding-x) !important;
+  padding-top: var(--branch-btn-padding-y) !important;
+  padding-bottom: var(--branch-btn-padding-y) !important;
+  font-size: var(--branch-btn-font-size) !important;
+}
+
+/* Apply custom sizes to Subject selector buttons */
+.btn-subject {
+  padding-left: var(--subject-btn-padding-x) !important;
+  padding-right: var(--subject-btn-padding-x) !important;
+  padding-top: var(--subject-btn-padding-y) !important;
+  padding-bottom: var(--subject-btn-padding-y) !important;
+  font-size: var(--subject-btn-font-size) !important;
+}
+
+/* Apply custom sizes to Learning Materials buttons */
+.btn-material {
+  padding-left: var(--material-btn-padding-x) !important;
+  padding-right: var(--material-btn-padding-x) !important;
+  padding-top: var(--material-btn-padding-y) !important;
+  padding-bottom: var(--material-btn-padding-y) !important;
+  font-size: var(--material-btn-font-size) !important;
+}
+
+/* 
+ * Usage Instructions:
+ * 
+ * 1. Import this file in your main CSS or in the component where you want to apply these styles
+ * 2. Adjust the CSS variables above to change button sizes
+ * 3. For more specific customizations, you can add additional CSS rules below
+ */

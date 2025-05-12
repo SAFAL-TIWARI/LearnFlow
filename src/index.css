@@ -5,6 +5,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import button customization styles */
+@import './styles/button-customization.css';
+
 @layer base {
   :root {
     /* Base colors */
@@ -113,7 +116,7 @@
   }
 
   .btn-branch {
-    @apply px-4 py-2 text-sm rounded-md font-medium transition-all duration-200 hover:scale-105;
+    @apply px-5 py-2 text-sm rounded-md font-medium transition-all duration-200 hover:scale-105;
   }
   .btn-branch-active {
     @apply bg-learnflow-purple/20 text-learnflow-purple dark:text-learnflow-purple border border-learnflow-purple;
@@ -123,13 +126,14 @@
   }
   
   .btn-subject {
-    @apply px-3 py-1.5 text-xs rounded font-medium transition-all duration-200 hover:scale-105;
+    @apply px-5 py-2 text-xs rounded font-medium transition-all duration-200 hover:scale-105;
   }
   .btn-subject-active {
-    @apply bg-learnflow-purple text-white;
+    @apply bg-learnflow-purple/20 text-learnflow-purple dark:text-learnflow-purple border border-learnflow-purple;
   }
+
   .btn-subject-inactive {
-    @apply bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600;
+    @apply bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700;
   }
 
   .btn-material {

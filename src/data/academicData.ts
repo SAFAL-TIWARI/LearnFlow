@@ -27,7 +27,7 @@ export const branches: Branch[] = [
   { id: 'ec', name: 'EC' },
   { id: 'ee', name: 'EE' },
   { id: 'ei', name: 'EI' },
-  { id: 'me', name: 'ME' },  
+  { id: 'me', name: 'ME' },
   { id: 'ce', name: 'CE' },
 ];
 
@@ -110,10 +110,11 @@ export const subjectsByYearAndSemester: Record<
 };
 
 export const materialTypes = [
-  { id: 'Syllabus', name: 'Syllabus', icon: 'Syllabus' },
+  { id: 'syllabus', name: 'Syllabus', icon: 'Syllabus' },
   { id: 'assignments', name: 'Assignments', icon: 'assignment' },
   { id: 'practicals', name: 'Practicals', icon: 'lab' },
-  { id: 'labwork', name: 'Lab Work', icon: 'computer' }
+  { id: 'labwork', name: 'Lab Work', icon: 'computer' },
+  { id: 'pyq', name: 'PYQ', icon: 'pyq' },
 ];
 
 // Subject-specific learning materials
@@ -122,6 +123,7 @@ export type SubjectMaterials = {
   assignments: FileResource[];
   practicals: FileResource[];
   labwork: FileResource[];
+  pyq: FileResource[];
 };
 
 // Map of subject codes to their learning materials
@@ -138,19 +140,19 @@ export const subjectMaterials: Record<string, SubjectMaterials> = {
         size: '1.2 MB',
         downloadUrl: 'https://drive.google.com/uc?export=download&id=1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4',
       },
-      
+
     ],
     practicals: [
       {
         id: 'ds_practical1',
         name: 'Lab 1 - Stack and Queue Implementation',
-        type: 'pdf',
+        type: 'image',
         url: 'https://drive.google.com/file/d/1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4/preview',
         uploadDate: '2025-01-10',
         size: '754 KB',
         downloadUrl: 'https://drive.google.com/uc?export=download&id=1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4',
       },
-      
+
     ],
     labwork: [
       {
@@ -182,7 +184,19 @@ export const subjectMaterials: Record<string, SubjectMaterials> = {
         size: '733 KB',
         downloadUrl: 'https://drive.google.com/uc?export=download&id=1SmdONnxM4Q7NXgknn180zfk868jdELzu',
       }
-    ]
+    ],
+    pyq: [
+      {
+        id: 'ds_pyq1',
+        name: 'PYQ 2024',
+        type: 'doc',
+        url: 'https://drive.google.com/file/d/1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4/preview',
+        uploadDate: '2025-01-15',
+        size: '1.2 MB',
+        downloadUrl: 'https://drive.google.com/uc?export=download&id=1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4',
+      },
+    ],
+
   },
 
   // Other subjects...
@@ -393,7 +407,7 @@ export const branchSubjects: Record<
         { code: 'MAC 102', name: 'Professional Ethics' },
       ],
       'blockchain': [
-        { code: 'MAB 102', name: 'Engineering Mathematics II'},
+        { code: 'MAB 102', name: 'Engineering Mathematics II' },
         { code: 'CSA 103', name: 'Data Structures And Algorithms' },
         { code: 'ITC 101', name: 'Python Programming' },
         { code: 'CSL 110', name: 'Linux' },
@@ -402,7 +416,7 @@ export const branchSubjects: Record<
         { code: 'MAC 102', name: 'Professional Ethics' },
       ],
       'aiads': [
-        { code: 'MAB 102', name: 'Engineering Mathematics II'},
+        { code: 'MAB 102', name: 'Engineering Mathematics II' },
         { code: 'CSA 103', name: 'Data Structures And Algorithms' },
         { code: 'ITC 101', name: 'Python Programming' },
         { code: 'CSL 110', name: 'Linux' },
@@ -411,7 +425,7 @@ export const branchSubjects: Record<
         { code: 'MAC 102', name: 'Professional Ethics' },
       ],
       'it': [
-        { code: 'MAB 102', name: 'Engineering Mathematics II'},
+        { code: 'MAB 102', name: 'Engineering Mathematics II' },
         { code: 'CSA 103', name: 'Data Structures And Algorithms' },
         { code: 'ITC 101', name: 'Python Programming' },
         { code: 'CSL 110', name: 'Linux' },
