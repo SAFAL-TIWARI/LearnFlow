@@ -19,6 +19,7 @@ import ChatbotWidget from "./components/Chatbot/ChatbotWidget";
 import GoToTopButton from "./components/GoToTopButton";
 import NotificationManager from "./components/NotificationManager";
 import ClickSparkAnimation from "./components/ClickSparkAnimation";
+import SvgBackground from "./components/SvgBackground";
 import { ThemeProvider } from "./hooks/useTheme";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react"
@@ -31,14 +32,14 @@ const App = () => {
     // Check if there's a path parameter in the URL
     const urlParams = new URLSearchParams(window.location.search);
     const pathParam = urlParams.get('path');
-    
+
     // Check for INITIAL_PATH from the window object (set in our static HTML files)
     const initialPath = (window as any).INITIAL_PATH;
-    
+
     if (pathParam) {
       // Remove the path parameter from the URL
       window.history.replaceState({}, document.title, window.location.pathname);
-      
+
       // Navigate to the specified path
       if (pathParam === 'privacy-policy' || pathParam === 'terms-of-service') {
         window.history.pushState({}, document.title, '/' + pathParam);
@@ -58,36 +59,40 @@ const App = () => {
               <TooltipProvider>
                 <Toaster />
                 <Sonner />
+
+                {/* SVG Background - positioned behind content but above default background */}
+                <SvgBackground className="svg-background" />
+
                 <BrowserRouter>
                   <Routes>
                     <Route path="/" element={<Index />} />
-                    
+
                     {/* Tool Routes */}
                     <Route path="/tools/cgpa-calculator" element={<CGPACalculator />} />
                     <Route path="/tools/study-timer" element={<StudyTimer />} />
                     <Route path="/tools/exam-scheduler" element={<ExamScheduler />} />
                     <Route path="/tools/note-organizer" element={<NoteOrganizer />} />
-                    
+
                     {/* Legal Pages */}
                     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                     <Route path="/terms-of-service" element={<TermsOfService />} />
-                    
+
                     {/* Auth Pages */}
                     <Route path="/auth-error" element={<AuthError />} />
-                    
+
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
-                  
+
                   {/* Chatbot Widget */}
                   <ChatbotWidget />
-                  
+
                   {/* Go To Top Button */}
                   <GoToTopButton />
-                  
+
                   {/* Notification Manager */}
                   <NotificationManager />
-                  
+
                   {/* Click Spark Animation */}
                   <ClickSparkAnimation />
                 </BrowserRouter>
@@ -117,7 +122,7 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
     console.error("Application error:", error, errorInfo);
   }
 
-  
+
   render() {
     if (this.state.hasError) {
       return (

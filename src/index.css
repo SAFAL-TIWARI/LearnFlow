@@ -5,8 +5,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import button customization styles */
+/* Import custom styles */
 @import './styles/button-customization.css';
+@import './styles/svg-background.css';
 
 @layer base {
   :root {
@@ -94,16 +95,18 @@
 
 @layer components {
   .btn-year {
-    @apply px-6 py-3 rounded-lg text-white font-medium transition-all duration-200 hover:scale-105;
+    @apply px-6 py-3 rounded-lg text-white font-medium transition-all duration-300 hover:scale-105;
   }
   .btn-year-active {
     @apply bg-learnflow-600 shadow-lg;
     box-shadow: 0 10px 15px -3px rgba(12, 142, 224, 0.3);
   }
   .btn-year-inactive {
-    @apply bg-learnflow-500 hover:bg-learnflow-600;
+    /* @apply bg-learnflow-500 hover:bg-learnflow-600; */
+    border: 0capsule;
+    @apply bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700;
   }
-  
+
   .btn-semester {
     @apply px-5 py-2.5 rounded-md text-sm font-medium transition-all duration-200 hover:scale-105;
   }
@@ -124,7 +127,7 @@
   .btn-branch-inactive {
     @apply bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700;
   }
-  
+
   .btn-subject {
     @apply px-5 py-2 text-xs rounded font-medium transition-all duration-200 hover:scale-105;
   }
@@ -151,17 +154,17 @@
     @apply flex items-center justify-between p-4 rounded-lg bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700;
     transition: all 0.2s ease-in-out;
   }
-  
+
   .file-item:hover {
     @apply border-gray-300 dark:border-gray-600;
     transform: translateY(-2px);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   }
-  
+
   .file-item button {
     @apply transition-all duration-200;
   }
-  
+
   .file-item button:hover {
     transform: scale(1.1);
   }
