@@ -24,7 +24,7 @@ const Navbar: React.FC = () => {
     }
   };
 
-  // Auto-close About dialog after 10 seconds if it was automatically opened
+  // Auto-close About dialog after 20 seconds if it was automatically opened
   useEffect(() => {
     let timeoutId: number;
     if (aboutDialogOpen) {

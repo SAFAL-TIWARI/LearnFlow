@@ -155,6 +155,7 @@
   .file-item {
     @apply flex items-center justify-between p-4 rounded-lg bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700;
     transition: all 0.2s ease-in-out;
+    overflow: hidden;
   }
 
   .file-item:hover {

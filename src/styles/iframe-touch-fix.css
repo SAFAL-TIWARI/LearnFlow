@@ -1,0 +1,69 @@
+/* 
+ * CSS fixes for iframe touch scrolling issues
+ */
+
+.iframe-container {
+  position: relative;
+  width: 100%;
+  height: 600px;
+  -webkit-overflow-scrolling: touch;
+  overflow: auto;
+  touch-action: auto;
+}
+
+.iframe-container iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  pointer-events: auto;
+}
+
+/* 
+ * Media query for touch devices 
+ */
+@media (pointer: coarse) {
+  .iframe-container {
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Ensure the container itself can be scrolled */
+  .document-preview-wrapper {
+    position: relative;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Fix for Google Drive iframe scrolling issues */
+  .iframe-container iframe {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: scroll !important;
+    touch-action: pan-y pinch-zoom !important;
+  }
+  
+  /* Special fix for Google Drive documents */
+  iframe[src*="drive.google.com"] {
+    -webkit-overflow-scrolling: touch !important;
+    overflow: auto !important;
+    touch-action: pan-y pinch-zoom !important;
+  }
+  
+  /* Touch overlay to help with scrolling */
+  .touch-scroll-overlay {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    pointer-events: none; /* Allow events to pass through to iframe by default */
+    touch-action: pan-y; /* Enable vertical scrolling */
+  }
+  
+  /* When user is actively touching, capture events */
+  .touch-scroll-overlay.active {
+    pointer-events: auto;
+    background-color: rgba(0, 0, 0, 0.01); /* Almost invisible but helps with touch events */
+  }
+}

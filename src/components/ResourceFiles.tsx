@@ -1,11 +1,14 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAcademic } from '../context/AcademicContext';
 import { resourceFiles, subjectMaterials, FileResource } from '../data/academicData';
 import { getFileIcon, DownloadIcon } from './Icons';
 import { useSession } from 'next-auth/react';
 import { downloadGoogleDriveFile } from '../utils/downloadUtils';
 import { isAuthenticated as isFallbackAuthenticated } from '../lib/auth-fallback';
+import { AnimatedList } from './magicui/animated-list';
+import { useIframeTouchScroll } from '../hooks/use-iframe-touch-scroll';
+import '../styles/iframe-touch-fix.css';
 
 // Fallback authentication state if NextAuth fails
 const useAuthFallback = () => {
@@ -43,6 +46,7 @@ const ResourceFiles: React.FC = () => {
   const { data: session, status } = useSession();
   const fallbackAuth = useAuthFallback();
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  const { containerRef, overlayRef } = useIframeTouchScroll();
   
   // Use either NextAuth session or fallback authentication
   const isAuthenticated = (() => {
@@ -111,16 +115,18 @@ const ResourceFiles: React.FC = () => {
             <>Available Resources</>
           )}
         </h3>
-        <div className="space-y-3">
+        <AnimatedList delay={300} className="w-full">
           {files.map((file) => {
             return (
-              <div key={file.id} className="file-item">
-                <div className="flex items-center space-x-3">
-                  {getFileIcon(file.type)}
-                  <span className="font-medium text-gray-800 dark:text-gray-200">{file.name}</span>
+              <div key={file.id} className="file-item w-full">
+                <div className="flex flex-grow items-center min-w-0 space-x-3">
+                  <div className="flex-shrink-0">
+                    {getFileIcon(file.type)}
+                  </div>
+                  <span className="font-medium text-gray-800 dark:text-gray-200 truncate">{file.name}</span>
                 </div>
-                <div className="flex items-center space-x-6">
-                  <span className="text-sm text-gray-500 dark:text-gray-400">{file.size}</span>
+                <div className="flex flex-shrink-0 items-center space-x-4 md:space-x-6 ml-2">
+                  <span className="text-sm text-gray-500 dark:text-gray-400 hidden sm:inline">{file.size}</span>
                   <button
                     onClick={() => setSelectedFile(file.id)}
                     className="text-learnflow-600 dark:text-learnflow-400 hover:text-learnflow-700 dark:hover:text-learnflow-300 transition-colors"
@@ -173,7 +179,7 @@ const ResourceFiles: React.FC = () => {
               </div>
             );
           })}
-        </div>
+        </AnimatedList>
       </div>
       
       {/* File viewer */}
@@ -192,14 +198,44 @@ const ResourceFiles: React.FC = () => {
               </svg>
             </button>
           </div>
-          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-            <iframe
-              src={files.find(f => f.id === selectedFile)?.url}
-              className="w-full h-[600px]"
-              title={files.find(f => f.id === selectedFile)?.name}
-              allow="autoplay"
-              allowFullScreen
-            ></iframe>
+          <div className="document-preview-wrapper bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+            <div ref={containerRef} className="iframe-container">
+              {/* Touch overlay to handle scrolling */}
+              <div 
+                ref={overlayRef}
+                className="touch-scroll-overlay"
+              ></div>
+              <iframe
+                src={files.find(f => f.id === selectedFile)?.url}
+                className="w-full h-[600px]"
+                title={files.find(f => f.id === selectedFile)?.name}
+                allow="autoplay"
+                allowFullScreen
+                sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+                onLoad={(e) => {
+                  try {
+                    // Try to access iframe content (may fail due to same-origin policy)
+                    const iframe = e.target as HTMLIFrameElement;
+                    if (iframe.contentWindow && iframe.contentDocument) {
+                      // Add CSS to make content scrollable
+                      const style = document.createElement('style');
+                      style.textContent = `
+                        html, body {
+                          -webkit-overflow-scrolling: touch !important;
+                          overflow: auto !important;
+                          touch-action: pan-y pinch-zoom !important;
+                          height: 100% !important;
+                        }
+                      `;
+                      iframe.contentDocument.head.appendChild(style);
+                    }
+                  } catch (error) {
+                    // Silently fail - this is expected due to cross-origin restrictions
+                    console.log("Could not modify iframe content due to same-origin policy");
+                  }
+                }}
+              ></iframe>
+            </div>
           </div>
           <div className="mt-4 flex justify-end">
             {(() => {
