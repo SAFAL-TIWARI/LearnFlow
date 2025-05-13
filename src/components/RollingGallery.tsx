@@ -58,9 +58,9 @@ const RollingGallery: React.FC<RollingGalleryProps> = ({
   // Calculate radius - adjust for different screen sizes to prevent overlapping
   let radiusAdjustment;
   if (screenWidth <= 480) {
-    radiusAdjustment = 1.4; // Extra space for very small screens
+    radiusAdjustment = 1.5; // Extra space for very small screens
   } else if (screenWidth <= 640) {
-    radiusAdjustment = 1.3; // More space for small screens
+    radiusAdjustment = 1.4; // More space for small screens
   } else if (screenWidth <= 768) {
     radiusAdjustment = 1.2; // Slightly more space for medium screens
   } else {
@@ -194,7 +194,7 @@ const RollingGallery: React.FC<RollingGalleryProps> = ({
                 style={{
                   width: `${faceWidth}px`,
                   transform: `rotateY(${angle}deg) translateZ(${radius}px)`,
-                  opacity: screenWidth <= 480 ? (angle <= 30 || angle >= 330 || (angle >= 150 && angle <= 210) ? 1 : 0.6) : 1,
+                  opacity: screenWidth <= 480 ? (angle <= 30 || angle >= 30 || (angle >= 150 && angle <= 210) ? 1 : 0.6) : 1,
                 }}
               >
                 {item}
