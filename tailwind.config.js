@@ -16,6 +16,14 @@ export default {
     extend: {
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
+        bodoni: ['Bodoni Moda', 'serif'],
+        isidora: ['Montserrat', 'sans-serif'], // Using Montserrat as a substitute for Isidora
+        teko: ['Teko', 'sans-serif'],
+        poppins: ['Poppins', 'sans-serif'],
+        alegreya: ['Alegreya', 'serif'],
+        roboto: ['Roboto', 'sans-serif'],
+        ogg: ['EB Garamond', 'serif'], // Using EB Garamond as a substitute for Ogg
+        larish: ['Playfair Display', 'serif'], // Using Playfair Display as a substitute for Larish Neue
       },
       colors: {
         border: "hsl(var(--border))",

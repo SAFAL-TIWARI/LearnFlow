@@ -28,34 +28,34 @@ const Navbar: React.FC = () => {
     <nav className="bg-white dark:bg-gray-800 shadow-md py-4">
       <div className="container mx-auto px-4 flex justify-between items-center">
         <div className="flex items-center">
-          <a href="/" className="text-2xl font-bold text-learnflow-600 dark:text-learnflow-300 mr-8">
+          <a href="/" className="text-2xl font-bold text-learnflow-600 dark:text-learnflow-300 mr-8 font-teko tracking-wide">
             LearnFlow
           </a>
-          
+
           {/* Desktop Nav Links */}
           <div className="hidden md:flex space-x-6">
-            <button 
+            <button
               onClick={() => scrollToSection('student-tools')}
-              className="text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors"
+              className="text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"
             >
               Tools
             </button>
-            <button 
+            <button
               onClick={() => scrollToSection('academic-resources')}
-              className="text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors"
+              className="text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"
             >
               Resources
             </button>
             {/* <NotificationButton /> */}
-            <button 
+            <button
               onClick={() => setAboutDialogOpen(true)}
-              className="text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors"
+              className="text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"
             >
               About Us
             </button>
           </div>
         </div>
-        
+
         <div className="flex items-center space-x-4">
           {/* Theme Toggle */}
           <button onClick={toggleTheme} className="p-2">
@@ -69,15 +69,15 @@ const Navbar: React.FC = () => {
               </svg>
             )}
           </button>
-          
+
           {/* Auth Button */}
           <div className="hidden md:flex items-center">
             <SmartAuthButton />
           </div>
-          
+
           {/* Mobile menu button */}
-          <button 
-            onClick={() => setIsMenuOpen(!isMenuOpen)} 
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="md:hidden text-gray-700 dark:text-gray-200"
           >
             {isMenuOpen ? (
@@ -97,7 +97,7 @@ const Navbar: React.FC = () => {
       {isMenuOpen && (
         <div className="md:hidden bg-white dark:bg-gray-800 py-4 px-4">
           <div className="flex flex-col space-y-3">
-            <button 
+            <button
               onClick={() => {
                 scrollToSection('student-tools');
                 setIsMenuOpen(false);
@@ -106,7 +106,7 @@ const Navbar: React.FC = () => {
             >
               Tools
             </button>
-            <button 
+            <button
               onClick={() => {
                 scrollToSection('academic-resources');
                 setIsMenuOpen(false);
@@ -118,7 +118,7 @@ const Navbar: React.FC = () => {
             <div onClick={() => setIsMenuOpen(true)}>
               {/* <NotificationButton /> */}
             </div>
-            <button 
+            <button
               onClick={() => {
                 setAboutDialogOpen(true);
                 setIsMenuOpen(false);
@@ -140,7 +140,7 @@ const Navbar: React.FC = () => {
           <div className="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full p-6 animate-fade-in">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">About LearnFlow</h2>
-              <button 
+              <button
                 onClick={() => setAboutDialogOpen(false)}
                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               >
@@ -156,7 +156,6 @@ const Navbar: React.FC = () => {
                   LearnFlow is dedicated to making education accessible, organized, and enjoyable for students across all engineering disciplines. We believe in providing high-quality educational resources that help students excel in their academic journey.
                 </p>
               </section>
-              
               <section className="mb-6">
                 <h3 className="text-xl font-semibold mb-2 text-learnflow-600 dark:text-learnflow-400">About Owner</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -171,7 +170,7 @@ const Navbar: React.FC = () => {
                   </div>
                   {/* <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 rounded-full bg-learnflow-100 flex items-center justify-center text-learnflow-600 font-bold">
-                      
+
                     </div>
                     <div>
                       <h4 className="font-medium text-gray-900 dark:text-gray-100"></h4>
@@ -180,7 +179,6 @@ const Navbar: React.FC = () => {
                   </div> */}
                 </div>
               </section>
-              
               <section>
                 <h3 className="text-xl font-semibold mb-2 text-learnflow-600 dark:text-learnflow-400">Contact Us</h3>
                 <div className="space-y-2 text-gray-700 dark:text-gray-300">

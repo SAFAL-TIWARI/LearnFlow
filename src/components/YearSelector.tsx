@@ -4,7 +4,7 @@ import { useAcademic } from '../context/AcademicContext';
 
 const YearSelector: React.FC = () => {
   const { state, setYear } = useAcademic();
-  
+
   // Years with emoji indicators
   const years = [
     { number: 1, emoji: '📘' },
@@ -12,7 +12,7 @@ const YearSelector: React.FC = () => {
     { number: 3, emoji: '📙' },
     { number: 4, emoji: '📕' },
   ];
-  
+
   return (
     <div className="mb-8">
       <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Select Your Year</h2>
@@ -23,7 +23,7 @@ const YearSelector: React.FC = () => {
             onClick={() => setYear(number)}
             className={`btn-year ${
               state.selectedYear === number ? 'btn-year-active' : 'btn-year-inactive'
-            }`}
+            } font-ogg`}
           >
             <span className="mr-1">{emoji}</span>
             {number}
@@ -31,7 +31,7 @@ const YearSelector: React.FC = () => {
           </button>
         ))}
       </div>
-      
+
       {/* Info box showing the year-semester mapping */}
       {/* <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800 text-xs">
         <h3 className="text-sm font-medium text-blue-800 dark:text-blue-300 mb-2">Year-Semester Mapping:</h3>

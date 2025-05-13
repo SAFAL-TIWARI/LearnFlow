@@ -27,7 +27,7 @@ const Footer: React.FC = () => {
         <div className="flex flex-col md:flex-row md:justify-between items-center mb-6">
           <div className="mb-4 md:mb-0">
             <h3
-              className="font-semibold text-xl text-learnflow-600 dark:text-learnflow-400 cursor-pointer hover:text-learnflow-700 dark:hover:text-learnflow-300 transition-colors"
+              className="font-semibold text-xl text-learnflow-600 dark:text-learnflow-400 cursor-pointer hover:text-learnflow-700 dark:hover:text-learnflow-300 transition-colors font-teko tracking-wide"
               onClick={() => {
                 // window.location.reload();
                 scrollToTop();
@@ -43,19 +43,19 @@ const Footer: React.FC = () => {
             <div className="flex flex-col md:flex-row md:space-x-8 space-y-4 md:space-y-0 items-center mb-4 md:mb-0">
               <button
                 onClick={() => scrollToSection('student-tools')}
-                className="text-gray-600 dark:text-gray-400 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors"
+                className="text-gray-600 dark:text-gray-400 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"
               >
                 Tools
               </button>
               <button
                 onClick={() => scrollToSection('academic-resources')}
-                className="text-gray-600 dark:text-gray-400 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors"
+                className="text-gray-600 dark:text-gray-400 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"
               >
                 Resources
               </button>
               <button
                 onClick={() => setAboutDialogOpen(true)}
-                className="text-gray-600 dark:text-gray-400 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors"
+                className="text-gray-600 dark:text-gray-400 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"
               >
                 About Us
               </button>

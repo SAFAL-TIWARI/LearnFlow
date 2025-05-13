@@ -12,7 +12,7 @@ export default function FallbackAuthButton() {
       try {
         const authenticated = isAuthenticated();
         setUserAuthenticated(authenticated);
-        
+
         if (authenticated) {
           const session = getSession();
           setUserName(session?.user.name || 'User');
@@ -68,10 +68,10 @@ export default function FallbackAuthButton() {
   if (userAuthenticated) {
     return (
       <>
-        <p className="mr-2 text-gray-700 dark:text-gray-300">Welcome {userName || 'User'}</p>
-        <button 
+        <p className="mr-2 text-gray-700 dark:text-gray-300 font-oggo font-bold">Welcome {userName || 'User'}</p>
+        <button
           onClick={handleSignOut}
-          className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors"
+          className="px-4 py-1 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors font-ogg size-lg"
         >
           Sign out
         </button>
@@ -83,7 +83,7 @@ export default function FallbackAuthButton() {
   return (
     <button
       onClick={handleSignIn}
-      className="flex items-center px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors"
+      className="flex items-center px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors font-ogg"
     >
       <svg className="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
         <path

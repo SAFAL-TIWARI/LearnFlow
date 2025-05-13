@@ -17,10 +17,10 @@ export default function AuthButton() {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       // Check if we're on mobile
       const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-      
+
       if (isMobile) {
         // For mobile, use a relative URL to avoid 404 errors
         window.location.href = '/api/auth/signin/google';
@@ -62,7 +62,7 @@ export default function AuthButton() {
     return (
       <div className="flex items-center text-red-500">
         <span>{error}</span>
-        <button 
+        <button
           onClick={() => setError(null)}
           className="ml-2 text-gray-500 hover:text-gray-700"
         >
@@ -76,12 +76,12 @@ export default function AuthButton() {
   if (session) {
     return (
       <>
-        <p className="mr-2 text-gray-700 dark:text-gray-300">
+        <p className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors font-roboto">
           Welcome {session.user?.name || 'User'}
         </p>
-        <button 
+        <button
           onClick={handleSignOut}
-          className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors"
+          className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors font-roboto"
         >
           Sign out
         </button>
@@ -93,7 +93,7 @@ export default function AuthButton() {
   return (
     <button
       onClick={handleSignIn}
-      className="flex items-center px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors"
+      className="flex items-center px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors font-roboto"
     >
       <svg className="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
         <path

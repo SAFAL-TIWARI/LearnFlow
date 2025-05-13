@@ -5,39 +5,39 @@ import { branchSubjects, subjectsByYearAndSemester, branches, Subject } from '..
 
 const SubjectSelector: React.FC = () => {
   const { state, setSubject } = useAcademic();
-  
+
   // Only render if year, semester, and branch are selected
   if (state.selectedYear === null || state.selectedSemester === null || state.selectedBranch === null) {
     return null;
   }
-  
+
   // Get branch-specific subjects if available
   const getBranchSubjects = (): Subject[] => {
     const year = state.selectedYear;
     const semester = state.selectedSemester;
     const branchId = state.selectedBranch;
-    
+
     // Check if we have branch-specific subjects for this combination
     if (
-      branchSubjects[year] && 
-      branchSubjects[year][semester] && 
+      branchSubjects[year] &&
+      branchSubjects[year][semester] &&
       branchSubjects[year][semester][branchId]
     ) {
       return branchSubjects[year][semester][branchId];
     }
-    
+
     // Fallback to legacy subjects if branch-specific ones aren't available
     return subjectsByYearAndSemester[year][semester] || [];
   };
-  
+
   // Get the selected branch name for display
   const getBranchName = (): string => {
     const branch = branches.find(b => b.id === state.selectedBranch);
     return branch ? branch.name : state.selectedBranch || '';
   };
-  
+
   const subjects = getBranchSubjects();
-  
+
   if (subjects.length === 0) {
     return (
       <div className="mb-8 animate-slide-in">
@@ -51,7 +51,7 @@ const SubjectSelector: React.FC = () => {
       </div>
     );
   }
-  
+
   return (
     <div className="mb-8 animate-slide-in">
       <h2 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">Select Subject</h2>
@@ -65,7 +65,7 @@ const SubjectSelector: React.FC = () => {
             onClick={() => setSubject(subject.code)}
             className={`btn-subject ${
               state.selectedSubject === subject.code ? 'btn-subject-active' : 'btn-subject-inactive'
-            }`}
+            } font-ogg`}
           >
             {subject.code}
           </button>
