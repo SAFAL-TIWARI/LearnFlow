@@ -46,6 +46,22 @@
   font-size: var(--branch-btn-font-size) !important;
 }
 
+/* Mobile-specific adjustments for branch buttons */
+@media (max-width: 768px) {
+  .btn-branch {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+}
+
 /* Apply custom sizes to Subject selector buttons */
 .btn-subject {
   padding-left: var(--subject-btn-padding-x) !important;
@@ -53,6 +69,22 @@
   padding-top: var(--subject-btn-padding-y) !important;
   padding-bottom: var(--subject-btn-padding-y) !important;
   font-size: var(--subject-btn-font-size) !important;
+}
+
+/* Mobile-specific adjustments for subject buttons */
+@media (max-width: 768px) {
+  .btn-subject {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
 }
 
 /* Apply custom sizes to Learning Materials buttons */

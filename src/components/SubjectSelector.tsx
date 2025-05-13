@@ -2,9 +2,11 @@
 import React from 'react';
 import { useAcademic } from '../context/AcademicContext';
 import { branchSubjects, subjectsByYearAndSemester, branches, Subject } from '../data/academicData';
+import { useIsMobile } from '../hooks/use-mobile';
 
 const SubjectSelector: React.FC = () => {
   const { state, setSubject } = useAcademic();
+  const isMobile = useIsMobile();
 
   // Only render if year, semester, and branch are selected
   if (state.selectedYear === null || state.selectedSemester === null || state.selectedBranch === null) {
@@ -58,14 +60,14 @@ const SubjectSelector: React.FC = () => {
       <p className="text-gray-600 dark:text-gray-400 mb-4">
         Showing subjects for <span className="font-semibold">{getBranchName()}</span> branch
       </p>
-      <div className="flex flex-wrap gap-2">
+      <div className={`${isMobile ? 'grid grid-cols-2 sm:grid-cols-3 gap-2' : 'flex flex-wrap gap-2'}`}>
         {subjects.map((subject) => (
           <button
             key={subject.code}
             onClick={() => setSubject(subject.code)}
             className={`btn-subject ${
               state.selectedSubject === subject.code ? 'btn-subject-active' : 'btn-subject-inactive'
-            } font-ogg`}
+            } font-ogg ${isMobile ? 'w-full text-center' : ''}`}
           >
             {subject.code}
           </button>

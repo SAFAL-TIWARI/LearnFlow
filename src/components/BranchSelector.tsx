@@ -2,9 +2,11 @@
 import React from 'react';
 import { useAcademic } from '../context/AcademicContext';
 import { branches, branchSubjects } from '../data/academicData';
+import { useIsMobile } from '../hooks/use-mobile';
 
 const BranchSelector: React.FC = () => {
   const { state, setBranch } = useAcademic();
+  const isMobile = useIsMobile();
 
   // Only render if year and semester are selected
   if (state.selectedYear === null || state.selectedSemester === null) {
@@ -32,7 +34,7 @@ const BranchSelector: React.FC = () => {
       <p className="text-gray-600 dark:text-gray-400 mb-4">
         Year {state.selectedYear}, Semester {state.selectedSemester}
       </p>
-      <div className="flex flex-wrap gap-3">
+      <div className={`${isMobile ? 'grid grid-cols-2 sm:grid-cols-3 gap-2' : 'flex flex-wrap gap-3'}`}>
         {branches.map((branch) => {
           const hasSubjects = availableBranchIds.includes(branch.id);
 
@@ -42,7 +44,7 @@ const BranchSelector: React.FC = () => {
               onClick={() => setBranch(branch.id)}
               className={`btn-branch ${
                 state.selectedBranch === branch.id ? 'btn-branch-active' : 'btn-branch-inactive'
-              } ${!hasSubjects ? 'opacity-1' : ''} font-ogg`}
+              } ${!hasSubjects ? 'opacity-1' : ''} font-ogg ${isMobile ? 'w-full text-center' : ''}`}
               title={hasSubjects ? undefined : "Limited subjects available"}
             >
               {branch.name}
