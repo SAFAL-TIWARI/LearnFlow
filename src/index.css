@@ -10,6 +10,7 @@
 @import './styles/svg-background.css';
 @import './styles/fonts.css';
 @import './styles/text-alignment.css';
+@import './styles/rolling-gallery.css';
 
 @layer base {
   :root {

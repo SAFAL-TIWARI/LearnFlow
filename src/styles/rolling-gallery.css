@@ -1,0 +1,30 @@
+:root {
+  --bg-gradient-end: #f9fafb; /* Light mode background */
+}
+
+.dark {
+  --bg-gradient-end: #111827; /* Dark mode background */
+}
+
+/* Improve touch experience on mobile */
+@media (max-width: 768px) {
+  .rolling-gallery-container {
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Prevent text selection while dragging */
+  .rolling-gallery-item {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+  }
+}
+
+/* Add more space between items on small screens */
+@media (max-width: 640px) {
+  .rolling-gallery-wrapper {
+    padding: 0 20px;
+  }
+}
