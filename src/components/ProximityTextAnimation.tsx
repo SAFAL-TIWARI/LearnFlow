@@ -15,7 +15,7 @@ const ProximityTextAnimation: React.FC<ProximityTextAnimationProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [mousePosition, setMousePosition] = useState<{ x: number; y: number } | null>(null);
-  const characters = text.split('');
+  const words = text.split(' ');
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -46,31 +46,31 @@ const ProximityTextAnimation: React.FC<ProximityTextAnimationProps> = ({
     };
   }, []);
 
-  const getCharacterStyle = (index: number) => {
+  const getWordStyle = (index: number) => {
     if (!mousePosition || !containerRef.current) return {};
 
-    const charElement = containerRef.current.children[index] as HTMLElement;
-    if (!charElement) return {};
+    const wordElement = containerRef.current.children[index] as HTMLElement;
+    if (!wordElement) return {};
 
-    const charRect = charElement.getBoundingClientRect();
+    const wordRect = wordElement.getBoundingClientRect();
     const containerRect = containerRef.current.getBoundingClientRect();
-    
-    const charCenterX = charRect.left + charRect.width / 2 - containerRect.left;
-    const charCenterY = charRect.top + charRect.height / 2 - containerRect.top;
-    
-    const deltaX = mousePosition.x - charCenterX;
-    const deltaY = mousePosition.y - charCenterY;
-    
+
+    const wordCenterX = wordRect.left + wordRect.width / 2 - containerRect.left;
+    const wordCenterY = wordRect.top + wordRect.height / 2 - containerRect.top;
+
+    const deltaX = mousePosition.x - wordCenterX;
+    const deltaY = mousePosition.y - wordCenterY;
+
     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-    
+
     if (distance > maxDistance) return {};
-    
+
     const force = (maxDistance - distance) / maxDistance;
-    
+
     // Move away from cursor
     const moveX = -deltaX * force * sensitivity;
     const moveY = -deltaY * force * sensitivity;
-    
+
     return {
       transform: `translate(${moveX}px, ${moveY}px)`,
       transition: 'transform 0.15s ease-out',
@@ -79,14 +79,18 @@ const ProximityTextAnimation: React.FC<ProximityTextAnimationProps> = ({
 
   return (
     <div ref={containerRef} className={`inline-block relative ${className}`}>
-      {characters.map((char, index) => (
-        <span
-          key={index}
-          className="inline-block relative"
-          style={getCharacterStyle(index)}
-        >
-          {char === ' ' ? '\u00A0' : char}
-        </span>
+      {words.map((word, index) => (
+        <React.Fragment key={index}>
+          <span
+            className="inline-block whitespace-nowrap relative"
+            style={getWordStyle(index)}
+          >
+            {word}
+          </span>
+          {index < words.length - 1 && (
+            <span className="inline-block whitespace-nowrap">&nbsp;</span>
+          )}
+        </React.Fragment>
       ))}
     </div>
   );

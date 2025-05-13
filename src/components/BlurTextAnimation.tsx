@@ -31,7 +31,7 @@ const BlurTextAnimation: React.FC<BlurTextAnimationProps> = ({
             {words.map((word, index) => (
                 <span
                     key={index}
-                    className={`inline-block transition-all duration-300 ${visibleWords.includes(index)
+                    className={`inline-block transition-all duration-300 whitespace-nowrap ${visibleWords.includes(index)
                             ? 'opacity-100 blur-none translate-y-0'
                             : 'opacity-0 blur-md translate-y-4'
                         }`}

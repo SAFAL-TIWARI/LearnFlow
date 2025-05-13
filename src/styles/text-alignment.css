@@ -1,0 +1,41 @@
+/* Text alignment styles to prevent words from breaking across lines */
+
+/* Apply to all text elements */
+p, h1, h2, h3, h4, h5, h6, span, div, button, a {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  hyphens: none;
+}
+
+/* Specific class for preventing word breaks */
+.no-word-break {
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  hyphens: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  /* Ensure proper text alignment on mobile */
+  .mobile-text-align {
+    text-align: center;
+    white-space: normal;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    hyphens: none;
+  }
+}
+
+/* Ensure proper text alignment for animated text */
+.animated-text {
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  hyphens: none;
+}
+
+/* Ensure proper text alignment for buttons */
+button, .button {
+  white-space: nowrap;
+}

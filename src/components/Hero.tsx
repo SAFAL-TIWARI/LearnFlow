@@ -13,7 +13,7 @@ const Hero: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto text-center">
           <FadeInElement delay={100} direction="up" distance={30} duration={800}>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6 font-bodoni">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6 font-bodoni no-word-break">
               <BlurTextAnimation
                 text="Learning Made Simple"
                 className="text-learnflow-800"
@@ -23,7 +23,7 @@ const Hero: React.FC = () => {
           </FadeInElement>
 
           <FadeInElement delay={300} direction="up" distance={10} duration={800}>
-            <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed font-isidora">
+            <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed font-isidora whitespace-normal hyphens-none">
               <ProximityTextAnimation
                 text="Access academic resources, track your progress, and enhance your learning journey with our suite of student tools."
                 sensitivity={.15}
