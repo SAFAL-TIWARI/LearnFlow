@@ -122,11 +122,11 @@ const StudentTools: React.FC = () => {
               Explore Our Tools
             </span>
           </h3>
-          <p className="text-center text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-6 sm:mb-8 px-4">
+          {/* <p className="text-center text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-6 sm:mb-8 px-4">
             <span className="hidden sm:inline">Drag to explore or </span>
             <span className="inline sm:hidden">Swipe to explore or </span>
             <span>Click on a tool to launch it</span>
-          </p>
+          </p> */}
           <FadeInElement delay={100} direction="up" distance={30} duration={800}>
             <div className="mx-auto max-w-[1200px]">
               <RollingGallery 
