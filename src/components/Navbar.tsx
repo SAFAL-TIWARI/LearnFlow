@@ -115,8 +115,8 @@ const Navbar: React.FC = () => {
             >
               Resources
             </button>
-            <div onClick={() => setIsMenuOpen(false)}>
-              <NotificationButton />
+            <div onClick={() => setIsMenuOpen(true)}>
+              {/* <NotificationButton /> */}
             </div>
             <button 
               onClick={() => {

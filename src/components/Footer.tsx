@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { InstagramIcon, LinkedInIcon, GitHubIcon, YouTubeIcon } from './Icons';
-import { scrollToSection } from '../utils/scrollUtils';
+import { scrollToSection, scrollToTop } from '../utils/scrollUtils';
 import ExternalLink from './ExternalLink';
 import { Dialog } from '@/components/ui/dialog';
 
@@ -26,7 +26,16 @@ const Footer: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row md:justify-between items-center mb-6">
           <div className="mb-4 md:mb-0">
-            <h3 className="font-semibold text-xl text-learnflow-600 dark:text-learnflow-400">LearnFlow</h3>
+            <h3
+              className="font-semibold text-xl text-learnflow-600 dark:text-learnflow-400 cursor-pointer hover:text-learnflow-700 dark:hover:text-learnflow-300 transition-colors"
+              onClick={() => {
+                // window.location.reload();
+                scrollToTop();
+              }}
+              title="Refresh page and go to top"
+            >
+              LearnFlow
+            </h3>
             <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">Education Made Simple</p>
           </div>
 
