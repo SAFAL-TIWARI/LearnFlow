@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { Dialog } from '@/components/ui/dialog';
 import { scrollToSection } from '../utils/scrollUtils';
+import { Link, useLocation } from 'react-router-dom';
 import SmartAuthButton from './SmartAuthButton';
 import NotificationButton from './NotificationButton';
 
@@ -10,6 +11,18 @@ const Navbar: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
   const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
+
+  // Function to handle navigation based on current location
+  const handleNavigation = (target: string) => {
+    if (location.pathname === '/') {
+      // If on home page, use scroll to section
+      scrollToSection(target);
+    } else {
+      // If on another page, navigate to home page with hash
+      window.location.href = `/#${target}`;
+    }
+  };
 
   // Auto-close About dialog after 10 seconds if it was automatically opened
   useEffect(() => {
@@ -28,24 +41,44 @@ const Navbar: React.FC = () => {
     <nav className="bg-white dark:bg-gray-800 shadow-md py-4">
       <div className="container mx-auto px-4 flex justify-between items-center">
         <div className="flex items-center">
-          <a href="/" className="text-2xl font-bold text-learnflow-600 dark:text-learnflow-300 mr-8 font-teko tracking-wide">
+          <Link to="/" className="text-2xl font-bold text-learnflow-600 dark:text-learnflow-300 mr-8 font-teko tracking-wide">
             LearnFlow
-          </a>
+          </Link>
 
           {/* Desktop Nav Links */}
           <div className="hidden md:flex space-x-6">
-            <button
-              onClick={() => scrollToSection('student-tools')}
-              className="text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"
-            >
-              Tools
-            </button>
-            <button
-              onClick={() => scrollToSection('academic-resources')}
-              className="text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"
-            >
-              Resources
-            </button>
+            {location.pathname === '/' ? (
+              <button
+                onClick={() => handleNavigation('student-tools')}
+                className="text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"
+              >
+                Tools
+              </button>
+            ) : (
+              <Link
+                to="/tools"
+                className="text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"
+              >
+                Tools
+              </Link>
+            )}
+            
+            {location.pathname === '/' ? (
+              <button
+                onClick={() => handleNavigation('academic-resources')}
+                className="text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"
+              >
+                Resources
+              </button>
+            ) : (
+              <Link
+                to="/resources"
+                className="text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"
+              >
+                Resources
+              </Link>
+            )}
+            
             {/* <NotificationButton /> */}
             <button
               onClick={() => setAboutDialogOpen(true)}
@@ -97,24 +130,45 @@ const Navbar: React.FC = () => {
       {isMenuOpen && (
         <div className="md:hidden bg-white dark:bg-gray-800 py-4 px-4">
           <div className="flex flex-col space-y-3">
-            <button
-              onClick={() => {
-                scrollToSection('student-tools');
-                setIsMenuOpen(false);
-              }}
-              className="text-left text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors"
-            >
-              Tools
-            </button>
-            <button
-              onClick={() => {
-                scrollToSection('academic-resources');
-                setIsMenuOpen(false);
-              }}
-              className="text-left text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors"
-            >
-              Resources
-            </button>
+            {location.pathname === '/' ? (
+              <button
+                onClick={() => {
+                  handleNavigation('student-tools');
+                  setIsMenuOpen(false);
+                }}
+                className="text-left text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors"
+              >
+                Tools
+              </button>
+            ) : (
+              <Link
+                to="/tools"
+                onClick={() => setIsMenuOpen(false)}
+                className="text-left text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors"
+              >
+                Tools
+              </Link>
+            )}
+            
+            {location.pathname === '/' ? (
+              <button
+                onClick={() => {
+                  handleNavigation('academic-resources');
+                  setIsMenuOpen(false);
+                }}
+                className="text-left text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors"
+              >
+                Resources
+              </button>
+            ) : (
+              <Link
+                to="/resources"
+                onClick={() => setIsMenuOpen(false)}
+                className="text-left text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors"
+              >
+                Resources
+              </Link>
+            )}
             <div onClick={() => setIsMenuOpen(true)}>
               {/* <NotificationButton /> */}
             </div>

@@ -7,6 +7,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import CustomSessionProvider from "./components/CustomSessionProvider";
 import Index from "./pages/Index";
+import Tools from "./pages/Tools";
+import Resources from "./pages/Resources";
 import NotFound from "./pages/NotFound";
 import CGPACalculator from "./pages/tools/CGPACalculator";
 import StudyTimer from "./pages/tools/StudyTimer";
@@ -66,6 +68,8 @@ const App = () => {
                 <BrowserRouter>
                   <Routes>
                     <Route path="/" element={<Index />} />
+                    <Route path="/tools" element={<Tools />} />
+                    <Route path="/resources" element={<Resources />} />
 
                     {/* Tool Routes */}
                     <Route path="/tools/cgpa-calculator" element={<CGPACalculator />} />

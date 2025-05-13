@@ -1,29 +1,22 @@
-
 import React from 'react';
 import Navbar from '../components/Navbar';
-import Hero from '../components/Hero';
-import NavigationSlide from '../components/NavigationSlide';
+import StudentTools from '../components/StudentTools';
 import Footer from '../components/Footer';
 import PageFadeSection from '../components/PageFadeSection';
 import { ThemeProvider } from '../hooks/useTheme';
 
-const Index = () => {
+const Tools = () => {
   return (
     <ThemeProvider>
       <div className="min-h-screen flex flex-col">
         <Navbar />
         
-        {/* Hero section with a subtle fade-in animation */}
-        <PageFadeSection animationType="fade-in" threshold={0.05}>
-          <Hero />
-        </PageFadeSection>
-        
-        {/* Navigation Slide with buttons to Resources and Tools */}
+        {/* Student Tools section with bottom-to-top fade animation */}
         <PageFadeSection 
           animationType="fade-up" 
           threshold={0.15}
         >
-          <NavigationSlide />
+          <StudentTools />
         </PageFadeSection>
         
         {/* Footer with a slight delay */}
@@ -39,4 +32,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default Tools;

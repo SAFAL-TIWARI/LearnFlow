@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { InstagramIcon, LinkedInIcon, GitHubIcon, YouTubeIcon } from './Icons';
-import { scrollToSection, scrollToTop } from '../utils/scrollUtils';
+import { scrollToTop } from '../utils/scrollUtils';
 import ExternalLink from './ExternalLink';
 import { Dialog } from '@/components/ui/dialog';
 
@@ -41,18 +42,18 @@ const Footer: React.FC = () => {
 
           <div className="flex flex-col md:flex-row md:space-x-8 space-y-4 md:space-y-0 items-center">
             <div className="flex flex-col md:flex-row md:space-x-8 space-y-4 md:space-y-0 items-center mb-4 md:mb-0">
-              <button
-                onClick={() => scrollToSection('student-tools')}
+              <Link
+                to="/tools"
                 className="text-gray-600 dark:text-gray-400 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"
               >
                 Tools
-              </button>
-              <button
-                onClick={() => scrollToSection('academic-resources')}
+              </Link>
+              <Link
+                to="/resources"
                 className="text-gray-600 dark:text-gray-400 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"
               >
                 Resources
-              </button>
+              </Link>
               <button
                 onClick={() => setAboutDialogOpen(true)}
                 className="text-gray-600 dark:text-gray-400 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"

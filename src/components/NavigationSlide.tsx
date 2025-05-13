@@ -1,34 +1,23 @@
-
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import BlurTextAnimation from './BlurTextAnimation';
-import ProximityTextAnimation from './ProximityTextAnimation';
 import FadeInElement from './FadeInElement';
 import StarBorder from './StarBorder';
 
-const Hero: React.FC = () => {
+const NavigationSlide: React.FC = () => {
   return (
-    <div className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 py-16 md:py-20 lg:py-24">
+    <div className="bg-gradient-to-br from-gray-100 to-white dark:from-gray-800 dark:to-gray-700 py-16">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto text-center">
           <FadeInElement delay={100} direction="up" distance={30} duration={800}>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6 font-bodoni no-word-break">
-              <BlurTextAnimation
-                text="Learning Made Simple"
-                className="text-learnflow-800"
-                speed={500}
-              />
-            </h1>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6 font-bodoni">
+              Discover LearnFlow Resources
+            </h2>
           </FadeInElement>
 
           <FadeInElement delay={300} direction="up" distance={10} duration={800}>
-            <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed font-isidora whitespace-normal hyphens-none">
-              <ProximityTextAnimation
-                text="Access academic resources, track your progress, and enhance your learning journey with our suite of student tools."
-                sensitivity={.15}
-                maxDistance={100}
-              />
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed font-isidora">
+              Access our comprehensive collection of academic materials and productivity tools designed to enhance your learning experience.
             </p>
           </FadeInElement>
 
@@ -38,11 +27,11 @@ const Hero: React.FC = () => {
                 as={Link}
                 to="/resources"
                 className="group"
-                color="#0c8ee0" // Using learnflow-500 color
+                color="#0c8ee0"
                 speed="2s"
               >
                 <div className="flex items-center justify-center font-poppins">
-                  Get Started
+                  Academic Resources
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </div>
               </StarBorder>
@@ -51,10 +40,13 @@ const Hero: React.FC = () => {
                 as={Link}
                 to="/tools"
                 className="group"
-                color="#7c5cfc" // Using learnflow-purple color
+                color="#7c5cfc"
                 speed="2s"
               >
-                <span className="font-poppins">Explore Tools</span>
+                <div className="flex items-center justify-center font-poppins">
+                  Explore Tools
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </div>
               </StarBorder>
             </div>
           </FadeInElement>
@@ -64,4 +56,4 @@ const Hero: React.FC = () => {
   );
 };
 
-export default Hero;
+export default NavigationSlide;
