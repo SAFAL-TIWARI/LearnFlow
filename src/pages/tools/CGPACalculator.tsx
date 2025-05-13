@@ -11,7 +11,7 @@ const CGPACalculator = () => {
       <div className="flex items-center mb-8">
         <Button 
           variant="outline" 
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/tools')}
           className="mr-4"
         >
           Back to Home
