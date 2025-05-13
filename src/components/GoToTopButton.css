@@ -13,6 +13,38 @@
   visibility: visible;
 }
 
+.go-to-top-container.bouncing {
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+.go-to-top-container.bouncing .go-to-top-button {
+  animation: shadow-pulse 2s infinite;
+}
+
+@keyframes shadow-pulse {
+  0%, 20%, 50%, 80%, 100% {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  40% {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+  60% {
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
+  }
+}
+
 .go-to-top-button {
   width: 50px;
   height: 50px;
@@ -86,9 +118,9 @@
 @media (max-width: 480px) {
   .go-to-top-container {
     bottom: 30px; /* Keep at bottom on mobile */
-    right: 90px; /* Position to the left of the chat button */
+    right: 75px; /* Position to the left of the chat button */
   }
-  
+
   .go-to-top-button {
     width: 45px;
     height: 45px;

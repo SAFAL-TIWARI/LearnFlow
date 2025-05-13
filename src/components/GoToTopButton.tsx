@@ -6,6 +6,7 @@ import './GoToTopButton.css';
 const GoToTopButton: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
+  const [isBouncing, setIsBouncing] = useState(true);
 
   // Check scroll position and update visibility
   useEffect(() => {
@@ -19,19 +20,25 @@ const GoToTopButton: React.FC = () => {
     };
 
     window.addEventListener('scroll', toggleVisibility);
-    
+
     // Clean up event listener
     return () => window.removeEventListener('scroll', toggleVisibility);
   }, []);
 
   return (
-    <div className={`go-to-top-container ${isVisible ? 'visible' : ''}`}>
-      <button 
+    <div className={`go-to-top-container ${isVisible ? 'visible' : ''} ${isBouncing ? 'bouncing' : ''}`}>
+      <button
         className="go-to-top-button"
         onClick={scrollToTop}
         aria-label="Go to top"
-        onMouseEnter={() => setShowTooltip(true)}
-        onMouseLeave={() => setShowTooltip(false)}
+        onMouseEnter={() => {
+          setShowTooltip(true);
+          setIsBouncing(false);
+        }}
+        onMouseLeave={() => {
+          setShowTooltip(false);
+          setIsBouncing(true);
+        }}
       >
         <ArrowUp size={24} />
         <span className={`tooltip ${showTooltip ? 'visible' : ''}`}>Go to top</span>
