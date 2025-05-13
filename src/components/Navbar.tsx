@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { Dialog } from '@/components/ui/dialog';
 import { scrollToSection } from '../utils/scrollUtils';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import SmartAuthButton from './SmartAuthButton';
 import NotificationButton from './NotificationButton';
 
@@ -12,6 +12,7 @@ const Navbar: React.FC = () => {
   const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Function to handle navigation based on current location
   const handleNavigation = (target: string) => {
@@ -19,8 +20,8 @@ const Navbar: React.FC = () => {
       // If on home page, use scroll to section
       scrollToSection(target);
     } else {
-      // If on another page, navigate to home page with hash
-      window.location.href = `/#${target}`;
+      // If on another page, navigate to home page with hash using React Router
+      navigate(`/#${target}`);
     }
   };
 
@@ -47,37 +48,19 @@ const Navbar: React.FC = () => {
 
           {/* Desktop Nav Links */}
           <div className="hidden md:flex space-x-6">
-            {location.pathname === '/' ? (
-              <button
-                onClick={() => handleNavigation('student-tools')}
-                className="text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"
-              >
-                Tools
-              </button>
-            ) : (
-              <Link
-                to="/tools"
-                className="text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"
-              >
-                Tools
-              </Link>
-            )}
+            <Link
+              to="/tools"
+              className="text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"
+            >
+              Tools
+            </Link>
             
-            {location.pathname === '/' ? (
-              <button
-                onClick={() => handleNavigation('academic-resources')}
-                className="text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"
-              >
-                Resources
-              </button>
-            ) : (
-              <Link
-                to="/resources"
-                className="text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"
-              >
-                Resources
-              </Link>
-            )}
+            <Link
+              to="/resources"
+              className="text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"
+            >
+              Resources
+            </Link>
             
             {/* <NotificationButton /> */}
             <button
@@ -130,48 +113,23 @@ const Navbar: React.FC = () => {
       {isMenuOpen && (
         <div className="md:hidden bg-white dark:bg-gray-800 py-4 px-4">
           <div className="flex flex-col space-y-3">
-            {location.pathname === '/' ? (
-              <button
-                onClick={() => {
-                  handleNavigation('student-tools');
-                  setIsMenuOpen(false);
-                }}
-                className="text-left text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors"
-              >
-                Tools
-              </button>
-            ) : (
-              <Link
-                to="/tools"
-                onClick={() => setIsMenuOpen(false)}
-                className="text-left text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors"
-              >
-                Tools
-              </Link>
-            )}
+            <Link
+              to="/tools"
+              onClick={() => setIsMenuOpen(false)}
+              className="text-left text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors"
+            >
+              Tools
+            </Link>
             
-            {location.pathname === '/' ? (
-              <button
-                onClick={() => {
-                  handleNavigation('academic-resources');
-                  setIsMenuOpen(false);
-                }}
-                className="text-left text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors"
-              >
-                Resources
-              </button>
-            ) : (
-              <Link
-                to="/resources"
-                onClick={() => setIsMenuOpen(false)}
-                className="text-left text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors"
-              >
-                Resources
-              </Link>
-            )}
-            <div onClick={() => setIsMenuOpen(true)}>
-              {/* <NotificationButton /> */}
-            </div>
+            <Link
+              to="/resources"
+              onClick={() => setIsMenuOpen(false)}
+              className="text-left text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors"
+            >
+              Resources
+            </Link>
+            {/* Removed the div that was keeping the menu open */}
+            {/* <NotificationButton /> */}
             <button
               onClick={() => {
                 setAboutDialogOpen(true);
