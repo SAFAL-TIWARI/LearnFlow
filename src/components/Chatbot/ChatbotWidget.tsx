@@ -4,7 +4,7 @@ import { MessageSquare, Send, X, Loader2, Maximize2, Minimize2 } from 'lucide-re
 import './ChatbotWidget.css';
 
 // Google Gemini API key - This is only for reference, actual API calls go through the backend
-// const GEMINI_API_KEY = 'AIzaSyCOj3Extd63rPuOIHmhbSZNz2lqJwamAwk';
+// const GEMINI_API_KEY = 'AIzaSyDjXHRQD2xGfp2nuM52SPFz9_srCQQDOf4';
 
 interface Message {
   role: 'user' | 'assistant' | 'system';
