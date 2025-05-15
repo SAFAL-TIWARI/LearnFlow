@@ -26,5 +26,6 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     copyPublicDir: true,
+    outDir: "dist", // Output directory for Firebase hosting
   }
 }));
