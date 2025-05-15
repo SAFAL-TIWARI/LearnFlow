@@ -11,13 +11,14 @@ export function nextAuthPlugin(): Plugin {
         // Handle NextAuth API routes
         if (req.url?.startsWith('/api/auth')) {
           try {
-            // Get the handler file path
-            const handlerPath = path.resolve(__dirname, '../pages/api/auth/[...nextauth].ts');
+            // Get the handler file path - use file:// protocol for Windows
+            const handlerPath = path.resolve(process.cwd(), 'src/pages/api/auth/[...nextauth].ts');
+            const fileUrl = `file://${handlerPath.replace(/\\/g, '/')}`;
             
             // Check if the file exists
             if (fs.existsSync(handlerPath)) {
               // Import the handler dynamically
-              const handler = (await import(handlerPath)).default;
+              const handler = (await import(fileUrl)).default;
               
               // Call the handler with the request and response
               await handler(req, res);

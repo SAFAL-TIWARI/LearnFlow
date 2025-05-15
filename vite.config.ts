@@ -15,7 +15,8 @@ export default defineConfig(({ mode }) => ({
   base: "/", // Use absolute paths for assets
   plugins: [
     react(),
-    nextAuthPlugin(),
+    // Temporarily disable NextAuth plugin to focus on Supabase issues
+    // nextAuthPlugin(),
     mode === 'development' &&
     componentTagger(),
   ].filter(Boolean),

@@ -21,7 +21,7 @@ import ChatbotWidget from "./components/Chatbot/ChatbotWidget";
 import GoToTopButton from "./components/GoToTopButton";
 import NotificationManager from "./components/NotificationManager";
 import ClickSparkAnimation from "./components/ClickSparkAnimation";
-import SvgBackground from "./components/SvgBackground";
+
 import { ThemeProvider } from "./hooks/useTheme";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react"
@@ -62,8 +62,7 @@ const App = () => {
                 <Toaster />
                 <Sonner />
 
-                {/* SVG Background - positioned behind content but above default background */}
-                <SvgBackground className="svg-background" />
+
 
                 <BrowserRouter>
                   <Routes>

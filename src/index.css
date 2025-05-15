@@ -7,7 +7,7 @@
 
 /* Import custom styles */
 @import './styles/button-customization.css';
-@import './styles/svg-background.css';
+
 @import './styles/fonts.css';
 @import './styles/text-alignment.css';
 @import './styles/rolling-gallery.css';

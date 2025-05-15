@@ -1,5 +1,3 @@
-
-
 // Import environment check first
 import './lib/env-check'
 
@@ -20,8 +18,14 @@ import App from './App.tsx'
 import './styles/reset.css'
 import './index.css'
 import './styles/iframe-touch-fix.css'
+import { SupabaseProvider } from './context/SupabaseAuthContext'
+
 
 // Apply iframe scroll fix for mobile devices
 applyIframeScrollFix()
 
-createRoot(document.getElementById("root")!).render(<App />);
+createRoot(document.getElementById("root")!).render(
+  <SupabaseProvider>
+    <App />
+  </SupabaseProvider>
+);

@@ -1,3 +1,5 @@
+import { supabase } from '../lib/supabaseClient';
+
 export type Branch = {
   id: string;
   name: string;
@@ -729,3 +731,4 @@ export const branchSubjects: Record<
     },
   },
 };
+const { data, error } = await supabase.from('academic_structure').select('*').eq('branch', 'CSE')
