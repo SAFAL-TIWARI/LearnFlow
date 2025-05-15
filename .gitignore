@@ -33,3 +33,7 @@ server/.env
 
 # Local development files
 *.local
+
+# Firebase credentials
+learnflow-6e7ad-firebase-adminsdk-fbsvc-3bd056f68f.json
+*firebase-adminsdk*.json

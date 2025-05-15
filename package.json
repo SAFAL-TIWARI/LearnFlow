@@ -54,6 +54,7 @@
     "embla-carousel-react": "^8.3.0",
     "express": "^5.1.0",
     "firebase": "^11.7.1",
+    "firebase-admin": "^13.4.0",
     "framer-motion": "^12.11.0",
     "input-otp": "^1.2.4",
     "lucide-react": "^0.462.0",
