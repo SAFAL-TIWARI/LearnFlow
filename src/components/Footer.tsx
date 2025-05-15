@@ -54,12 +54,12 @@ const Footer: React.FC = () => {
               >
                 Resources
               </Link>
-              <button
-                onClick={() => setAboutDialogOpen(true)}
-                className="text-gray-600 dark:text-gray-400 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"
-              >
-                About Us
-              </button>
+              {/* <button */}
+              {/* onClick={() => setAboutDialogOpen(true)} */}
+              {/* className="text-gray-600 dark:text-gray-400 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya" */}
+              {/* > */}
+                {/* About Us */}
+              {/* </button> */}
             </div>
 
             <div className="flex space-x-4">
