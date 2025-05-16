@@ -15,24 +15,30 @@ export const getRedirectUri = (): string => {
     if (process.env.VITE_NEXTAUTH_URL) {
       return process.env.VITE_NEXTAUTH_URL;
     }
+    if (process.env.NEXTAUTH_URL) {
+      return process.env.NEXTAUTH_URL;
+    }
   }
-  
+
   // For client-side
   if (typeof window !== 'undefined') {
     // Check if we're on the Vercel deployment
     if (window.location.hostname.includes('vercel.app')) {
       return 'https://learn-flow-seven.vercel.app';
     }
-    
+
     // Check if we have the URL in window.process.env
     if (window.process?.env?.VITE_NEXTAUTH_URL) {
       return window.process.env.VITE_NEXTAUTH_URL;
     }
-    
+
+    // Log the current origin for debugging
+    console.log('Current origin:', window.location.origin);
+
     // Default to current origin
     return window.location.origin;
   }
-  
+
   // Fallback
   return 'https://learn-flow-seven.vercel.app';
 };
@@ -43,5 +49,8 @@ export const getRedirectUri = (): string => {
  */
 export const getGoogleCallbackUrl = (): string => {
   const baseUrl = getRedirectUri();
-  return `${baseUrl}/api/auth/callback/google`;
+  // Log the callback URL for debugging
+  const callbackUrl = `${baseUrl}/api/auth/callback/google`;
+  console.log('Google callback URL:', callbackUrl);
+  return callbackUrl;
 };

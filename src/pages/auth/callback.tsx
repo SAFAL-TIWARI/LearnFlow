@@ -14,17 +14,32 @@ export default function AuthCallback() {
         const hash = window.location.hash;
         const query = window.location.search;
 
+        // Log the callback URL for debugging
+        console.log('Auth callback URL:', window.location.href);
+        console.log('Hash:', hash);
+        console.log('Query:', query);
+
         if (hash || query) {
+          // Check for error in the URL
+          const urlParams = new URLSearchParams(query || hash.substring(1));
+          const errorParam = urlParams.get('error');
+          const errorDescription = urlParams.get('error_description');
+
+          if (errorParam) {
+            console.error('OAuth error in URL:', errorParam, errorDescription);
+            setError(`${errorParam}: ${errorDescription || 'Unknown error'}`);
+            return;
+          }
+
           // Process the callback
           const { error } = await supabase.auth.getSession();
-          
           if (error) {
             console.error('Error in auth callback:', error);
             setError(error.message);
           } else {
+            console.log('Authentication successful');
             // Redirect to the home page or dashboard
             navigate('/', { replace: true });
-            
             // If this was opened in a new window, close it and refresh the parent
             if (window.opener) {
               window.opener.location.reload();
@@ -32,6 +47,7 @@ export default function AuthCallback() {
             }
           }
         } else {
+          console.log('No hash or query parameters found');
           // No hash or query parameters, redirect to login
           navigate('/login', { replace: true });
         }
