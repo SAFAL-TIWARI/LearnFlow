@@ -40,7 +40,7 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyDjXHRQD2xGfp2nuM52SP
 // Middleware
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://learnflow.vercel.app', 'https://www.learnflow.app'] // Restrict in production
+    ? ['https://learn-flow-seven.vercel.app'] // Restrict in production
     : '*', // Allow all origins for development
   methods: ['GET', 'POST'],
   credentials: true

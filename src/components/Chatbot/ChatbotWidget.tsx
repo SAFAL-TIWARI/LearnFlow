@@ -3,9 +3,6 @@ import { useTheme } from '../../hooks/useTheme';
 import { MessageSquare, Send, X, Loader2, Maximize2, Minimize2 } from 'lucide-react';
 import './ChatbotWidget.css';
 
-// Google Gemini API key - This is only for reference, actual API calls go through the backend
-// const GEMINI_API_KEY = 'AIzaSyDjXHRQD2xGfp2nuM52SPFz9_srCQQDOf4';
-
 interface Message {
   role: 'user' | 'assistant' | 'system';
   content: string;
@@ -261,8 +258,7 @@ const ChatbotWidget: React.FC = () => {
 
     // Define API endpoints to try
     const apiEndpoints = [
-      'https://learnflow.vercel.app/api/chat', // Vercel deployment (replace with your actual Vercel URL)
-      '/api/chat',                             // Same-origin relative path
+      'https://learn-flow-seven.vercel.app', // Vercel deployment (replace with your actual Vercel URL)                             // Same-origin relative path
       `${window.location.origin}/api/chat`,    // Absolute path using current origin
       'http://localhost:3001/api/chat'         // Local development (fallback)
     ];
