@@ -1,4 +1,3 @@
-import React from 'react';
 import Navbar from '../components/Navbar';
 import AcademicContent from '../components/AcademicContent';
 import Footer from '../components/Footer';

@@ -1,2 +1,2 @@
-await supabase.auth.signUp({ email, password })
+// await supabase.auth.signUp({ email, password })
 
