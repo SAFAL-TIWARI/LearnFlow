@@ -243,12 +243,12 @@ const Login = () => {
         </div>
 
         <div className="mt-6 text-center">
-          <Link
-            to="/"
+          <button
+            onClick={() => window.close()}
             className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
           >
-            Return to home page
-          </Link>
+            Close window
+          </button>
         </div>
       </div>
     </div>
