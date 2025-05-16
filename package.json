@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "server": "node server/server.js",
-    "start": "node start-dev.js"
+    "start": "node start-dev.js",
+    "init-supabase": "node src/scripts/initSupabaseFree.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -53,7 +54,7 @@
     "cmdk": "^1.0.0",
     "cors": "^2.8.5",
     "date-fns": "^3.6.0",
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.5.0",
     "embla-carousel-react": "^8.3.0",
     "express": "^5.1.0",
     "framer-motion": "^12.11.1",
@@ -94,6 +95,8 @@
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
     "tailwindcss-animate": "^1.0.7",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.4",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
     "vite": "^5.4.2"

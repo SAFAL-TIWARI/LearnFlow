@@ -10,7 +10,7 @@ export default function SmartAuthButton() {
     // Set a timeout to ensure we don't show loading state for too long
     const timeoutId = setTimeout(() => {
       setIsLoading(false);
-    }, 2000);
+    }, 1);
 
     return () => clearTimeout(timeoutId);
   }, []);

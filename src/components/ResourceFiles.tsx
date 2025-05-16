@@ -9,10 +9,12 @@ import { isAuthenticated as isFallbackAuthenticated } from '../lib/auth-fallback
 import { AnimatedList } from './magicui/animated-list';
 import { useIframeTouchScroll } from '../hooks/use-iframe-touch-scroll';
 import '../styles/iframe-touch-fix.css';
+import { fetchSubjectMaterialFiles } from '../lib/academicStorageMapper';
+import SupabaseFileUploader from './SupabaseFileUploader';
 
 // Fallback authentication state if NextAuth fails
 const useAuthFallback = () => {
-  const [localAuth, setLocalAuth] = useState<{isAuthenticated: boolean}>({
+  const [localAuth, setLocalAuth] = useState<{ isAuthenticated: boolean }>({
     isAuthenticated: false
   });
 
@@ -47,23 +49,58 @@ const ResourceFiles: React.FC = () => {
   const fallbackAuth = useAuthFallback();
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const { containerRef, overlayRef } = useIframeTouchScroll();
-  
+  const [storageFiles, setStorageFiles] = useState<FileResource[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  // Fetch files from Supabase storage when subject or material changes
+  useEffect(() => {
+    const fetchStorageFiles = async () => {
+      if (!state.selectedSubject || !state.selectedMaterial) {
+        setStorageFiles([]);
+        return;
+      }
+
+      // setIsLoading(true);
+      try {
+        // Convert 'Syllabus' to 'syllabus' for storage path
+        const materialType = state.selectedMaterial === 'Syllabus'
+          ? 'syllabus'
+          : state.selectedMaterial;
+
+        const files = await fetchSubjectMaterialFiles(
+          state.selectedSubject,
+          materialType
+        );
+
+        setStorageFiles(files);
+      } catch (error) {
+        console.error('Error fetching files from storage:', error);
+        setStorageFiles([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchStorageFiles();
+  }, [state.selectedSubject, state.selectedMaterial, refreshTrigger]);
+
   // Use either NextAuth session or fallback authentication
   const isAuthenticated = (() => {
     // First try NextAuth
     if (status === 'authenticated') return !!session;
-    
+
     // If NextAuth status is error, use fallback
     if (status === 'unauthenticated') {
       // Try our fallback auth first
       if (isFallbackAuthenticated()) {
         return true;
       }
-      
+
       // Then try the local auth
       return fallbackAuth.isAuthenticated;
     }
-    
+
     // Check both fallback mechanisms as last resort
     try {
       return isFallbackAuthenticated() || fallbackAuth.isAuthenticated;
@@ -71,40 +108,81 @@ const ResourceFiles: React.FC = () => {
       return false;
     }
   })();
-  
+
   // Only render if material type is selected
   if (!state.selectedMaterial) {
     return null;
   }
-  
+
   // Get subject-specific materials if available, otherwise use generic materials
   const getSubjectMaterials = (): FileResource[] => {
+    let manualFiles: FileResource[] = [];
+
     // If subject is selected, try to get subject-specific materials
     if (state.selectedSubject && subjectMaterials[state.selectedSubject]) {
       const materialType = state.selectedMaterial as keyof typeof subjectMaterials[string];
-      return subjectMaterials[state.selectedSubject][materialType] || [];
+      manualFiles = subjectMaterials[state.selectedSubject][materialType] || [];
+    } else {
+      // Fallback to generic materials if subject-specific ones aren't available
+      manualFiles = resourceFiles[state.selectedMaterial] || [];
     }
-    
-    // Fallback to generic materials if subject-specific ones aren't available
-    return resourceFiles[state.selectedMaterial] || [];
+
+    // Merge manual files with storage files
+    // Use a Map to deduplicate by ID
+    const filesMap = new Map<string, FileResource>();
+
+    // Add manual files first
+    manualFiles.forEach(file => {
+      filesMap.set(file.id, file);
+    });
+
+    // Add storage files, potentially overwriting manual files with the same ID
+    storageFiles.forEach(file => {
+      filesMap.set(file.id, file);
+    });
+
+    // Convert back to array
+    return Array.from(filesMap.values());
   };
-  
+
   const files = getSubjectMaterials();
-  
-  if (files.length === 0) {
+
+  // Function to refresh files from storage
+  const refreshFiles = () => {
+    setRefreshTrigger(prev => prev + 1);
+  };
+
+  if (files.length === 0 && !isLoading) {
     return (
       <div className="mb-8 animate-slide-in">
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-gray-600 dark:text-gray-400 mb-6">
           {state.selectedSubject ? (
             <>🚧 Material for {state.selectedSubject} will be updated soon!</>
           ) : (
             <>No files available for this selection.</>
           )}
         </p>
+
+        {/* Add file uploader component */}
+        {state.selectedSubject && state.selectedMaterial && (
+          <SupabaseFileUploader onUploadComplete={refreshFiles} />
+        )}
       </div>
     );
   }
-  
+
+  // Show loading indicator
+  if (isLoading) {
+    return (
+      <div className="mb-8 animate-slide-in">
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-learnflow-500"></div>
+          <span className="ml-2 text-gray-600 dark:text-gray-400">Loading materials...</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="mb-8 animate-slide-in">
       <div className="mb-6">
@@ -115,7 +193,13 @@ const ResourceFiles: React.FC = () => {
             <>Available Resources</>
           )}
         </h3>
-        <AnimatedList delay={300} className="w-full">
+
+        {/* Add file uploader component */}
+        {state.selectedSubject && state.selectedMaterial && isAuthenticated && (
+          <SupabaseFileUploader onUploadComplete={refreshFiles} />
+        )}
+
+        <AnimatedList delay={300} className="w-full mt-6">
           {files.map((file) => {
             return (
               <div key={file.id} className="file-item w-full">
@@ -133,7 +217,7 @@ const ResourceFiles: React.FC = () => {
                   >
                     View
                   </button>
-                  <button 
+                  <button
                     className={`text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors ${!isAuthenticated ? 'opacity-50' : ''}`}
                     title={!isAuthenticated ? "Sign up to download" : "Download file"}
                     onClick={() => {
@@ -157,7 +241,7 @@ const ResourceFiles: React.FC = () => {
                           </div>
                         `;
                         document.body.appendChild(errorDiv);
-                        
+
                         // Remove the error message after 5 seconds
                         setTimeout(() => {
                           errorDiv.classList.add('animate-slide-up');
@@ -167,7 +251,7 @@ const ResourceFiles: React.FC = () => {
                         }, 5000);
                         return;
                       }
-                      
+
                       // Use our download utility
                       downloadGoogleDriveFile(file.url, file.name);
                     }}
@@ -181,7 +265,7 @@ const ResourceFiles: React.FC = () => {
           })}
         </AnimatedList>
       </div>
-      
+
       {/* File viewer */}
       {selectedFile && (
         <div className="mt-8 animate-fade-in">
@@ -201,7 +285,7 @@ const ResourceFiles: React.FC = () => {
           <div className="document-preview-wrapper bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
             <div ref={containerRef} className="iframe-container">
               {/* Touch overlay to handle scrolling */}
-              <div 
+              <div
                 ref={overlayRef}
                 className="touch-scroll-overlay"
               ></div>
@@ -242,7 +326,7 @@ const ResourceFiles: React.FC = () => {
               const file = files.find(f => f.id === selectedFile);
               if (file) {
                 return (
-                  <button 
+                  <button
                     onClick={() => {
                       if (!isAuthenticated) {
                         // Show a more user-friendly error message
@@ -264,7 +348,7 @@ const ResourceFiles: React.FC = () => {
                           </div>
                         `;
                         document.body.appendChild(errorDiv);
-                        
+
                         // Remove the error message after 5 seconds
                         setTimeout(() => {
                           errorDiv.classList.add('animate-slide-up');
@@ -274,13 +358,13 @@ const ResourceFiles: React.FC = () => {
                         }, 5000);
                         return;
                       }
-                      
+
                       // Use our download utility
                       downloadGoogleDriveFile(file.url, file.name);
                     }}
                     className={`flex items-center px-4 py-2 ${isAuthenticated ? 'bg-learnflow-600 hover:bg-learnflow-700' : 'bg-gray-400 hover:bg-gray-500'} text-white rounded-lg transition-colors`}
                   >
-                    <DownloadIcon className="w-5 h-5 mr-2" /> 
+                    <DownloadIcon className="w-5 h-5 mr-2" />
                     {isAuthenticated ? 'Download File' : 'Sign up to Download'}
                   </button>
                 );
