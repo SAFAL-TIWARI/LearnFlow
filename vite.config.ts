@@ -28,5 +28,6 @@ export default defineConfig(({ mode }) => ({
   build: {
     copyPublicDir: true,
     outDir: "dist", // Output directory for Firebase hosting
+    target: "esnext", // Change from default to support top-level await
   }
 }));

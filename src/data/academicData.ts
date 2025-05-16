@@ -731,4 +731,29 @@ export const branchSubjects: Record<
     },
   },
 };
+const fetchAcademicData = async () => {
+  try {
+    const { data, error } = await supabase
+      .from("academic_structure")
+      .select("*")
+      .eq("branch", "CSE");
+    
+    if (error) {
+      console.error("Error fetching academic data:", error);
+      return null;
+    }
+    
+    return data;
+  } catch (err) {
+    console.error("Exception when fetching academic data:", err);
+    return null;
+  }
+};
+
+// Initialize data fetching but don't use top-level await
+const academicDataPromise = fetchAcademicData();
+
+// Export a function to get the data
+export const getAcademicData = async () => {
+  return await academicDataPromise;
 const { data, error } = await supabase.from('academic_structure').select('*').eq('branch', 'CSE')

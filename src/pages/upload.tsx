@@ -6,7 +6,7 @@ const [file, setFile] = useState<File>()
 
 const uploadFile = async () => {
 if (!file) return
-const { data, error } = await supabase.storage.from('resources').upload(uploads/${file.name}, file)
+const { data, error } = await supabase.storage.from('resources').upload(`uploads/${file.name}`, file)
 if (error) alert(error.message)
 else alert('Upload successful!')
 }
