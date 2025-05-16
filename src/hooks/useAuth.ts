@@ -1,18 +1,6 @@
-import { useEffect, useState } from 'react'
-import { supabase } from '../../supabaseClient'
+import { useAuth as useSupabaseAuth } from '../context/SupabaseAuthContext';
 
-export const useAuth = () => {
-    const [user, setUser] = useState<any>(null)
+// Re-export the useAuth hook from the context
+export const useAuth = useSupabaseAuth;
 
-    useEffect(() => {
-        const session = supabase.auth.getSession().then(({ data: { session } }) => {
-            setUser(session?.user ?? null)
-        })
-        const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-            setUser(session?.user ?? null)
-        })
-        return () => listener.subscription.unsubscribe()
-    }, [])
-
-    return { user }
-}
+export default useAuth;

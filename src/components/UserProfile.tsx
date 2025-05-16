@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '../lib/supabaseClient';
-import { getSession, isAuthenticated } from '../lib/auth-fallback';
-import { useSession } from 'next-auth/react';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../context/SupabaseAuthContext';
 
 interface UserData {
   id: string;
@@ -18,53 +17,35 @@ export default function UserProfile() {
   const [isOpen, setIsOpen] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [usingFallback, setUsingFallback] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  
-  // Try to use NextAuth session first
-  const { data: nextAuthSession, status } = useSession();
-  
+
+  // Use Supabase auth context
+  const { user, logout } = useAuth();
+
   useEffect(() => {
     const fetchUserData = async () => {
+      if (!user) return;
+
       try {
         setLoading(true);
-        
-        // Check if we're using NextAuth or fallback
-        let userEmail = '';
-        let userName = '';
-        let userId = '';
-        
-        if (status === 'authenticated' && nextAuthSession) {
-          // Using NextAuth
-          userEmail = nextAuthSession.user?.email || '';
-          userName = nextAuthSession.user?.name || '';
-          userId = nextAuthSession.user?.email || '';
-          setUsingFallback(false);
-        } else if (isAuthenticated()) {
-          // Using fallback auth
-          const fallbackSession = getSession();
-          userEmail = fallbackSession?.user.email || '';
-          userName = fallbackSession?.user.name || '';
-          userId = fallbackSession?.user.email || '';
-          setUsingFallback(true);
-        } else {
-          // Not authenticated
-          setLoading(false);
-          return;
-        }
-        
+
+        // Get user email from Supabase auth
+        const userEmail = user.email || '';
+        const userName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
+        const userId = user.id;
+
         // Check if user exists in Supabase
         const { data, error } = await supabase
           .from('users')
           .select('*')
           .eq('email', userEmail)
           .single();
-          
+
         if (error && error.code !== 'PGRST116') {
           console.error('Error fetching user data:', error);
           throw error;
         }
-        
+
         if (data) {
           // User exists, use their data
           setUserData(data);
@@ -76,18 +57,18 @@ export default function UserProfile() {
             email: userEmail,
             created_at: new Date().toISOString(),
           };
-          
+
           const { data: createdUser, error: createError } = await supabase
             .from('users')
             .insert([newUser])
             .select()
             .single();
-            
+
           if (createError) {
             console.error('Error creating user:', createError);
             throw createError;
           }
-          
+
           setUserData(createdUser);
         }
       } catch (error) {
@@ -96,12 +77,14 @@ export default function UserProfile() {
         setLoading(false);
       }
     };
-    
-    if (status !== 'loading') {
+
+    if (user) {
       fetchUserData();
+    } else {
+      setLoading(false);
     }
-  }, [nextAuthSession, status]);
-  
+  }, [user]);
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -109,42 +92,42 @@ export default function UserProfile() {
         setIsOpen(false);
       }
     };
-    
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-  
-  // If not authenticated or still loading NextAuth, return null
-  if ((status === 'unauthenticated' && !isAuthenticated()) || (status === 'loading' && loading)) {
+
+  // If not authenticated or still loading, return null
+  if (!user || loading) {
     return null;
   }
-  
-  const profilePicture = userData?.profile_picture || 
-    nextAuthSession?.user?.image || 
+
+  const profilePicture = userData?.profile_picture ||
+    user.user_metadata?.avatar_url ||
     'https://ui-avatars.com/api/?name=' + encodeURIComponent(userData?.name || 'User');
-  
+
   return (
     <div className="relative" ref={dropdownRef}>
-      <button 
+      <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center focus:outline-none"
       >
-        <img 
-          src={profilePicture} 
-          alt="Profile" 
+        <img
+          src={profilePicture}
+          alt="Profile"
           className="w-10 h-10 rounded-full object-cover border-2 border-gray-200 hover:border-learnflow-500 transition-all duration-300"
         />
       </button>
-      
+
       {isOpen && (
         <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-2 z-50 border border-gray-200 dark:border-gray-700 animate-fade-in-down">
           <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center">
-              <img 
-                src={profilePicture} 
-                alt="Profile" 
+              <img
+                src={profilePicture}
+                alt="Profile"
                 className="w-12 h-12 rounded-full mr-3 object-cover"
               />
               <div>
@@ -153,9 +136,9 @@ export default function UserProfile() {
               </div>
             </div>
           </div>
-          
-          <Link 
-            to="/profile" 
+
+          <Link
+            to="/profile"
             className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             onClick={() => setIsOpen(false)}
           >
@@ -166,9 +149,9 @@ export default function UserProfile() {
               Profile
             </div>
           </Link>
-          
-          <Link 
-            to="/release-notes" 
+
+          <Link
+            to="/release-notes"
             className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             onClick={() => setIsOpen(false)}
           >
@@ -179,9 +162,9 @@ export default function UserProfile() {
               Release Notes
             </div>
           </Link>
-          
-          <Link 
-            to="/help" 
+
+          <Link
+            to="/help"
             className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             onClick={() => setIsOpen(false)}
           >
@@ -192,9 +175,9 @@ export default function UserProfile() {
               Help
             </div>
           </Link>
-          
-          <Link 
-            to="/feedback" 
+
+          <Link
+            to="/feedback"
             className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             onClick={() => setIsOpen(false)}
           >
@@ -205,15 +188,20 @@ export default function UserProfile() {
               Feedback
             </div>
           </Link>
-          
+
           <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
-          
+
           <div className="px-4 py-2">
             <button
               className="w-full flex items-center justify-center px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors font-roboto"
-              onClick={() => {
+              onClick={async () => {
                 setIsOpen(false);
-                // Logout logic is handled by the parent component
+                try {
+                  await logout();
+                  window.location.href = '/'; // Redirect to home page after logout
+                } catch (error) {
+                  console.error('Error logging out:', error);
+                }
               }}
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { supabase } from '../lib/supabaseClient';
+import { supabase } from '../lib/supabase';
 import { getSession, isAuthenticated } from '../lib/auth-fallback';
 import { useSession } from 'next-auth/react';
 

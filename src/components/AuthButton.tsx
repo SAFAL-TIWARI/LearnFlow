@@ -1,54 +1,20 @@
-import React, { useState, useEffect } from "react";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { useAuth } from "../context/SupabaseAuthContext";
 
 export default function AuthButton() {
-  const { data: session, status } = useSession();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { user, loading } = useAuth();
 
-  // Reset error state when session status changes
-  useEffect(() => {
-    if (status !== 'loading') {
-      setIsLoading(false);
-    }
-  }, [status]);
-
-  const handleSignIn = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      // Check if we're on mobile
-      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-      if (isMobile) {
-        // For mobile, use a relative URL to avoid 404 errors
-        window.location.href = '/api/auth/signin/google';
-      } else {
-        // For desktop, use the normal signIn function
-        await signIn("google", { callbackUrl: window.location.origin });
-      }
-    } catch (err) {
-      console.error("Sign in error:", err);
-      setError("Failed to sign in. Please try again.");
-      setIsLoading(false);
-    }
-  };
-
-  const handleSignOut = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      await signOut({ callbackUrl: window.location.origin });
-    } catch (err) {
-      console.error("Sign out error:", err);
-      setError("Failed to sign out. Please try again.");
-      setIsLoading(false);
+  const handleSignIn = () => {
+    // Open login page in a new window
+    const loginWindow = window.open('/login', '_blank', 'width=500,height=600');
+    
+    // Focus the new window
+    if (loginWindow) {
+      loginWindow.focus();
     }
   };
 
   // Show loading state
-  if (status === 'loading' || isLoading) {
+  if (loading) {
     return (
       <div className="flex items-center">
         <div className="w-5 h-5 border-t-2 border-b-2 border-blue-500 rounded-full animate-spin mr-2"></div>
@@ -57,22 +23,12 @@ export default function AuthButton() {
     );
   }
 
-  // Show error message if there is one
-  if (error) {
-    return (
-      <div className="flex items-center text-red-500">
-        <span>{error}</span>
-        <button
-          onClick={() => setError(null)}
-          className="ml-2 text-gray-500 hover:text-gray-700"
-        >
-          Retry
-        </button>
-      </div>
-    );
+  // If user is logged in, don't show the button (handled by UserProfile)
+  if (user) {
+    return null;
   }
 
-  // Show sign in button (we don't show signed in state anymore as that's handled by UserProfile)
+  // Show sign in button
   return (
     <button
       onClick={handleSignIn}

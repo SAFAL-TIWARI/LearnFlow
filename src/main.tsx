@@ -25,7 +25,5 @@ import { SupabaseProvider } from './context/SupabaseAuthContext'
 applyIframeScrollFix()
 
 createRoot(document.getElementById("root")!).render(
-  <SupabaseProvider>
-    <App />
-  </SupabaseProvider>
+  <App />
 );

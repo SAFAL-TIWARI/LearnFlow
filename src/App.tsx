@@ -5,7 +5,6 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import CustomSessionProvider from "./components/CustomSessionProvider";
 // import Navbar from "./components/Navbar";
 // import Footer from "./components/Footer";
 import Index from "./pages/Index";
@@ -19,17 +18,20 @@ import NoteOrganizer from "./pages/tools/NoteOrganizer";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import AuthError from "./pages/auth-error";
+import Login from "./pages/login";
+import Signup from "./pages/signup";
+import AuthCallback from "./pages/auth/callback";
+import ForgotPassword from "./pages/forgot-password";
+import ResetPassword from "./pages/auth/reset-password";
 import ChatbotWidget from "./components/Chatbot/ChatbotWidget";
 import GoToTopButton from "./components/GoToTopButton";
 import NotificationManager from "./components/NotificationManager";
 import ClickSparkAnimation from "./components/ClickSparkAnimation";
-// import { SupabaseAuthProvider } from './context/SupabaseAuthContext';
+import { AuthProvider } from './context/SupabaseAuthContext';
 // import { AcademicContextProvider } from './context/AcademicContext';
 import { ThemeProvider } from "./hooks/useTheme";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react"
-// import AuthCallback from './pages/auth/AuthCallback';
-// import ResetPassword from './pages/auth/ResetPassword';
 // import Profile from './pages/Profile';
 // import './App.css';
 
@@ -63,7 +65,7 @@ const App = () => {
     <React.StrictMode>
       <ErrorBoundary>
         <ThemeProvider>
-          <CustomSessionProvider>
+          <AuthProvider>
             <QueryClientProvider client={queryClient}>
               <TooltipProvider>
                 <Toaster />
@@ -86,6 +88,11 @@ const App = () => {
 
                     {/* Auth Pages */}
                     <Route path="/auth-error" element={<AuthError />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/signup" element={<Signup />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/auth/callback" element={<AuthCallback />} />
+                    <Route path="/auth/reset-password" element={<ResetPassword />} />
 
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
@@ -105,7 +112,7 @@ const App = () => {
                 </BrowserRouter>
               </TooltipProvider>
             </QueryClientProvider>
-          </CustomSessionProvider>
+          </AuthProvider>
         </ThemeProvider>
       </ErrorBoundary>
       <SpeedInsights />
