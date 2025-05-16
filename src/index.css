@@ -1,15 +1,15 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 /* Import custom styles */
 @import './styles/button-customization.css';
 @import './styles/fonts.css';
 @import './styles/text-alignment.css';
 @import './styles/rolling-gallery.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @layer base {
   :root {
@@ -129,7 +129,7 @@
   .btn-branch-inactive {
     @apply bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700;
   }
-  
+
   /* Mobile-specific styles for branch buttons */
   @media (max-width: 768px) {
     .btn-branch {
@@ -147,7 +147,7 @@
   .btn-subject-inactive {
     @apply bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700;
   }
-  
+
   /* Mobile-specific styles for subject buttons */
   @media (max-width: 768px) {
     .btn-subject {
