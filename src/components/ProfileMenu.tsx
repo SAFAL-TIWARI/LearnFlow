@@ -48,8 +48,18 @@ export default function ProfileMenu() {
        user.user_metadata?.picture ||
        user.user_metadata?.picture_url ||
        user.user_metadata?.profile_picture ||
+       user.identities?.[0]?.identity_data?.avatar_url ||
+       user.identities?.[0]?.identity_data?.picture ||
        'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.email?.split('@')[0] || 'User'))
     : 'https://ui-avatars.com/api/?name=Guest&background=E5E7EB&color=4B5563';
+
+  // Log user identities for debugging
+  useEffect(() => {
+    if (user && user.identities) {
+      console.log('User identities:', user.identities);
+      console.log('Identity data:', user.identities[0]?.identity_data);
+    }
+  }, [user]);
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -81,6 +91,8 @@ export default function ProfileMenu() {
                     {user.user_metadata?.full_name ||
                      user.user_metadata?.name ||
                      user.user_metadata?.given_name ||
+                     user.identities?.[0]?.identity_data?.full_name ||
+                     user.identities?.[0]?.identity_data?.name ||
                      user.email?.split('@')[0] ||
                      'User'}
                   </p>

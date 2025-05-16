@@ -83,7 +83,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const handleGoogleSignIn = async () => {
-    const { error } = await signInWithGoogle()
+    const { error } = await signInWithGoogle(true)
     return { error }
   }
 

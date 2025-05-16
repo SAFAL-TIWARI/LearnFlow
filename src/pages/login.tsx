@@ -78,12 +78,21 @@ const Login = () => {
         const popup = window.open(
           data.url,
           'googleauth',
-          `width=${width},height=${height},left=${left},top=${top}`
+          `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
         );
 
         // Focus the popup
         if (popup) {
           popup.focus();
+
+          // Set up a check to see if the popup was closed manually
+          const checkPopupClosed = setInterval(() => {
+            if (popup.closed) {
+              clearInterval(checkPopupClosed);
+              // Reload the page to refresh auth state
+              window.location.reload();
+            }
+          }, 1000);
         }
 
         // The popup will redirect to the callback URL which will handle the rest

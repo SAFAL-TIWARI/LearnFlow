@@ -7,8 +7,15 @@ export default function AuthCallback() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Flag to prevent multiple processing attempts
+    let isProcessing = false;
+    
     // Handle the OAuth callback
     const handleAuthCallback = async () => {
+      // Prevent multiple processing attempts of the same code
+      if (isProcessing) return;
+      isProcessing = true;
+      
       try {
         // Get the URL hash and parse it
         const hash = window.location.hash;
@@ -19,24 +26,56 @@ export default function AuthCallback() {
         console.log('Hash:', hash);
         console.log('Query:', query);
 
-        if (hash || query) {
-          // Check for error in the URL
-          const urlParams = new URLSearchParams(query || hash.substring(1));
-          const errorParam = urlParams.get('error');
+        // Check for server error in the URL
+        if (query.includes('server_error') || query.includes('error=')) {
+          const urlParams = new URLSearchParams(query);
+          const serverError = urlParams.get('server_error') || urlParams.get('error');
           const errorDescription = urlParams.get('error_description');
 
-          if (errorParam) {
-            console.error('OAuth error in URL:', errorParam, errorDescription);
-            setError(`${errorParam}: ${errorDescription || 'Unknown error'}`);
-            return;
-          }
+          console.error('Error in OAuth callback:', serverError, errorDescription);
 
-          // Process the callback and get the user session
-          const { data, error } = await supabase.auth.getSession();
+          // Handle specific error cases
+          if (serverError?.includes('Unable to exchange external code')) {
+            setError(`The authentication code has expired or already been used. This typically happens if:
+            
+1. You refreshed the page during authentication
+2. The browser took too long to complete the process
+3. You tried to authenticate multiple times
+
+Please return to login and try again.`);
+          } else if (serverError === 'Unknown error') {
+            setError(`Authentication failed. This could be due to a configuration issue between Supabase and Google. Please check that the redirect URLs are correctly configured in both Supabase and Google Cloud Console.`);
+          } else {
+            setError(`Server error: ${serverError || 'Unknown error'}${errorDescription ? ` - ${errorDescription}` : ''}`);
+          }
+          return;
+        }
+
+        // Check if we have a code parameter in the URL
+        const urlParams = new URLSearchParams(query || hash.substring(1));
+        const code = urlParams.get('code');
+        
+        if (!code) {
+          console.log('No authentication code found in URL');
+          navigate('/login', { replace: true });
+          return;
+        }
+        
+        console.log('Found authentication code, attempting to exchange...');
+
+        // Process the callback with Supabase
+        try {
+          // Clear any existing session first to avoid conflicts
+          await supabase.auth.signOut();
+          
+          // Now exchange the code for a session
+          const { data, error } = await supabase.auth.exchangeCodeForSession(
+            window.location.href
+          );
 
           if (error) {
-            console.error('Error in auth callback:', error);
-            setError(error.message);
+            console.error('Error exchanging code for session:', error);
+            setError(`Authentication error: ${error.message}`);
           } else {
             console.log('Authentication successful', data);
 
@@ -46,23 +85,33 @@ export default function AuthCallback() {
 
             // If this was opened in a new window, close it and refresh the parent
             if (window.opener) {
-              // Make sure the parent window reloads to get the new user data
-              console.log('Closing popup and refreshing parent window');
-              window.opener.location.reload();
-              window.close();
+              try {
+                // Make sure the parent window reloads to get the new user data
+                console.log('Closing popup and refreshing parent window');
+                // Force a delay to ensure the session is properly set before closing
+                setTimeout(() => {
+                  window.opener.location.reload();
+                  window.close();
+                }, 1000);
+              } catch (err) {
+                console.error('Error closing window:', err);
+                // If we can't close the window, navigate to home
+                navigate('/', { replace: true });
+              }
             } else {
               // Redirect to the home page or dashboard
               navigate('/', { replace: true });
             }
           }
-        } else {
-          console.log('No hash or query parameters found');
-          // No hash or query parameters, redirect to login
-          navigate('/login', { replace: true });
+        } catch (exchangeError: any) {
+          console.error('Exception during code exchange:', exchangeError);
+          setError(`Failed to complete authentication: ${exchangeError.message || 'Unknown error'}`);
         }
       } catch (err: any) {
         console.error('Error processing auth callback:', err);
         setError(err.message || 'An error occurred during authentication');
+      } finally {
+        isProcessing = false;
       }
     };
 
@@ -77,12 +126,49 @@ export default function AuthCallback() {
           <div>
             <h2 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-4">Authentication Error</h2>
             <p className="text-gray-700 dark:text-gray-300 mb-4">{error}</p>
-            <button
-              onClick={() => navigate('/login')}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
-            >
-              Return to Login
-            </button>
+
+            {error.includes('configuration issue') && (
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md mb-4">
+                <h3 className="font-semibold text-blue-700 dark:text-blue-400 mb-2">Configuration Tips:</h3>
+                <ul className="list-disc list-inside text-sm text-gray-700 dark:text-gray-300 space-y-1">
+                  <li>Make sure the redirect URL in Supabase matches exactly: <code className="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">{window.location.origin}/auth/callback</code></li>
+                  <li>In Google Cloud Console, add this URL to both "Authorized JavaScript origins" and "Authorized redirect URIs"</li>
+                  <li>Check that you're using the correct Client ID and Client Secret in your Supabase configuration</li>
+                  <li>Try clearing your browser cookies and cache before attempting again</li>
+                </ul>
+              </div>
+            )}
+            
+            {error.includes('expired or already been used') && (
+              <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-md mb-4">
+                <h3 className="font-semibold text-yellow-700 dark:text-yellow-400 mb-2">How to Fix This:</h3>
+                <ol className="list-decimal list-inside text-sm text-gray-700 dark:text-gray-300 space-y-1">
+                  <li>Return to the login page using the button below</li>
+                  <li>Clear your browser cookies and cache</li>
+                  <li>Try signing in with Google again</li>
+                  <li>Complete the process without refreshing or navigating away</li>
+                </ol>
+                <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">
+                  This error happens because OAuth authorization codes can only be used once and expire quickly.
+                </p>
+              </div>
+            )}
+
+            <div className="flex space-x-4">
+              <button
+                onClick={() => navigate('/login')}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+              >
+                Return to Login
+              </button>
+
+              <button
+                onClick={() => window.location.reload()}
+                className="px-4 py-2 bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-white rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+              >
+                Try Again
+              </button>
+            </div>
           </div>
         ) : (
           <div>

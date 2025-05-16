@@ -35,35 +35,71 @@ export const signInWithEmail = async (email: string, password: string) => {
   return { data, error }
 }
 
-export const signInWithGoogle = async () => {
-  // Log the redirect URL for debugging
-  const redirectUrl = `${window.location.origin}/auth/callback`;
-  console.log('Supabase Google OAuth redirect URL:', redirectUrl);
+export const signInWithGoogle = async (redirect: boolean = false) => {
+  try {
+    // Get the current origin for the redirect URL
+    const origin = window.location.origin;
+    // Make sure the redirect URL matches exactly what's configured in Supabase and Google Cloud Console
+    const redirectUrl = redirect ? `${origin}/auth/callback` : undefined;
+    console.log('Supabase Google OAuth redirect URL:', redirectUrl);
 
-  // Use a popup window for Google sign-in
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo: redirectUrl,
-      // Make sure scopes include what's needed
-      scopes: 'email profile',
-      // Use a popup window instead of redirecting the current page
-      queryParams: {
-        access_type: 'offline',
-        prompt: 'consent',
+    // Add a timestamp to prevent caching issues
+    const timestamp = Date.now();
+    
+    // Use a popup window for Google sign-in with simplified options
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: redirectUrl,
+        // Simplify the scopes to just what's needed
+        scopes: 'email profile',
+        queryParams: {
+          // Ensure we get a refresh token
+          access_type: 'offline',
+          // Force consent screen to ensure we get refresh token
+          prompt: 'consent',
+          // Add timestamp to prevent caching issues
+          state: `st_${timestamp}`
+        }
       }
-    }
-  })
+    });
 
-  if (error) {
-    console.error('Supabase Google OAuth error:', error);
-  } else {
+    if (error) {
+      console.error('Supabase Google OAuth error:', error);
+      return { data: null, error };
+    } 
+    
     console.log('Google sign-in initiated successfully', data);
+    
+    // Add a listener to check for auth state changes
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state changed:', event, session);
+      if (event === 'SIGNED_IN' && session) {
+        console.log('User signed in:', session.user);
+        
+        // Store a flag in localStorage to indicate successful sign-in
+        // This can be used to detect if the user completed the flow
+        localStorage.setItem('auth_completed', 'true');
+      }
+    });
+
+    // Clean up listener after 30 seconds (increased from 10 seconds)
+    setTimeout(() => {
+      authListener?.subscription.unsubscribe();
+    }, 30000);
+    
+    return { data, error: null };
+  } catch (err) {
+    console.error('Unexpected error during Google sign-in:', err);
+    return { 
+      data: null, 
+      error: {
+        message: err instanceof Error ? err.message : 'Unknown error during Google authentication',
+        status: 500
+      }
+    };
   }
-
-  return { data, error }
 }
-
 export const signOut = async () => {
   const { error } = await supabase.auth.signOut()
   return { error }
