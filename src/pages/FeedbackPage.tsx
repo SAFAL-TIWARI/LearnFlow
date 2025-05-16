@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { getSession, isAuthenticated } from '../lib/auth-fallback';
-import { useSession } from 'next-auth/react';
+import { useSession } from '../lib/auth-fallback';
 
 const FeedbackPage: React.FC = () => {
   const [feedbackType, setFeedbackType] = useState('suggestion');

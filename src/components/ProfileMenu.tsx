@@ -37,7 +37,7 @@ export default function ProfileMenu() {
 
   // Get profile picture if user is logged in
   const profilePicture = user 
-    ? (user.user_metadata?.avatar_url || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.email?.split('@')[0] || 'User'))
+    ? (user.user_metadata?.avatar_url || user.user_metadata?.picture || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.email?.split('@')[0] || 'User'))
     : 'https://ui-avatars.com/api/?name=Guest&background=E5E7EB&color=4B5563';
 
   return (

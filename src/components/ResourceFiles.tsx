@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAcademic } from '../context/AcademicContext';
 import { resourceFiles, subjectMaterials, FileResource } from '../data/academicData';
 import { getFileIcon, DownloadIcon } from './Icons';
-import { useSession } from 'next-auth/react';
+import { useSession } from '../lib/auth-fallback';
 import { downloadGoogleDriveFile } from '../utils/downloadUtils';
 import { isAuthenticated as isFallbackAuthenticated } from '../lib/auth-fallback';
 import { AnimatedList } from './magicui/animated-list';

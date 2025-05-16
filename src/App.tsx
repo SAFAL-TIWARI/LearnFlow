@@ -28,11 +28,11 @@ import GoToTopButton from "./components/GoToTopButton";
 import NotificationManager from "./components/NotificationManager";
 import ClickSparkAnimation from "./components/ClickSparkAnimation";
 import { AuthProvider } from './context/SupabaseAuthContext';
-// import { AcademicContextProvider } from './context/AcademicContext';
+import { AcademicProvider } from './context/AcademicContext';
 import { ThemeProvider } from "./hooks/useTheme";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react"
-// import Profile from './pages/Profile';
+import SimpleProfilePage from './pages/SimpleProfilePage';
 // import './App.css';
 
 // Create a client
@@ -71,10 +71,11 @@ const App = () => {
                 <Toaster />
                 <Sonner />
                 <BrowserRouter>
-                  <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/tools" element={<Tools />} />
-                    <Route path="/resources" element={<Resources />} />
+                  <AcademicProvider>
+                    <Routes>
+                      <Route path="/" element={<Index />} />
+                      <Route path="/tools" element={<Tools />} />
+                      <Route path="/resources" element={<Resources />} />
 
                     {/* Tool Routes */}
                     <Route path="/tools/cgpa-calculator" element={<CGPACalculator />} />
@@ -93,10 +94,14 @@ const App = () => {
                     <Route path="/forgot-password" element={<ForgotPassword />} />
                     <Route path="/auth/callback" element={<AuthCallback />} />
                     <Route path="/auth/reset-password" element={<ResetPassword />} />
+                    
+                    {/* Profile Page */}
+                    <Route path="/profile" element={<SimpleProfilePage />} />
 
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
+                  </AcademicProvider>
 
                   {/* Chatbot Widget */}
                   <ChatbotWidget />
