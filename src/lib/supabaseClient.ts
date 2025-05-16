@@ -39,17 +39,25 @@ export const signInWithGoogle = async () => {
   const redirectUrl = `${window.location.origin}/auth/callback`;
   console.log('Supabase Google OAuth redirect URL:', redirectUrl);
 
+  // Use a popup window for Google sign-in
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
       redirectTo: redirectUrl,
       // Make sure scopes include what's needed
       scopes: 'email profile',
+      // Use a popup window instead of redirecting the current page
+      queryParams: {
+        access_type: 'offline',
+        prompt: 'consent',
+      }
     }
   })
 
   if (error) {
     console.error('Supabase Google OAuth error:', error);
+  } else {
+    console.log('Google sign-in initiated successfully', data);
   }
 
   return { data, error }

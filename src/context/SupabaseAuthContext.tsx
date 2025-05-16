@@ -1,10 +1,10 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { 
-  supabase, 
-  getCurrentUser, 
-  signOut, 
-  signInWithEmail, 
-  signInWithGoogle, 
+import {
+  supabase,
+  getCurrentUser,
+  signOut,
+  signInWithEmail,
+  signInWithGoogle,
   signUpWithEmail,
   onAuthStateChange,
   resetPassword,
@@ -19,7 +19,7 @@ interface AuthContextType {
   loading: boolean
   signIn: (email: string, password: string) => Promise<{ error: any }>
   signUp: (email: string, password: string) => Promise<{ error: any }>
-  signInWithGoogle: () => Promise<{ error: any }>
+  signInWithGoogle: () => Promise<{ data?: any, error: any }>
   logout: () => Promise<{ error: any }>
   resetPassword: (email: string) => Promise<{ error: any }>
   updatePassword: (newPassword: string) => Promise<{ error: any }>
@@ -32,7 +32,7 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   signIn: async () => ({ error: null }),
   signUp: async () => ({ error: null }),
-  signInWithGoogle: async () => ({ error: null }),
+  signInWithGoogle: async () => ({ data: null, error: null }),
   logout: async () => ({ error: null }),
   resetPassword: async () => ({ error: null }),
   updatePassword: async () => ({ error: null }),

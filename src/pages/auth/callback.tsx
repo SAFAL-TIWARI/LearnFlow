@@ -31,19 +31,28 @@ export default function AuthCallback() {
             return;
           }
 
-          // Process the callback
-          const { error } = await supabase.auth.getSession();
+          // Process the callback and get the user session
+          const { data, error } = await supabase.auth.getSession();
+
           if (error) {
             console.error('Error in auth callback:', error);
             setError(error.message);
           } else {
-            console.log('Authentication successful');
-            // Redirect to the home page or dashboard
-            navigate('/', { replace: true });
+            console.log('Authentication successful', data);
+
+            // Get the user data to ensure we have the profile info
+            const { data: userData } = await supabase.auth.getUser();
+            console.log('User data:', userData);
+
             // If this was opened in a new window, close it and refresh the parent
             if (window.opener) {
+              // Make sure the parent window reloads to get the new user data
+              console.log('Closing popup and refreshing parent window');
               window.opener.location.reload();
               window.close();
+            } else {
+              // Redirect to the home page or dashboard
+              navigate('/', { replace: true });
             }
           }
         } else {

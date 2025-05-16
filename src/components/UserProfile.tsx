@@ -30,8 +30,8 @@ export default function UserProfile() {
         setLoading(true);
 
         // Get user email from Supabase auth
-        const userEmail = user.email || '';
-        const userName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
+        const userEmail = user.email || user.identities?.[0]?.identity_data?.email || '';
+        const userName = user.user_metadata?.full_name || user.identities?.[0]?.identity_data?.full_name || user.email?.split('@')[0] || 'User';
         const userId = user.id;
 
         // Check if user exists in Supabase
@@ -106,6 +106,7 @@ export default function UserProfile() {
 
   const profilePicture = userData?.profile_picture ||
     user.user_metadata?.avatar_url ||
+    user.identities?.[0]?.identity_data?.avatar_url ||
     'https://ui-avatars.com/api/?name=' + encodeURIComponent(userData?.name || 'User');
 
   return (

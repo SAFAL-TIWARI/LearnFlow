@@ -61,11 +61,36 @@ const Login = () => {
     setSuccessMessage(null);
 
     try {
-      const { error } = await signInWithGoogle();
+      // Call the Google sign-in function
+      const { data, error } = await signInWithGoogle();
+
       if (error) {
         setError(error.message);
+      } else if (data?.url) {
+        console.log('Opening Google auth in popup window');
+
+        // Open the URL in a popup window
+        const width = 500;
+        const height = 600;
+        const left = window.screenX + (window.outerWidth - width) / 2;
+        const top = window.screenY + (window.outerHeight - height) / 2;
+
+        const popup = window.open(
+          data.url,
+          'googleauth',
+          `width=${width},height=${height},left=${left},top=${top}`
+        );
+
+        // Focus the popup
+        if (popup) {
+          popup.focus();
+        }
+
+        // The popup will redirect to the callback URL which will handle the rest
+        // We don't need to close this window as the callback will handle it
       }
     } catch (err: any) {
+      console.error('Google auth error:', err);
       setError(err.message || 'An error occurred during Google authentication');
     } finally {
       setLoading(false);

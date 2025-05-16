@@ -4,7 +4,6 @@ import { useAuth } from '../context/SupabaseAuthContext';
 
 export default function ProfileMenu() {
   const [isOpen, setIsOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { user, logout } = useAuth();
 
@@ -25,19 +24,31 @@ export default function ProfileMenu() {
   const handleSignIn = () => {
     // Open login page in a new window
     const loginWindow = window.open('/login', '_blank', 'width=500,height=600');
-    
+
     // Focus the new window
     if (loginWindow) {
       loginWindow.focus();
     }
-    
+
     // Close the dropdown
     setIsOpen(false);
   };
 
+  // Log user data for debugging
+  useEffect(() => {
+    if (user) {
+      console.log('User in ProfileMenu:', user);
+      console.log('User metadata:', user.user_metadata);
+    }
+  }, [user]);
+
   // Get profile picture if user is logged in
-  const profilePicture = user 
-    ? (user.user_metadata?.avatar_url || user.user_metadata?.picture || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.email?.split('@')[0] || 'User'))
+  const profilePicture = user
+    ? (user.user_metadata?.avatar_url ||
+       user.user_metadata?.picture ||
+       user.user_metadata?.picture_url ||
+       user.user_metadata?.profile_picture ||
+       'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.email?.split('@')[0] || 'User'))
     : 'https://ui-avatars.com/api/?name=Guest&background=E5E7EB&color=4B5563';
 
   return (
@@ -67,7 +78,11 @@ export default function ProfileMenu() {
                 />
                 <div>
                   <p className="font-semibold text-gray-800 dark:text-gray-200">
-                    {user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'}
+                    {user.user_metadata?.full_name ||
+                     user.user_metadata?.name ||
+                     user.user_metadata?.given_name ||
+                     user.email?.split('@')[0] ||
+                     'User'}
                   </p>
                   <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{user.email || ''}</p>
                 </div>
