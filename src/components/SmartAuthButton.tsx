@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import AuthButton from './AuthButton';
 import FallbackAuthButton from './FallbackAuthButton';
+import UserProfile from './UserProfile';
+import { getSession, isAuthenticated } from '../lib/auth-fallback';
+import { useSession } from 'next-auth/react';
 
 export default function SmartAuthButton() {
   const [nextAuthFailed, setNextAuthFailed] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  // Try to use NextAuth session
+  const { data: nextAuthSession, status } = useSession();
 
   useEffect(() => {
     // Check if NextAuth is working by looking for errors
@@ -88,6 +95,17 @@ export default function SmartAuthButton() {
 
     return () => clearTimeout(timeoutId);
   }, []);
+  
+  // Check authentication status
+  useEffect(() => {
+    if (status === 'authenticated' && nextAuthSession) {
+      setIsAuthenticated(true);
+    } else if (status === 'unauthenticated') {
+      // Check fallback auth
+      const fallbackAuth = getSession();
+      setIsAuthenticated(!!fallbackAuth);
+    }
+  }, [nextAuthSession, status]);
 
   // Show loading state
   if (isLoading) {
@@ -97,6 +115,11 @@ export default function SmartAuthButton() {
         <span className="text-gray-700 dark:text-gray-300">Loading...</span>
       </div>
     );
+  }
+  
+  // If user is authenticated, show profile picture and dropdown
+  if (isAuthenticated || (status === 'authenticated' && nextAuthSession) || getSession()) {
+    return <UserProfile />;
   }
 
   // If NextAuth failed, use the fallback

@@ -64,22 +64,7 @@ export default function FallbackAuthButton() {
     );
   }
 
-  // Show authenticated state
-  if (userAuthenticated) {
-    return (
-      <>
-        <p className="mr-2 text-gray-700 dark:text-gray-300 font-oggo font-bold">Welcome {userName || 'User'}</p>
-        <button
-          onClick={handleSignOut}
-          className="px-4 py-1 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors font-ogg size-lg"
-        >
-          Sign out
-        </button>
-      </>
-    );
-  }
-
-  // Show sign in button
+  // Show sign in button (we don't show authenticated state anymore as that's handled by UserProfile)
   return (
     <button
       onClick={handleSignIn}
@@ -103,7 +88,7 @@ export default function FallbackAuthButton() {
           fill="#EA4335"
         />
       </svg>
-      Sign in with Google
+      Login
     </button>
   );
 }

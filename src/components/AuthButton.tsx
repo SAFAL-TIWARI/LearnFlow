@@ -72,24 +72,7 @@ export default function AuthButton() {
     );
   }
 
-  // Show signed in state
-  if (session) {
-    return (
-      <>
-        <p className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors font-roboto">
-          Welcome {session.user?.name || 'User'}
-        </p>
-        <button
-          onClick={handleSignOut}
-          className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors font-roboto"
-        >
-          Sign out
-        </button>
-      </>
-    );
-  }
-
-  // Show sign in button
+  // Show sign in button (we don't show signed in state anymore as that's handled by UserProfile)
   return (
     <button
       onClick={handleSignIn}
@@ -113,7 +96,7 @@ export default function AuthButton() {
           fill="#EA4335"
         />
       </svg>
-      Sign in with Google
+      Login
     </button>
   );
 }
