@@ -414,7 +414,7 @@ export const branchSubjects: Record<
         { code: 'ITC 101', name: 'Python Programming' },
         { code: 'CSL 110', name: 'Linux' },
         { code: 'CSA 104', name: 'System Softwares' },
-        { code: 'CHB 101', name: 'Engineering Chemistry' },
+        { code: 'CHB 101', name: 'Applied Chemistry' },
         { code: 'MAC 102', name: 'Professional Ethics' },
       ],
       'aiads': [
@@ -423,7 +423,7 @@ export const branchSubjects: Record<
         { code: 'ITC 101', name: 'Python Programming' },
         { code: 'CSL 110', name: 'Linux' },
         { code: 'CSA 104', name: 'System Softwares' },
-        { code: 'PYB 101', name: 'Engineering Physics' },
+        { code: 'PYB 101', name: 'Applied Physics' },
         { code: 'MAC 102', name: 'Professional Ethics' },
       ],
       'it': [
@@ -432,7 +432,7 @@ export const branchSubjects: Record<
         { code: 'ITC 101', name: 'Python Programming' },
         { code: 'CSL 110', name: 'Linux' },
         { code: 'CSA 104', name: 'System Softwares' },
-        { code: 'CHB 101', name: 'Engineering Chemistry' },
+        { code: 'PYB 101', name: 'Applied Physics' },
         { code: 'MAC 102', name: 'Professional Ethics' },
       ],
       'cse-iot': [
@@ -441,7 +441,7 @@ export const branchSubjects: Record<
         { code: 'ITC 101', name: 'Python Programming' },
         { code: 'CSL 110', name: 'Linux' },
         { code: 'HUB 101', name: 'Comunicational Skills' },
-        { code: 'CHB 101', name: 'Engineering Chemistry' },
+        { code: 'CHB 101', name: 'Applied Chemistry' },
         { code: 'MAC 102', name: 'Professional Ethics' },
       ],
       'ec': [
