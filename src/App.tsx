@@ -23,6 +23,7 @@ import Signup from "./pages/signup";
 import AuthCallback from "./pages/auth/callback";
 import ForgotPassword from "./pages/forgot-password";
 import ResetPassword from "./pages/auth/reset-password";
+import HelpPage from "./pages/HelpPage";
 import ChatbotWidget from "./components/Chatbot/ChatbotWidget";
 import GoToTopButton from "./components/GoToTopButton";
 import NotificationManager from "./components/NotificationManager";
@@ -86,6 +87,7 @@ const App = () => {
                     {/* Legal Pages */}
                     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                     <Route path="/terms-of-service" element={<TermsOfService />} />
+                    <Route path="/help" element={<HelpPage />} />
 
                     {/* Auth Pages */}
                     <Route path="/auth-error" element={<AuthError />} />
