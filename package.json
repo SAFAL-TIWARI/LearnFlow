@@ -5,14 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node src/scripts/generate-sitemap.js",
     "build:dev": "vite build --mode development",
-    "vercel-build": "node vercel.build.js && vite build",
+    "vercel-build": "node vercel.build.js && vite build && node src/scripts/generate-sitemap.js",
     "lint": "eslint .",
     "preview": "vite preview",
     "server": "node server/server.js",
     "start": "node start-dev.js",
-    "init-supabase": "node src/scripts/initSupabaseFree.js"
+    "init-supabase": "node src/scripts/initSupabaseFree.js",
+    "generate-sitemap": "node src/scripts/generate-sitemap.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

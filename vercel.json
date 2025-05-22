@@ -33,11 +33,10 @@
     },
     {
       "src": "/sitemap.xml",
-      "dest": "/api/sitemap",
+      "dest": "/sitemap.xml",
       "headers": {
         "Content-Type": "application/xml; charset=utf-8",
-        "Cache-Control": "public, max-age=86400",
-        "X-Robots-Tag": "noindex"
+        "Cache-Control": "public, max-age=86400"
       }
     },
     {

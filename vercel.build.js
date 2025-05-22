@@ -147,28 +147,77 @@ if (fs.existsSync(robotsTextSource)) {
   console.warn('robots.txt not found in public directory!');
 }
 
-// Ensure sitemap.xml is copied to the dist directory
+// Generate sitemap.xml directly in the dist directory
 // This is important for SEO
-const sitemapSource = path.join(__dirname, 'public', 'sitemap.xml');
 const sitemapDest = path.join(__dirname, 'dist', 'sitemap.xml');
 
-if (fs.existsSync(sitemapSource)) {
-  console.log('Copying sitemap.xml to dist directory...');
-  try {
-    // Create dist directory if it doesn't exist
-    const distDir = path.join(__dirname, 'dist');
-    if (!fs.existsSync(distDir)) {
-      fs.mkdirSync(distDir, { recursive: true });
-    }
-
-    // Copy the file
-    fs.copyFileSync(sitemapSource, sitemapDest);
-    console.log('sitemap.xml copied successfully!');
-  } catch (error) {
-    console.error('Error copying sitemap.xml:', error);
+console.log('Generating sitemap.xml in dist directory...');
+try {
+  // Create dist directory if it doesn't exist
+  const distDir = path.join(__dirname, 'dist');
+  if (!fs.existsSync(distDir)) {
+    fs.mkdirSync(distDir, { recursive: true });
   }
-} else {
-  console.warn('sitemap.xml not found in public directory!');
+
+  // Generate sitemap content
+  const domain = 'https://learn-flow-seven.vercel.app';
+  const today = new Date().toISOString().split('T')[0];
+
+  const sitemapContent = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${domain}/</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>${domain}/privacy-policy</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>${domain}/terms-of-service</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>${domain}/tools/cgpa-calculator</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>${domain}/tools/study-timer</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>${domain}/tools/exam-scheduler</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>${domain}/tools/note-organizer</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+</urlset>`;
+
+  // Write the file
+  fs.writeFileSync(sitemapDest, sitemapContent);
+  console.log('sitemap.xml generated successfully!');
+
+  // Verify the content
+  console.log('Sitemap content:');
+  console.log(sitemapContent.substring(0, 100) + '...');
+} catch (error) {
+  console.error('Error generating sitemap.xml:', error);
 }
 
 console.log('Vercel build preparation complete!');

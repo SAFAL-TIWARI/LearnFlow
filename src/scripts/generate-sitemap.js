@@ -1,3 +1,8 @@
+/**
+ * Script to generate a sitemap.xml file during build
+ * This ensures the sitemap is properly formatted and up-to-date
+ */
+
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -7,40 +12,23 @@ import { dirname } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-/**
- * API handler for serving the sitemap.xml file
- * This ensures the sitemap is served with the correct content type
- */
-export default function handleSitemapRequest(req, res) {
-  try {
-    console.log('Sitemap request received');
+// Define the root directory
+const rootDir = path.join(__dirname, '../../');
 
-    // Always generate a fresh sitemap to ensure it's valid XML
-    const sitemapContent = generateSitemap();
+// Define the output paths
+const distDir = path.join(rootDir, 'dist');
+const sitemapPath = path.join(distDir, 'sitemap.xml');
 
-    // Set appropriate headers
-    res.setHeader('Content-Type', 'application/xml; charset=utf-8');
-    res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-
-    // Log the first 100 characters of the response for debugging
-    console.log('Sending sitemap response:', sitemapContent.substring(0, 100));
-
-    // Send the generated sitemap
-    return res.send(sitemapContent);
-  } catch (error) {
-    console.error('Error serving sitemap:', error);
-    res.status(500).send('<?xml version="1.0" encoding="UTF-8"?><error>Error generating sitemap</error>');
-  }
+// Create the dist directory if it doesn't exist
+if (!fs.existsSync(distDir)) {
+  fs.mkdirSync(distDir, { recursive: true });
 }
 
-/**
- * Generate a sitemap with the current date
- */
+// Generate the sitemap content
 function generateSitemap() {
   const domain = 'https://learn-flow-seven.vercel.app';
   const today = new Date().toISOString().split('T')[0];
-
+  
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
@@ -86,4 +74,13 @@ function generateSitemap() {
     <priority>0.9</priority>
   </url>
 </urlset>`;
+}
+
+// Write the sitemap to the dist directory
+try {
+  const sitemap = generateSitemap();
+  fs.writeFileSync(sitemapPath, sitemap);
+  console.log(`Sitemap generated at ${sitemapPath}`);
+} catch (error) {
+  console.error('Error generating sitemap:', error);
 }
