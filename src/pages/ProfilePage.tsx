@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { getSession, isAuthenticated } from '../lib/auth-fallback';
-import { useSession } from 'next-auth/react';
+import { useAuth } from '../context/SupabaseAuthContext';
+import { useSafeSession } from '../hooks/useSafeSession';
 
 interface UserData {
   id: string;
@@ -33,27 +34,37 @@ const ProfilePage: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  // Try to use NextAuth session first
-  const { data: nextAuthSession, status } = useSession();
+  // Try to use Supabase auth first, then NextAuth as fallback
+  const { user: supabaseUser } = useAuth();
+  const { data: nextAuthSession, status } = useSafeSession();
   
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         setLoading(true);
         
-        // Check if we're using NextAuth or fallback
+        // Check which auth method we're using
         let userEmail = '';
         let userPicture = '';
         
-        if (status === 'authenticated' && nextAuthSession) {
+        if (supabaseUser) {
+          // Using Supabase auth
+          userEmail = supabaseUser.email || '';
+          userPicture = supabaseUser.user_metadata?.avatar_url || 
+                        supabaseUser.user_metadata?.picture || 
+                        supabaseUser.user_metadata?.profile_picture || '';
+          console.log('Using Supabase auth:', supabaseUser);
+        } else if (status === 'authenticated' && nextAuthSession) {
           // Using NextAuth
           userEmail = nextAuthSession.user?.email || '';
           userPicture = nextAuthSession.user?.image || (nextAuthSession.user as any)?.picture || '';
+          console.log('Using NextAuth:', nextAuthSession);
         } else if (isAuthenticated()) {
           // Using fallback auth
           const fallbackSession = getSession();
           userEmail = fallbackSession?.user.email || '';
           userPicture = fallbackSession?.user.image || '';
+          console.log('Using fallback auth:', fallbackSession);
         } else {
           // Not authenticated
           setLoading(false);
@@ -216,7 +227,7 @@ const ProfilePage: React.FC = () => {
     if (status !== 'loading') {
       fetchUserData();
     }
-  }, [nextAuthSession, status]);
+  }, [supabaseUser, nextAuthSession, status]);
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -522,15 +533,19 @@ const ProfilePage: React.FC = () => {
   
   // Get profile picture from various sources
   const profilePicture = userData.profile_picture || 
+    supabaseUser?.user_metadata?.avatar_url ||
+    supabaseUser?.user_metadata?.picture ||
     nextAuthSession?.user?.image || 
     (nextAuthSession?.user as any)?.picture ||
     'https://ui-avatars.com/api/?name=' + encodeURIComponent(userData.name || 'User');
   
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-        <div className="p-6">
-          <h1 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Your Profile</h1>
+  // Wrap the render in a try-catch to prevent the entire app from crashing
+  try {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+          <div className="p-6">
+            <h1 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Your Profile</h1>
           
           <div className="flex flex-col md:flex-row gap-8">
             {/* Profile Picture Section */}
@@ -775,6 +790,25 @@ const ProfilePage: React.FC = () => {
       </div>
     </div>
   );
+  } catch (error) {
+    console.error('Error rendering profile page:', error);
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden p-6">
+          <h1 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Profile</h1>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            We encountered an issue loading your profile. Please try again later.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-learnflow-500 text-white rounded-lg hover:bg-learnflow-600 transition-colors"
+          >
+            Refresh Page
+          </button>
+        </div>
+      </div>
+    );
+  }
 };
 
 export default ProfilePage;

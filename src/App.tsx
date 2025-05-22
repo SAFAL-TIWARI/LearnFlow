@@ -32,7 +32,7 @@ import { AcademicProvider } from './context/AcademicContext';
 import { ThemeProvider } from "./hooks/useTheme";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react"
-import SimpleProfilePage from './pages/SimpleProfilePage';
+import ProfilePageWrapper from './components/ProfilePageWrapper';
 // import './App.css';
 
 // Create a client
@@ -96,7 +96,7 @@ const App = () => {
                     <Route path="/auth/reset-password" element={<ResetPassword />} />
                     
                     {/* Profile Page */}
-                    <Route path="/profile" element={<SimpleProfilePage />} />
+                    <Route path="/profile" element={<ProfilePageWrapper />} />
 
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
