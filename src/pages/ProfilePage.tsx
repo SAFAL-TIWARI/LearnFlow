@@ -519,7 +519,19 @@ const ProfilePage: React.FC = () => {
   if (!userData) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
-        <h1 className="text-2xl font-bold mb-4">Please Sign In</h1>
+        <div className="flex items-center mb-4 w-full max-w-md justify-between">
+          <button 
+            onClick={() => window.location.href = '/'}
+            className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            aria-label="Go back to home page"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+          </button>
+          <h1 className="text-2xl font-bold">Please Sign In</h1>
+          <div className="w-8"></div> {/* Empty div for balance */}
+        </div>
         <p className="text-gray-600 dark:text-gray-400 mb-6">You need to be signed in to view your profile.</p>
         <button
           onClick={() => window.location.href = '/'}
@@ -545,7 +557,18 @@ const ProfilePage: React.FC = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
           <div className="p-6">
-            <h1 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Your Profile</h1>
+            <div className="flex items-center mb-6">
+            <button 
+              onClick={() => window.location.href = '/'}
+              className="mr-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              aria-label="Go back to home page"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+            </button>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Your Profile</h1>
+          </div>
           
           <div className="flex flex-col md:flex-row gap-8">
             {/* Profile Picture Section */}
@@ -795,7 +818,18 @@ const ProfilePage: React.FC = () => {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden p-6">
-          <h1 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Profile</h1>
+          <div className="flex items-center mb-4">
+            <button 
+              onClick={() => window.location.href = '/'}
+              className="mr-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              aria-label="Go back to home page"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+            </button>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Profile</h1>
+          </div>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
             We encountered an issue loading your profile. Please try again later.
           </p>
