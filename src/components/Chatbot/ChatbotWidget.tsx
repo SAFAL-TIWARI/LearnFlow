@@ -123,9 +123,31 @@ const ChatbotWidget: React.FC = () => {
       inputRef.current.focus();
     }
   }, [isOpen]);
+  
+  // Clean up body style when component unmounts
+  useEffect(() => {
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesEndRef.current) {
+      // Use scrollIntoView with a try-catch to handle any errors
+      try {
+        // Use the parent container's scrollTop property instead of scrollIntoView
+        // This prevents affecting the page scroll
+        const container = messagesEndRef.current.parentElement;
+        if (container) {
+          container.scrollTop = container.scrollHeight;
+        } else {
+          // Fallback to scrollIntoView if parent not found
+          messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
+      } catch (error) {
+        console.error('Error scrolling to bottom:', error);
+      }
+    }
   };
   
   // Helper function to focus on the input field
@@ -144,11 +166,23 @@ const ChatbotWidget: React.FC = () => {
     // If opening the chat, focus on the input field
     if (newIsOpen) {
       focusInputField(300); // Slightly longer delay to allow animation to complete
+    } else {
+      // If closing the chat, ensure body overflow is restored
+      document.body.style.overflow = '';
     }
   };
   
   const toggleMaximize = () => {
-    setIsMaximized(!isMaximized);
+    const newMaximizedState = !isMaximized;
+    setIsMaximized(newMaximizedState);
+    
+    // Add/remove overflow hidden to body when maximizing/minimizing
+    if (newMaximizedState) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    
     // Scroll to bottom when maximizing/minimizing
     setTimeout(() => {
       scrollToBottom();
@@ -430,6 +464,11 @@ Always provide helpful, accurate, and educational responses.`
     // Replace newlines with <br>
     return withLinks.replace(/\n/g, '<br>');
   };
+  
+  // Prevent scroll propagation to the background
+  const preventScrollPropagation = (e: React.UIEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+  };
 
   return (
     <div className={`chatbot-container ${theme === 'dark' ? 'dark-theme' : 'light-theme'}`}>
@@ -452,7 +491,11 @@ Always provide helpful, accurate, and educational responses.`
 
       {/* Chat window */}
       {isOpen && (
-        <div className={`chat-window ${isMaximized ? 'maximized' : ''}`}>
+        <div 
+          className={`chat-window ${isMaximized ? 'maximized' : ''}`}
+          onWheel={preventScrollPropagation}
+          onTouchMove={preventScrollPropagation}
+        >
           <div className="chat-header">
             <h3>LearnFlow Assistant</h3>
             <div className="header-actions">
@@ -482,7 +525,12 @@ Always provide helpful, accurate, and educational responses.`
             </div>
           </div>
           
-          <div className="messages-container">
+          <div 
+            className="messages-container" 
+            onScroll={preventScrollPropagation}
+            onWheel={preventScrollPropagation}
+            onTouchMove={preventScrollPropagation}
+          >
             {messages.map((message, index) => (
               <div 
                 key={index} 
@@ -506,7 +554,11 @@ Always provide helpful, accurate, and educational responses.`
             <div ref={messagesEndRef} />
           </div>
           
-          <div className="chat-input-container">
+          <div 
+            className="chat-input-container"
+            onWheel={preventScrollPropagation}
+            onTouchMove={preventScrollPropagation}
+          >
             {showCommandSuggestions && (
               <div className="command-suggestions">
                 {commandSuggestions.map((cmd, index) => (
