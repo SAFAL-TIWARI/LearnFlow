@@ -123,4 +123,52 @@ if (fs.existsSync(adsTextSource) || fs.existsSync(publicAdsTextSource)) {
   }
 }
 
+// Ensure robots.txt is copied to the dist directory
+// This is important for SEO
+const robotsTextSource = path.join(__dirname, 'public', 'robots.txt');
+const robotsTextDest = path.join(__dirname, 'dist', 'robots.txt');
+
+if (fs.existsSync(robotsTextSource)) {
+  console.log('Copying robots.txt to dist directory...');
+  try {
+    // Create dist directory if it doesn't exist
+    const distDir = path.join(__dirname, 'dist');
+    if (!fs.existsSync(distDir)) {
+      fs.mkdirSync(distDir, { recursive: true });
+    }
+
+    // Copy the file
+    fs.copyFileSync(robotsTextSource, robotsTextDest);
+    console.log('robots.txt copied successfully!');
+  } catch (error) {
+    console.error('Error copying robots.txt:', error);
+  }
+} else {
+  console.warn('robots.txt not found in public directory!');
+}
+
+// Ensure sitemap.xml is copied to the dist directory
+// This is important for SEO
+const sitemapSource = path.join(__dirname, 'public', 'sitemap.xml');
+const sitemapDest = path.join(__dirname, 'dist', 'sitemap.xml');
+
+if (fs.existsSync(sitemapSource)) {
+  console.log('Copying sitemap.xml to dist directory...');
+  try {
+    // Create dist directory if it doesn't exist
+    const distDir = path.join(__dirname, 'dist');
+    if (!fs.existsSync(distDir)) {
+      fs.mkdirSync(distDir, { recursive: true });
+    }
+
+    // Copy the file
+    fs.copyFileSync(sitemapSource, sitemapDest);
+    console.log('sitemap.xml copied successfully!');
+  } catch (error) {
+    console.error('Error copying sitemap.xml:', error);
+  }
+} else {
+  console.warn('sitemap.xml not found in public directory!');
+}
+
 console.log('Vercel build preparation complete!');

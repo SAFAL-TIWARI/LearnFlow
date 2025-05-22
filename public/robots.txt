@@ -1,16 +1,22 @@
+# Allow Google
 User-agent: Googlebot
 Allow: /
 
+# Allow Bing
 User-agent: Bingbot
 Allow: /
 
+# Allow Twitter
 User-agent: Twitterbot
 Allow: /
 
+# Allow Facebook
 User-agent: facebookexternalhit
 Allow: /
 
+# Allow all other crawlers
 User-agent: *
 Allow: /
 
+# Sitemap location
 Sitemap: https://learn-flow-seven.vercel.app/sitemap.xml

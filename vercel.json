@@ -24,10 +24,20 @@
       }
     },
     {
+      "src": "/robots.txt",
+      "dest": "/robots.txt",
+      "headers": {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "public, max-age=86400"
+      }
+    },
+    {
       "src": "/sitemap.xml",
       "dest": "/api/sitemap",
       "headers": {
-        "Content-Type": "application/xml; charset=utf-8"
+        "Content-Type": "application/xml; charset=utf-8",
+        "Cache-Control": "public, max-age=86400",
+        "X-Robots-Tag": "noindex"
       }
     },
     {
@@ -47,7 +57,12 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "/index.html",
+      "headers": {
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "X-XSS-Protection": "1; mode=block"
+      }
     }
   ]
 }

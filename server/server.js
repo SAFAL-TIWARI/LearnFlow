@@ -6,9 +6,9 @@ import { dirname, join } from 'path';
 import fs from 'fs';
 import fetch from 'node-fetch';
 import { scanProjectFiles } from './utils/fileScannerUtils.js';
-import { 
-  getCourseInfo, 
-  getSemesterResources, 
+import {
+  getCourseInfo,
+  getSemesterResources,
   isNavigationQuery,
   extractCourseCode,
   getWebsiteNavigationInfo
@@ -23,6 +23,7 @@ import {
   performWebSearch,
   getWebSearchContext
 } from './utils/webSearchUtils.js';
+import handleSitemapRequest from './api/sitemap.js';
 
 // Load environment variables
 dotenv.config();
@@ -39,7 +40,7 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyDjXHRQD2xGfp2nuM52SP
 
 // Middleware
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
+  origin: process.env.NODE_ENV === 'production'
     ? ['https://learn-flow-seven.vercel.app'] // Restrict in production
     : '*', // Allow all origins for development
   methods: ['GET', 'POST'],
@@ -61,11 +62,21 @@ console.log('Using Gemini API key starting with:', GEMINI_API_KEY.substring(0, 5
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({ 
+  res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development'
   });
+});
+
+// Sitemap endpoint
+app.get('/api/sitemap', (req, res) => {
+  handleSitemapRequest(req, res);
+});
+
+// Direct sitemap.xml endpoint
+app.get('/sitemap.xml', (req, res) => {
+  handleSitemapRequest(req, res);
 });
 
 // Rate limiting configuration
@@ -79,7 +90,7 @@ const rateLimits = {
 const rateLimiter = (req, res, next) => {
   const userId = req.body.userId || req.ip; // Use userId if provided, otherwise IP
   const now = Date.now();
-  
+
   // Initialize or get user's token bucket
   if (!rateLimits.tokens.has(userId)) {
     rateLimits.tokens.set(userId, {
@@ -87,15 +98,15 @@ const rateLimiter = (req, res, next) => {
       resetTime: now + rateLimits.windowMs
     });
   }
-  
+
   const userToken = rateLimits.tokens.get(userId);
-  
+
   // Reset count if window has passed
   if (now > userToken.resetTime) {
     userToken.count = 0;
     userToken.resetTime = now + rateLimits.windowMs;
   }
-  
+
   // Check if user has exceeded rate limit
   if (userToken.count >= rateLimits.maxRequests) {
     return res.status(429).json({
@@ -103,7 +114,7 @@ const rateLimiter = (req, res, next) => {
       resetTime: userToken.resetTime
     });
   }
-  
+
   // Increment count and continue
   userToken.count++;
   next();
@@ -113,7 +124,7 @@ const rateLimiter = (req, res, next) => {
 app.post('/api/chat', rateLimiter, async (req, res) => {
   try {
     const { messages, userId } = req.body;
-    
+
     if (!messages || !Array.isArray(messages)) {
       return res.status(400).json({ error: 'Messages array is required' });
     }
@@ -126,22 +137,22 @@ app.post('/api/chat', rateLimiter, async (req, res) => {
 
     // Check for special commands
     const userContent = latestUserMessage.content.trim();
-    
+
     // Handle file scanning command
     if (userContent.startsWith('/scan') || userContent.startsWith('/debug')) {
       // Extract path from command (e.g., /scan src/components)
       const parts = userContent.split(' ');
       const scanPath = parts.length > 1 ? parts.slice(1).join(' ') : '';
-      
+
       try {
         // Scan files
         const scanResults = await scanProjectFiles(scanPath);
-        
+
         // Format response
         let responseContent;
         if (scanResults.success) {
           responseContent = `📁 File Scan Results:\n\nScanned ${scanResults.scannedFiles} files in ${scanResults.scanPath}\n`;
-          
+
           if (scanResults.files.length > 0) {
             try {
               // Send file list to Gemini for analysis
@@ -181,9 +192,9 @@ Format your response as a clear, concise report with specific issues and suggest
                   }
                 })
               });
-              
+
               const analysisData = await analysisResponse.json();
-              
+
               if (analysisData.candidates && analysisData.candidates[0] && analysisData.candidates[0].content) {
                 const analysisText = analysisData.candidates[0].content.parts[0].text;
                 responseContent += `\n${analysisText}`;
@@ -192,7 +203,7 @@ Format your response as a clear, concise report with specific issues and suggest
               }
             } catch (apiError) {
               console.error('Error calling Gemini API for file analysis:', apiError);
-              responseContent += "\nFile analysis failed. Here's a list of files found:\n" + 
+              responseContent += "\nFile analysis failed. Here's a list of files found:\n" +
                 scanResults.files.map(file => `- ${file.path} (${file.lines} lines)`).join('\n');
             }
           } else {
@@ -201,7 +212,7 @@ Format your response as a clear, concise report with specific issues and suggest
         } else {
           responseContent = `❌ Scan Error: ${scanResults.error}`;
         }
-        
+
         return res.json({
           message: {
             role: 'assistant',
@@ -221,7 +232,7 @@ Format your response as a clear, concise report with specific issues and suggest
 
     // Enhance system message with educational context
     let systemMessage = 'You are LearnFlow Assistant, an advanced AI for an educational platform. ';
-    
+
     // Check if query is related to a specific course
     const courseCode = extractCourseCode(userContent);
     if (courseCode) {
@@ -230,11 +241,11 @@ Format your response as a clear, concise report with specific issues and suggest
         systemMessage += `\nThe user is asking about ${courseCode}: ${courseInfo.name}. This course covers: ${courseInfo.topics.join(', ')}. `;
       }
     }
-    
+
     // Check if query is related to navigation
     if (isNavigationQuery(userContent)) {
       systemMessage += '\nThe user is asking about navigating or finding resources on the LearnFlow platform. Be specific about where to find materials. ';
-      
+
       // Check for semester-specific queries
       const semesterMatch = userContent.match(/\b(\d)(st|nd|rd|th)?\s+sem(ester)?\b/i);
       if (semesterMatch) {
@@ -244,20 +255,20 @@ Format your response as a clear, concise report with specific issues and suggest
           systemMessage += `\nSemester ${semNumber} resources are located at ${semResources.path} and include courses: ${semResources.courses.join(', ')}. `;
         }
       }
-      
+
       // Add website navigation information
       const navigationInfo = getWebsiteNavigationInfo(userContent);
       if (navigationInfo) {
         systemMessage += navigationInfo;
       }
     }
-    
+
     // Add website knowledge context
     const websiteContext = getQueryContext(userContent);
     if (websiteContext) {
       systemMessage += `\n${websiteContext}`;
     }
-    
+
     // Add web search context if needed
     if (needsWebSearch(userContent)) {
       try {
@@ -270,7 +281,7 @@ Format your response as a clear, concise report with specific issues and suggest
         console.error('Error performing web search:', searchError);
       }
     }
-    
+
     // Complete the system message with general instructions
     systemMessage += `
 Provide concise, accurate information about academic topics, learning resources, and study techniques. Be friendly and supportive.
@@ -290,14 +301,14 @@ Always maintain a helpful, educational tone and focus on providing value to stud
 
     // Get conversation history (last 5 messages for context)
     const conversationHistory = messages.slice(-5).map(msg => msg.content).join('\n');
-    
+
     // Combine system message with user query and conversation history
     const fullPrompt = `${systemMessage}\n\nConversation history:\n${conversationHistory}\n\nUser query: ${userContent}`;
 
     try {
       // Call Gemini API
       console.log('Calling Gemini API...');
-      
+
       const geminiResponse = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
         method: 'POST',
         headers: {
@@ -317,14 +328,14 @@ Always maintain a helpful, educational tone and focus on providing value to stud
           }
         })
       });
-      
+
       const geminiData = await geminiResponse.json();
-      
+
       console.log('Gemini API response received');
 
       if (geminiData.candidates && geminiData.candidates[0] && geminiData.candidates[0].content) {
         const responseText = geminiData.candidates[0].content.parts[0].text;
-        
+
         // Send response
         res.json({
           message: {
@@ -337,13 +348,13 @@ Always maintain a helpful, educational tone and focus on providing value to stud
       }
     } catch (apiError) {
       console.error('Error calling Gemini API:', apiError);
-      
+
       // Fallback response mechanism
       console.log('Using fallback response mechanism');
-      
+
       // Generate a fallback response based on the user's query
       let fallbackResponse = '';
-      
+
       if (userContent.toLowerCase().includes('hello') || userContent.toLowerCase().includes('hi')) {
         fallbackResponse = "Hello! I'm LearnFlow Assistant. How can I help you with your educational needs today?";
       } else if (userContent.toLowerCase().includes('help')) {
@@ -357,7 +368,7 @@ Always maintain a helpful, educational tone and focus on providing value to stud
       } else {
         fallbackResponse = "I'm currently experiencing connection issues with my knowledge base. Please try again later or rephrase your question.";
       }
-      
+
       res.json({
         message: {
           role: 'assistant',
@@ -380,7 +391,7 @@ Always maintain a helpful, educational tone and focus on providing value to stud
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(join(__dirname, '../dist')));
-  
+
   app.get('*', (req, res) => {
     res.sendFile(join(__dirname, '../dist/index.html'));
   });
