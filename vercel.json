@@ -16,6 +16,14 @@
   ],
   "routes": [
     {
+      "src": "/ads.txt",
+      "dest": "/ads.txt",
+      "headers": {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "public, max-age=0, must-revalidate"
+      }
+    },
+    {
       "src": "/sitemap.xml",
       "dest": "/api/sitemap",
       "headers": {

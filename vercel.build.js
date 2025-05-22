@@ -55,10 +55,12 @@ if (isVercel) {
 // Ensure ads.txt is copied to the dist directory
 // This is important for Google AdSense verification
 const adsTextSource = path.join(__dirname, 'ads.txt');
+const publicAdsTextSource = path.join(__dirname, 'public', 'ads.txt');
 const adsTextDest = path.join(__dirname, 'dist', 'ads.txt');
 
-if (fs.existsSync(adsTextSource)) {
-  console.log('Copying ads.txt to dist directory...');
+// Check if ads.txt exists in root or public directory
+if (fs.existsSync(adsTextSource) || fs.existsSync(publicAdsTextSource)) {
+  console.log('Found ads.txt file, copying to dist directory...');
   try {
     // Create dist directory if it doesn't exist
     const distDir = path.join(__dirname, 'dist');
@@ -66,14 +68,59 @@ if (fs.existsSync(adsTextSource)) {
       fs.mkdirSync(distDir, { recursive: true });
     }
 
+    // Determine which source file to use (prefer root directory)
+    const sourceFile = fs.existsSync(adsTextSource) ? adsTextSource : publicAdsTextSource;
+
     // Copy the file
-    fs.copyFileSync(adsTextSource, adsTextDest);
-    console.log('ads.txt copied successfully!');
+    fs.copyFileSync(sourceFile, adsTextDest);
+    console.log(`ads.txt copied successfully from ${sourceFile}!`);
+
+    // Verify the content
+    const content = fs.readFileSync(adsTextDest, 'utf8');
+    console.log('ads.txt content:');
+    console.log(content);
+
+    // Double-check by also copying to public directory if it doesn't exist there
+    if (!fs.existsSync(publicAdsTextSource) && fs.existsSync(adsTextSource)) {
+      const publicDir = path.join(__dirname, 'public');
+      if (!fs.existsSync(publicDir)) {
+        fs.mkdirSync(publicDir, { recursive: true });
+      }
+      fs.copyFileSync(adsTextSource, publicAdsTextSource);
+      console.log('Also copied ads.txt to public directory for redundancy');
+    }
   } catch (error) {
     console.error('Error copying ads.txt:', error);
   }
 } else {
-  console.warn('ads.txt not found in root directory!');
+  console.warn('ads.txt not found in root or public directory!');
+  console.warn('Creating ads.txt file with Google AdSense information...');
+
+  try {
+    // Create the content for ads.txt
+    const adsContent = 'google.com, pub-1178405148130113, DIRECT, f08c47fec0942fa0';
+
+    // Create dist directory if it doesn't exist
+    const distDir = path.join(__dirname, 'dist');
+    if (!fs.existsSync(distDir)) {
+      fs.mkdirSync(distDir, { recursive: true });
+    }
+
+    // Create public directory if it doesn't exist
+    const publicDir = path.join(__dirname, 'public');
+    if (!fs.existsSync(publicDir)) {
+      fs.mkdirSync(publicDir, { recursive: true });
+    }
+
+    // Write the file to both locations
+    fs.writeFileSync(adsTextDest, adsContent);
+    fs.writeFileSync(path.join(__dirname, 'ads.txt'), adsContent);
+    fs.writeFileSync(publicAdsTextSource, adsContent);
+
+    console.log('Created ads.txt file in root, public, and dist directories');
+  } catch (error) {
+    console.error('Error creating ads.txt:', error);
+  }
 }
 
 console.log('Vercel build preparation complete!');
