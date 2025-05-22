@@ -24,7 +24,7 @@ import {
   Bookmark, 
   Calendar, 
   Calculator,
-  Tool
+  // Tool
 } from 'lucide-react';
 
 const HelpPage: React.FC = () => {
@@ -262,7 +262,7 @@ const HelpPage: React.FC = () => {
       {
         question: 'Can I edit or delete my uploads?',
         answer: 'Yes, you can manage your uploads from your profile page. Navigate to the "My Uploads" section where you can view, edit details, or delete files you\'ve previously uploaded. Note that editing is limited to metadata (title, description, categories) and not the file content itself.',
-        icon: <Tool className="w-5 h-5 text-purple-500" />,
+        // icon: <Tool className="w-5 h-5 text-purple-500" />,
         link: '/profile',
         linkText: 'Manage your uploads'
       }
