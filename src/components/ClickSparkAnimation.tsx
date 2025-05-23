@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { useTheme } from '../hooks/useTheme';
 
 interface SparkConfig {
   sparkColor: string;
@@ -13,57 +14,72 @@ interface SparkConfig {
 }
 
 const ClickSparkAnimation: React.FC = () => {
-  const sparkConfig: SparkConfig = {
-    sparkColor: 'white',
-    sparkSize: 26, // Length of the rays
-    sparkRadius: 45, // Maximum distance the rays will travel
-    sparkCount: 11, // Number of rays in the starburst
-    duration: 400, // Animation duration in ms
-    extraScale: 1.1, // Scale factor for the animation
-    sparkColors: ['white'], // Using only white as specified
-    sparkWidth: 2, // Width of the ray lines
-    excludedSelectors: [
-      // Hero buttons - Get Started and Explore Tools
-      'button.group', // Get Started button
-      'button.px-8.py-3.bg-white', // Explore Tools button
-      'a:contains("Get Started")', // Get Started links
-      'button:contains("Get Started")', // Get Started buttons
-      'a:contains("Explore Tools")', // Explore Tools links
-      'button:contains("Explore Tools")', // Explore Tools buttons
-      'a[href*="get-started"]', // Get Started links by URL
-      'a[href*="explore-tools"]', // Explore Tools links by URL
+  const { theme } = useTheme();
 
-      // Footer buttons and social media links
-      'footer button', // All footer buttons
-      'footer a', // All footer links (social media)
-
-      // Navbar buttons
-      'nav button', // All navbar buttons
-
-      // Social media links with specific URLs
-      'a[href*="instagram.com"]',
-      'a[href*="linkedin.com"]',
-      'a[href*="github.com"]',
-      'a[href*="youtube.com"]',
-      'a[href*="facebook.com"]',
-      'a[href*="twitter.com"]',
-      '.social-media-button',
-      '.social-icon',
-      '[aria-label*="social"]',
-
-      // Generic buttons
-      'button.primary-button',
-      'button.secondary-button',
-      'button[type="submit"]',
-
-      // Navigation elements
-      'nav a',
-      '.navbar a',
-      '.navbar button'
-    ]
-  };
+  // Store the click handler in a ref so we can remove it when theme changes
+  const clickHandlerRef = useRef<((e: MouseEvent) => void) | null>(null);
 
   useEffect(() => {
+    // Clean up previous event listener if it exists
+    if (clickHandlerRef.current) {
+      document.removeEventListener('click', clickHandlerRef.current);
+      clickHandlerRef.current = null;
+    }
+
+    // Use blue color for light mode, white for dark mode
+    const sparkColor = theme === 'light' ? '#1E90FF' : 'white'; // Using dodger blue (#1E90FF) for light mode
+
+    // Create the spark config with the current theme color
+    const sparkConfig: SparkConfig = {
+      sparkColor: sparkColor,
+      sparkSize: 26, // Length of the rays
+      sparkRadius: 45, // Maximum distance the rays will travel
+      sparkCount: 11, // Number of rays in the starburst
+      duration: 400, // Animation duration in ms
+      extraScale: 1.1, // Scale factor for the animation
+      sparkColors: [sparkColor], // Using theme-based color
+      sparkWidth: 2, // Width of the ray lines
+      excludedSelectors: [
+        // Hero buttons - Get Started and Explore Tools
+        'button.group', // Get Started button
+        'button.px-8.py-3.bg-white', // Explore Tools button
+        'a:contains("Get Started")', // Get Started links
+        'button:contains("Get Started")', // Get Started buttons
+        'a:contains("Explore Tools")', // Explore Tools links
+        'button:contains("Explore Tools")', // Explore Tools buttons
+        'a[href*="get-started"]', // Get Started links by URL
+        'a[href*="explore-tools"]', // Explore Tools links by URL
+
+        // Footer buttons and social media links
+        'footer button', // All footer buttons
+        'footer a', // All footer links (social media)
+
+        // Navbar buttons
+        'nav button', // All navbar buttons
+
+        // Social media links with specific URLs
+        'a[href*="instagram.com"]',
+        'a[href*="linkedin.com"]',
+        'a[href*="github.com"]',
+        'a[href*="youtube.com"]',
+        'a[href*="facebook.com"]',
+        'a[href*="twitter.com"]',
+        '.social-media-button',
+        '.social-icon',
+        '[aria-label*="social"]',
+
+        // Generic buttons
+        'button.primary-button',
+        'button.secondary-button',
+        'button[type="submit"]',
+
+        // Navigation elements
+        'nav a',
+        '.navbar a',
+        '.navbar button'
+      ]
+    };
+
     // Default list of selectors for elements that should not trigger the spark animation
     const defaultExcludedSelectors = [
       // Navigation buttons
@@ -118,7 +134,10 @@ const ClickSparkAnimation: React.FC = () => {
     ];
 
     const createSpark = (x: number, y: number) => {
-      const { sparkColor, sparkSize, sparkRadius, sparkCount, duration, extraScale, sparkWidth = 2 } = sparkConfig;
+      // Always get the current theme color directly from the theme state
+      // This ensures we always use the most up-to-date color based on the current theme
+      const currentSparkColor = theme === 'light' ? '#1E90FF' : 'white';
+      const { sparkSize, sparkRadius, sparkCount, duration, extraScale, sparkWidth = 2 } = sparkConfig;
 
       // Create a container for the sparks
       const sparkContainer = document.createElement('div');
@@ -142,7 +161,7 @@ const ClickSparkAnimation: React.FC = () => {
         spark.style.position = 'absolute';
         spark.style.width = `${sparkSize}px`; // Length of the ray
         spark.style.height = `${sparkWidth}px`; // Width of the ray
-        spark.style.backgroundColor = sparkColor;
+        spark.style.backgroundColor = currentSparkColor; // Use the theme-based color
         spark.style.left = `${x}px`;
         spark.style.top = `${y}px`;
         spark.style.transformOrigin = '0 50%'; // Set transform origin to left center
@@ -194,6 +213,7 @@ const ClickSparkAnimation: React.FC = () => {
       }
     };
 
+    // Create a new click handler function
     const handleClick = (e: MouseEvent) => {
       // Check if the clicked element or any of its parents match the excluded selectors
       const shouldExclude = (element: Element | null): boolean => {
@@ -253,14 +273,20 @@ const ClickSparkAnimation: React.FC = () => {
       }
     };
 
+    // Store the handler in the ref so we can remove it later
+    clickHandlerRef.current = handleClick;
+
     // Add click event listener to the entire document
     document.addEventListener('click', handleClick);
 
     // Cleanup
     return () => {
-      document.removeEventListener('click', handleClick);
+      if (clickHandlerRef.current) {
+        document.removeEventListener('click', clickHandlerRef.current);
+        clickHandlerRef.current = null;
+      }
     };
-  }, []);
+  }, [theme]); // Add theme to dependency array so effect re-runs when theme changes
 
   return null; // This component doesn't render anything visible
 };

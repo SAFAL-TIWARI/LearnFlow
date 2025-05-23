@@ -45,43 +45,43 @@ export default function ProfileMenu() {
   // Get user's name or email for display
   const getUserName = () => {
     if (!user) return 'G';
-    
-    const name = user.user_metadata?.full_name || 
-                 user.user_metadata?.name || 
-                 user.user_metadata?.given_name || 
-                 user.identities?.[0]?.identity_data?.full_name || 
-                 user.identities?.[0]?.identity_data?.name || 
-                 user.email?.split('@')[0] || 
-                 'User';
-    
+
+    const name = user.user_metadata?.full_name ||
+      user.user_metadata?.name ||
+      user.user_metadata?.given_name ||
+      user.identities?.[0]?.identity_data?.full_name ||
+      user.identities?.[0]?.identity_data?.name ||
+      user.email?.split('@')[0] ||
+      'User';
+
     // Get first letter of the name
     return name.charAt(0).toUpperCase();
   };
-  
+
   // Generate a consistent background color based on the user's name
   const getAvatarColor = () => {
     if (!user) return 'bg-gray-500';
-    
-    const name = user.user_metadata?.full_name || 
-                 user.user_metadata?.name || 
-                 user.user_metadata?.given_name || 
-                 user.identities?.[0]?.identity_data?.full_name || 
-                 user.identities?.[0]?.identity_data?.name || 
-                 user.email || 
-                 'User';
-    
+
+    const name = user.user_metadata?.full_name ||
+      user.user_metadata?.name ||
+      user.user_metadata?.given_name ||
+      user.identities?.[0]?.identity_data?.full_name ||
+      user.identities?.[0]?.identity_data?.name ||
+      user.email ||
+      'User';
+
     // Simple hash function to generate a consistent color
     const hash = name.split('').reduce((acc, char) => {
       return char.charCodeAt(0) + ((acc << 5) - acc);
     }, 0);
-    
+
     // List of tailwind color classes for the avatar
     const colors = [
-      'bg-red-600', 'bg-blue-600', 'bg-green-600', 'bg-yellow-600', 
+      'bg-red-600', 'bg-blue-600', 'bg-green-600', 'bg-yellow-600',
       'bg-purple-600', 'bg-pink-600', 'bg-indigo-600', 'bg-teal-600',
       'bg-orange-600', 'bg-cyan-600'
     ];
-    
+
     // Use the hash to pick a color
     const colorIndex = Math.abs(hash) % colors.length;
     return colors[colorIndex];
@@ -101,11 +101,11 @@ export default function ProfileMenu() {
   // Otherwise, use a letter avatar with the first letter of their name
   const profilePicture = hasCustomProfilePicture
     ? (user.user_metadata?.avatar_url ||
-       user.user_metadata?.picture ||
-       user.user_metadata?.picture_url ||
-       user.user_metadata?.profile_picture ||
-       user.identities?.[0]?.identity_data?.avatar_url ||
-       user.identities?.[0]?.identity_data?.picture)
+      user.user_metadata?.picture ||
+      user.user_metadata?.picture_url ||
+      user.user_metadata?.profile_picture ||
+      user.identities?.[0]?.identity_data?.avatar_url ||
+      user.identities?.[0]?.identity_data?.picture)
     : null; // Will use letter avatar instead
 
   // Log user identities for debugging
@@ -156,12 +156,12 @@ export default function ProfileMenu() {
                 <div>
                   <p className="font-semibold text-gray-800 dark:text-gray-200">
                     {user.user_metadata?.full_name ||
-                     user.user_metadata?.name ||
-                     user.user_metadata?.given_name ||
-                     user.identities?.[0]?.identity_data?.full_name ||
-                     user.identities?.[0]?.identity_data?.name ||
-                     user.email?.split('@')[0] ||
-                     'User'}
+                      user.user_metadata?.name ||
+                      user.user_metadata?.given_name ||
+                      user.identities?.[0]?.identity_data?.full_name ||
+                      user.identities?.[0]?.identity_data?.name ||
+                      user.email?.split('@')[0] ||
+                      'User'}
                   </p>
                   {/* <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{user.email || ''}</p> */}
                 </div>
@@ -189,14 +189,13 @@ export default function ProfileMenu() {
           >
             <div className="flex items-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9
-" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
               </svg>
               Notices
             </div>
           </Link>
           <Link
-            to="/notices"
+            to="/release-notes"
             className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             onClick={() => setIsOpen(false)}
           >
