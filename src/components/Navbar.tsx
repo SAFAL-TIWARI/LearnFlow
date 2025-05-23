@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { Dialog } from '@/components/ui/dialog';
-import { scrollToSection } from '../utils/scrollUtils';
+import { scrollToSection, disableScroll, enableScroll } from '../utils/scrollUtils';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import SmartAuthButton from './SmartAuthButton';
 // import NotificationButton from './NotificationButton';
@@ -25,14 +25,23 @@ const Navbar: React.FC = () => {
     }
   };
 
-  // Auto-close About dialog after 20 seconds if it was automatically opened
+  // Handle About dialog open/close and manage scroll blocking
   useEffect(() => {
     let timeoutId: number;
+    
     if (aboutDialogOpen) {
+      // Disable scrolling when the dialog is opened from navbar
+      disableScroll();
+      
+      // Auto-close About dialog after 20 seconds
       timeoutId = window.setTimeout(() => {
         setAboutDialogOpen(false);
       }, 20000);
+    } else {
+      // Enable scrolling when the dialog is closed
+      enableScroll();
     }
+    
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
     };
