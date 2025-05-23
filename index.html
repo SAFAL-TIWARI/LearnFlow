@@ -7,14 +7,17 @@
 
   <!-- Google Adsense Script -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1178405148130113"
-    crossorigin="anonymous"></script>
+    crossorigin="anonymous">
+    </script>
 
   <!-- Cookiebot -->
   <script id="Cookiebot" src="https://consent.cookiebot.com/uc.js" data-cbid="dfb4b018-16aa-448b-92c6-26920c894371"
-    type="text/javascript" async></script>
+    type="text/javascript" async>
+    </script>
 
   <script id="CookieDeclaration" src="https://consent.cookiebot.com/dfb4b018-16aa-448b-92c6-26920c894371/cd.js"
-    type="text/javascript" async></script>
+    type="text/javascript" async>
+    </script>
 
   <script
     data-cookieconsent="ignore">    window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag("consent", "default", { ad_personalization: "denied", ad_storage: "denied", ad_user_data: "denied", analytics_storage: "denied", functionality_storage: "denied", personalization_storage: "denied", security_storage: "granted", wait_for_update: 500, }); gtag("set", "ads_data_redaction", true); gtag("set", "url_passthrough", false);</script>
@@ -31,13 +34,7 @@
   </script>
 
 
-  <!-- Google 1st Ad in display ads   -->
-  <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
-
-  <!-- Google 2nd Ad, multiplex ads -->
-  <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
-
-  <!-- Google Auto Ads -->
+  <!-- Google Auto Ads - Using only one implementation during approval process -->
   <script async custom-element="amp-auto-ads" src="https://cdn.ampproject.org/v0/amp-auto-ads-0.1.js">
   </script>
 
@@ -59,12 +56,12 @@
     // Set dark mode as default
     (function () {
       const storedTheme = localStorage.getItem('theme');
-      
+
       if (!storedTheme) {
         // If no theme preference is stored, set dark mode as default
         localStorage.setItem('theme', 'dark');
       }
-      
+
       const isDarkMode = localStorage.getItem('theme') === 'dark';
 
       if (isDarkMode) {
@@ -117,17 +114,8 @@
 
 <body>
 
-  <!-- Google 1st Ad, in display ads -->
-  <amp-ad width="100vw" height="320" type="adsense" data-ad-client="ca-pub-1178405148130113" data-ad-slot="7857545341"
-    data-auto-format="rspv" data-full-width="">
-    <div overflow=""></div>
-  </amp-ad>
-
-  <!-- Google 2nd Ad, multiplex ads -->
-  <amp-ad width="100vw" height="320" type="adsense" data-ad-client="ca-pub-1178405148130113" data-ad-slot="5093674849"
-    data-auto-format="mcrspv" data-full-width="">
-    <div overflow=""></div>
-  </amp-ad>
+  <!-- During AdSense approval process, we're using only Auto Ads -->
+  <!-- Individual ad units will be added after approval -->
 
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
@@ -142,7 +130,7 @@
   </script> -->
 </body>
 
-<!-- Google Auto Ads -->
+<!-- Google Auto Ads - Single implementation for approval process -->
 <amp-auto-ads type="adsense" data-ad-client="ca-pub-1178405148130113">
 </amp-auto-ads>
 

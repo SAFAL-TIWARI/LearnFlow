@@ -39,10 +39,27 @@ export const signInWithGoogle = async (redirect: boolean = false) => {
   try {
     // Get the current origin for the redirect URL
     const origin = window.location.origin;
+    
     // Make sure the redirect URL matches exactly what's configured in Supabase and Google Cloud Console
-    const redirectUrl = redirect ? `${origin}/auth/callback` : undefined;
+    // For localhost:8080 testing, hardcode the callback URL if needed
+    let redirectUrl;
+    
+    if (origin.includes('localhost:8080')) {
+      // Use the localhost:8080 callback URL
+      redirectUrl = 'http://localhost:8080/auth/callback';
+    } else if (redirect) {
+      // Use the dynamic origin for other environments
+      redirectUrl = `${origin}/auth/callback`;
+    } else {
+      redirectUrl = undefined;
+    }
+    
     console.log('Supabase Google OAuth redirect URL:', redirectUrl);
 
+    // Clear any previous auth completion flags (for Google auth)
+    localStorage.removeItem('auth_completed');
+    localStorage.removeItem('auth_timestamp');
+    
     // Add a timestamp to prevent caching issues
     const timestamp = Date.now();
     
@@ -77,16 +94,30 @@ export const signInWithGoogle = async (redirect: boolean = false) => {
       if (event === 'SIGNED_IN' && session) {
         console.log('User signed in:', session.user);
         
-        // Store a flag in localStorage to indicate successful sign-in
-        // This can be used to detect if the user completed the flow
+        // Store user data and auth completion flags in localStorage (for Google auth)
         localStorage.setItem('auth_completed', 'true');
+        localStorage.setItem('auth_timestamp', Date.now().toString());
+        
+        if (session.user) {
+          localStorage.setItem('supabase_user', JSON.stringify(session.user));
+        }
+        
+        // Dispatch a custom event that can be listened for
+        try {
+          const authEvent = new CustomEvent('supabase-auth-success', { 
+            detail: { user: session.user } 
+          });
+          window.dispatchEvent(authEvent);
+        } catch (e) {
+          console.error('Error dispatching auth event:', e);
+        }
       }
     });
 
-    // Clean up listener after 30 seconds (increased from 10 seconds)
+    // Clean up listener after 60 seconds (increased from 30 seconds)
     setTimeout(() => {
       authListener?.subscription.unsubscribe();
-    }, 30000);
+    }, 60000);
     
     return { data, error: null };
   } catch (err) {

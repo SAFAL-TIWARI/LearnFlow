@@ -86,21 +86,71 @@ Please return to login and try again.`);
             // If this was opened in a new window, close it and refresh the parent
             if (window.opener) {
               try {
-                // Make sure the parent window reloads to get the new user data
+                // Store authentication data in localStorage before closing
+                // This ensures the parent window can access it immediately
+                localStorage.setItem('auth_completed', 'true');
+                localStorage.setItem('auth_timestamp', Date.now().toString());
+                
+                // Store user data in localStorage for immediate access in parent window
+                if (userData?.user) {
+                  localStorage.setItem('supabase_user', JSON.stringify(userData.user));
+                }
+                
                 console.log('Closing popup and refreshing parent window');
+                
+                // Try multiple methods to communicate with the parent window
+                
+                // 1. Post a message to the parent window
+                try {
+                  window.opener.postMessage({ 
+                    type: 'AUTH_COMPLETE', 
+                    user: userData?.user,
+                    timestamp: Date.now()
+                  }, '*');
+                  console.log('Posted message to parent window');
+                } catch (msgErr) {
+                  console.error('Error posting message to parent:', msgErr);
+                }
+                
+                // 2. Try to set a flag in the parent window directly
+                try {
+                  window.opener.authCompleted = true;
+                  window.opener.authUser = userData?.user;
+                  console.log('Set auth flags in parent window');
+                } catch (flagErr) {
+                  console.error('Error setting flags in parent window:', flagErr);
+                }
+                
+                // 3. Force the parent window to reload/redirect and close this window
+                console.log('Redirecting parent window and closing popup');
+                
                 // Force a delay to ensure the session is properly set before closing
                 setTimeout(() => {
-                  window.opener.location.reload();
-                  window.close();
-                }, 1000);
+                  try {
+                    // Redirect the parent window to the home page with success parameters
+                    // Use the correct URL (localhost:8080 or whatever is configured)
+                    const baseUrl = window.opener.location.origin;
+                    const redirectUrl = `${baseUrl}/?auth=success&provider=google&t=${Date.now()}`;
+                    window.opener.location.href = redirectUrl;
+                    console.log('Redirected parent to:', redirectUrl);
+                    
+                    // Close this popup window immediately
+                    console.log('Closing popup window');
+                    window.close();
+                  } catch (redirectErr) {
+                    console.error('Error redirecting parent window:', redirectErr);
+                    // If we can't redirect, try to close anyway
+                    window.close();
+                  }
+                }, 800);
               } catch (err) {
                 console.error('Error closing window:', err);
                 // If we can't close the window, navigate to home
                 navigate('/', { replace: true });
               }
             } else {
-              // Redirect to the home page or dashboard
-              navigate('/', { replace: true });
+              // Redirect to the home page or dashboard with success parameters
+              navigate('/?auth=success&provider=google&t=' + Date.now(), { replace: true });
             }
           }
         } catch (exchangeError: any) {

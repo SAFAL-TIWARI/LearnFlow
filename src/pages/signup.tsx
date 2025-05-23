@@ -9,6 +9,8 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { signUp, signInWithGoogle, user } = useAuth();
   const navigate = useNavigate();
 
@@ -52,11 +54,70 @@ const Signup = () => {
         setError(error.message);
       } else {
         setSuccess(true);
+        
+        // Trigger browser password save prompt for new accounts
+        triggerPasswordSave(email, password);
       }
     } catch (err: any) {
       setError(err.message || 'An error occurred during sign up');
     } finally {
       setLoading(false);
+    }
+  };
+  
+  // Helper function to trigger browser's password save prompt
+  const triggerPasswordSave = (email: string, password: string) => {
+    try {
+      // Create a hidden form that will be auto-submitted
+      const tempForm = document.createElement('form');
+      tempForm.style.display = 'none';
+      tempForm.method = 'post';
+      tempForm.action = '#'; // Non-navigating action
+      tempForm.id = 'password-save-form';
+      tempForm.autocomplete = 'on';
+      
+      // Create email field
+      const emailField = document.createElement('input');
+      emailField.type = 'email';
+      emailField.name = 'email';
+      emailField.autocomplete = 'email';
+      emailField.value = email;
+      
+      // Create username field (using email as username)
+      const usernameField = document.createElement('input');
+      usernameField.type = 'text';
+      usernameField.name = 'username';
+      usernameField.autocomplete = 'username';
+      usernameField.value = email;
+      
+      // Create password field
+      const passwordField = document.createElement('input');
+      passwordField.type = 'password';
+      passwordField.name = 'password';
+      passwordField.autocomplete = 'new-password';
+      passwordField.value = password;
+      
+      // Add fields to form
+      tempForm.appendChild(emailField);
+      tempForm.appendChild(usernameField);
+      tempForm.appendChild(passwordField);
+      
+      // Add form to document
+      document.body.appendChild(tempForm);
+      
+      // Submit the form to trigger browser's password save prompt
+      tempForm.submit();
+      
+      // Remove the form after a short delay
+      setTimeout(() => {
+        if (document.body.contains(tempForm)) {
+          document.body.removeChild(tempForm);
+        }
+      }, 1000);
+      
+      console.log('Triggered browser password save prompt for new account');
+    } catch (err) {
+      console.error('Error triggering password save:', err);
     }
   };
 
@@ -109,7 +170,10 @@ const Signup = () => {
           </div>
         )}
 
-        <form className="mt-8 space-y-6" onSubmit={handleSignUp}>
+        <form className="mt-8 space-y-6" onSubmit={handleSignUp} id="signup-form" autoComplete="on">
+          {/* Hidden username field to help browsers identify this as a signup form */}
+          <input type="text" name="username" autoComplete="username" style={{ display: 'none' }} />
+          
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="email-address" className="sr-only">
@@ -127,14 +191,14 @@ const Signup = () => {
                 placeholder="Email address"
               />
             </div>
-            <div>
+            <div className="relative">
               <label htmlFor="password" className="sr-only">
                 Password
               </label>
               <input
                 id="password"
                 name="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 autoComplete="new-password"
                 required
                 value={password}
@@ -142,15 +206,38 @@ const Signup = () => {
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm dark:bg-gray-700"
                 placeholder="Password"
               />
+              <button
+                type="button"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 group"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                <div className="relative">
+                  {showPassword ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500 dark:text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clipRule="evenodd" />
+                      <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500 dark:text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                      <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                  <span className="absolute left-1/2 transform -translate-x-1/2 -top-10 px-2 py-1 bg-gray-700 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+                    {showPassword ? "Hide password" : "Show password"}
+                  </span>
+                </div>
+              </button>
             </div>
-            <div>
+            <div className="relative">
               <label htmlFor="confirm-password" className="sr-only">
                 Confirm Password
               </label>
               <input
                 id="confirm-password"
                 name="confirm-password"
-                type="password"
+                type={showConfirmPassword ? "text" : "password"}
                 autoComplete="new-password"
                 required
                 value={confirmPassword}
@@ -158,6 +245,29 @@ const Signup = () => {
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm dark:bg-gray-700"
                 placeholder="Confirm password"
               />
+              <button
+                type="button"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 group"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+              >
+                <div className="relative">
+                  {showConfirmPassword ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500 dark:text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clipRule="evenodd" />
+                      <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500 dark:text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                      <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                  <span className="absolute left-1/2 transform -translate-x-1/2 -top-10 px-2 py-1 bg-gray-700 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+                    {showConfirmPassword ? "Hide password" : "Show password"}
+                  </span>
+                </div>
+              </button>
             </div>
           </div>
 
