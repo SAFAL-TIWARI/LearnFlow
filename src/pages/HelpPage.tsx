@@ -4,25 +4,25 @@ import { Link } from 'react-router-dom';
 import BlurTextAnimation from '../components/BlurTextAnimation';
 
 // Icons
-import { 
-  BookOpen, 
-  User, 
-  FileText, 
-  Upload, 
-  Wrench, 
-  AlertTriangle, 
-  HelpCircle, 
-  Mail, 
-  ExternalLink, 
-  ChevronDown, 
-  Search, 
-  ArrowRight, 
-  CheckCircle, 
-  Clock, 
-  Lock, 
-  Zap, 
-  Bookmark, 
-  Calendar, 
+import {
+  BookOpen,
+  User,
+  FileText,
+  Upload,
+  Wrench,
+  AlertTriangle,
+  HelpCircle,
+  Mail,
+  ExternalLink,
+  ChevronDown,
+  Search,
+  ArrowRight,
+  CheckCircle,
+  Clock,
+  Lock,
+  Zap,
+  Bookmark,
+  Calendar,
   Calculator,
   // Tool
 } from 'lucide-react';
@@ -36,9 +36,9 @@ const HelpPage: React.FC = () => {
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { 
+    visible: {
       opacity: 1,
-      transition: { 
+      transition: {
         staggerChildren: 0.1,
         delayChildren: 0.2
       }
@@ -47,8 +47,8 @@ const HelpPage: React.FC = () => {
 
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
-    visible: { 
-      y: 0, 
+    visible: {
+      y: 0,
       opacity: 1,
       transition: { type: 'spring', stiffness: 300, damping: 24 }
     }
@@ -56,7 +56,7 @@ const HelpPage: React.FC = () => {
 
   const fadeInVariants = {
     hidden: { opacity: 0 },
-    visible: { 
+    visible: {
       opacity: 1,
       transition: { duration: 0.5 }
     }
@@ -72,7 +72,7 @@ const HelpPage: React.FC = () => {
     { id: 'uploads', name: 'Uploading Files', icon: <Upload className="w-5 h-5" /> },
     { id: 'tools', name: 'Student Tools', icon: <Wrench className="w-5 h-5" /> },
   ];
-  
+
   // FAQ items with enhanced content and links
   const faqItems = {
     'getting-started': [
@@ -152,21 +152,21 @@ const HelpPage: React.FC = () => {
         question: 'How do I track my academic progress?',
         answer: 'You can use our CGPA Calculator tool to track your academic progress. Input your course grades and credits to calculate your current CGPA. The tool also allows you to simulate future scenarios to set academic goals.',
         icon: <Calculator className="w-5 h-5 text-green-500" />,
-        link: '/tools/CGPACalculator',
+        link: '/tools/cgpa-calculator',
         linkText: 'Use CGPA Calculator'
       },
       {
         question: 'How can I prepare for upcoming exams?',
         answer: 'LearnFlow offers several resources to help you prepare for exams:\n\n1. Previous Year Question Papers (PYQs)\n2. Study notes from top-performing students\n3. Practice assignments\n4. The Exam Scheduler tool to plan your study time\n\nYou can find these resources by navigating to your branch and year section.',
         icon: <FileText className="w-5 h-5 text-purple-500" />,
-        link: '/tools/ExamScheduler',
+        link: '/tools/exam-scheduler',
         linkText: 'Use Exam Scheduler'
       },
       {
         question: 'I need help understanding a difficult topic',
         answer: 'If you\'re struggling with a particular topic, try looking for detailed notes or practical guides in the resources section. You can also use the feedback form to request additional materials on specific topics. In future updates, we plan to add a community forum where you can ask questions directly to other students.',
         icon: <HelpCircle className="w-5 h-5 text-red-500" />,
-        link: '/',
+        link: '/feedback',
         linkText: 'Request help with a topic'
       }
     ],
@@ -201,7 +201,7 @@ const HelpPage: React.FC = () => {
         question: 'How can I provide feedback about LearnFlow?',
         answer: 'We value your feedback! Click on your profile picture and select "Feedback" from the dropdown menu. You can share your thoughts, suggestions, and report any issues you\'ve encountered. Your input helps us improve the platform for everyone.',
         icon: <Mail className="w-5 h-5 text-purple-500" />,
-        link: '/',
+        link: '/feedback',
         linkText: 'Submit feedback'
       }
     ],
@@ -234,7 +234,7 @@ const HelpPage: React.FC = () => {
         question: 'Are the resources verified for accuracy?',
         answer: 'All uploaded resources undergo a review process before being published. However, we recommend cross-referencing information with your course materials and textbooks. If you find any inaccuracies, please report them using the feedback form so we can improve our content quality.',
         icon: <CheckCircle className="w-5 h-5 text-yellow-500" />,
-        link: '/',
+        link: '/feedback',
         linkText: 'Report inaccuracies'
       }
     ],
@@ -279,28 +279,28 @@ const HelpPage: React.FC = () => {
         question: 'How do I use the CGPA Calculator?',
         answer: 'The CGPA Calculator allows you to input your course grades and credit hours to calculate your cumulative GPA. Simply enter the details for each course, and the tool will automatically calculate your GPA for the semester and update your cumulative GPA if you\'ve entered previous semesters.',
         icon: <Calculator className="w-5 h-5 text-green-500" />,
-        link: '/tools/CGPACalculator',
+        link: '/tools/cgpa-calculator',
         linkText: 'Use CGPA Calculator'
       },
       {
         question: 'How does the Study Timer work?',
         answer: 'The Study Timer uses the Pomodoro Technique to help you study more effectively. It alternates between focused study periods (typically 25 minutes) and short breaks (5 minutes). After completing four study sessions, you get a longer break (15-30 minutes). This technique helps maintain concentration and prevent burnout.',
         icon: <Clock className="w-5 h-5 text-purple-500" />,
-        link: '/tools/StudyTimer',
+        link: '/tools/study-timer',
         linkText: 'Use Study Timer'
       },
       {
         question: 'How can I organize my notes?',
         answer: 'The Note Organizer tool allows you to create, categorize, and search through digital notes. You can organize notes by subject, add tags for easy searching, and even attach related files. The tool supports basic formatting to help structure your information effectively.',
         icon: <FileText className="w-5 h-5 text-orange-500" />,
-        link: '/tools/NoteOrganizer',
+        link: '/tools/note-organizer',
         linkText: 'Use Note Organizer'
       },
       {
         question: 'How do I plan my exam schedule?',
         answer: 'The Exam Scheduler helps you create a comprehensive study plan leading up to your exams. Enter your exam dates, assign priority levels to different subjects, and the tool will generate a balanced study schedule. You can adjust the plan as needed and set reminders for study sessions.',
         icon: <Calendar className="w-5 h-5 text-yellow-500" />,
-        link: '/tools/ExamScheduler',
+        link: '/tools/exam-scheduler',
         linkText: 'Use Exam Scheduler'
       }
     ]
@@ -308,18 +308,18 @@ const HelpPage: React.FC = () => {
 
   // Toggle FAQ expansion
   const toggleFaq = (index: number) => {
-    setExpandedFaqs(prev => 
-      prev.includes(index) 
-        ? prev.filter(i => i !== index) 
+    setExpandedFaqs(prev =>
+      prev.includes(index)
+        ? prev.filter(i => i !== index)
         : [...prev, index]
     );
   };
 
   // Filter FAQs based on search query
-  const filteredFaqs = searchQuery.trim() === '' 
+  const filteredFaqs = searchQuery.trim() === ''
     ? faqItems[activeCategory as keyof typeof faqItems]
-    : Object.values(faqItems).flat().filter(item => 
-        item.question.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    : Object.values(faqItems).flat().filter(item =>
+        item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.answer.toLowerCase().includes(searchQuery.toLowerCase())
       );
 
@@ -331,32 +331,32 @@ const HelpPage: React.FC = () => {
   };
 
   return (
-    <motion.div 
+    <motion.div
       className="container mx-auto px-4 py-8"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
     >
       <div className="max-w-5xl mx-auto">
-        <motion.div 
+        <motion.div
           className="text-center mb-12"
           variants={itemVariants}
         >
-          <BlurTextAnimation 
-            text="Student Help Center" 
+          <BlurTextAnimation
+            text="Student Help Center"
             className="text-4xl md:text-5xl font-bold text-gray-800 dark:text-white mb-4"
             speed={300}
           />
-          <motion.p 
+          <motion.p
             className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto"
             variants={fadeInVariants}
           >
             Find answers to your questions and solutions to common problems
           </motion.p>
         </motion.div>
-        
+
         {/* Search Bar */}
-        <motion.div 
+        <motion.div
           className="mb-10 relative"
           variants={itemVariants}
         >
@@ -381,13 +381,13 @@ const HelpPage: React.FC = () => {
               </button>
             )}
           </div>
-          
+
           {/* Quick Help Buttons */}
-          <motion.div 
+          <motion.div
             className="flex flex-wrap justify-center gap-2 mt-4"
             variants={fadeInVariants}
           >
-            <button 
+            <button
               onClick={() => {
                 setSearchQuery('login');
                 focusSearch();
@@ -396,7 +396,7 @@ const HelpPage: React.FC = () => {
             >
               Login Issues
             </button>
-            <button 
+            <button
               onClick={() => {
                 setSearchQuery('upload');
                 focusSearch();
@@ -405,7 +405,7 @@ const HelpPage: React.FC = () => {
             >
               Upload Problems
             </button>
-            <button 
+            <button
               onClick={() => {
                 setSearchQuery('exam');
                 focusSearch();
@@ -414,7 +414,7 @@ const HelpPage: React.FC = () => {
             >
               Exam Preparation
             </button>
-            <button 
+            <button
               onClick={() => {
                 setSearchQuery('resources');
                 focusSearch();
@@ -425,10 +425,10 @@ const HelpPage: React.FC = () => {
             </button>
           </motion.div>
         </motion.div>
-        
+
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Categories Sidebar */}
-          <motion.div 
+          <motion.div
             className="lg:w-1/4"
             variants={itemVariants}
           >
@@ -455,7 +455,7 @@ const HelpPage: React.FC = () => {
                   </motion.button>
                 ))}
               </nav>
-              
+
               {/* Help Resources */}
               <div className="mt-8 p-4 bg-learnflow-50 dark:bg-gray-700 rounded-lg">
                 <h3 className="text-md font-medium mb-3 text-gray-800 dark:text-white">
@@ -463,19 +463,19 @@ const HelpPage: React.FC = () => {
                 </h3>
                 <ul className="space-y-2 text-sm">
                   <li>
-                    <Link to="/TermsOfService" className="text-learnflow-600 dark:text-learnflow-400 hover:underline flex items-center">
+                    <Link to="/terms-of-service" className="text-learnflow-600 dark:text-learnflow-400 hover:underline flex items-center">
                       <ExternalLink className="w-4 h-4 mr-2" />
                       Terms of Service
                     </Link>
                   </li>
                   <li>
-                    <Link to="/PrivacyPolicy" className="text-learnflow-600 dark:text-learnflow-400 hover:underline flex items-center">
+                    <Link to="/privacy-policy" className="text-learnflow-600 dark:text-learnflow-400 hover:underline flex items-center">
                       <ExternalLink className="w-4 h-4 mr-2" />
                       Privacy Policy
                     </Link>
                   </li>
                   <li>
-                    <Link to="/" className="text-learnflow-600 dark:text-learnflow-400 hover:underline flex items-center">
+                    <Link to="/feedback" className="text-learnflow-600 dark:text-learnflow-400 hover:underline flex items-center">
                       <ExternalLink className="w-4 h-4 mr-2" />
                       Submit Feedback
                     </Link>
@@ -484,15 +484,15 @@ const HelpPage: React.FC = () => {
               </div>
             </div>
           </motion.div>
-          
+
           {/* FAQ Content */}
-          <motion.div 
+          <motion.div
             className="lg:w-3/4"
             variants={itemVariants}
           >
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
               {searchQuery.trim() === '' ? (
-                <motion.h2 
+                <motion.h2
                   className="text-2xl font-bold mb-6 text-gray-800 dark:text-white flex items-center"
                   variants={fadeInVariants}
                 >
@@ -502,16 +502,16 @@ const HelpPage: React.FC = () => {
                   {helpCategories.find(c => c.id === activeCategory)?.name}
                 </motion.h2>
               ) : (
-                <motion.h2 
+                <motion.h2
                   className="text-2xl font-bold mb-6 text-gray-800 dark:text-white"
                   variants={fadeInVariants}
                 >
                   Search Results: "{searchQuery}"
                 </motion.h2>
               )}
-              
+
               <AnimatePresence mode="wait">
-                <motion.div 
+                <motion.div
                   key={activeCategory + searchQuery}
                   className="space-y-4"
                   initial={{ opacity: 0, y: 20 }}
@@ -521,8 +521,8 @@ const HelpPage: React.FC = () => {
                 >
                   {filteredFaqs.length > 0 ? (
                     filteredFaqs.map((item, index) => (
-                      <motion.div 
-                        key={index} 
+                      <motion.div
+                        key={index}
                         className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
                         variants={itemVariants}
                         initial="hidden"
@@ -539,11 +539,11 @@ const HelpPage: React.FC = () => {
                               {item.question}
                             </h3>
                           </div>
-                          <ChevronDown 
-                            className={`w-5 h-5 text-gray-500 transition-transform ${expandedFaqs.includes(index) ? 'transform rotate-180' : ''}`} 
+                          <ChevronDown
+                            className={`w-5 h-5 text-gray-500 transition-transform ${expandedFaqs.includes(index) ? 'transform rotate-180' : ''}`}
                           />
                         </button>
-                        
+
                         <AnimatePresence>
                           {expandedFaqs.includes(index) && (
                             <motion.div
@@ -557,17 +557,17 @@ const HelpPage: React.FC = () => {
                                 <p className="text-gray-600 dark:text-gray-300 whitespace-pre-line">
                                   {item.answer}
                                 </p>
-                                
+
                                 {item.link && (
-                                  <motion.div 
+                                  <motion.div
                                     className="mt-4"
                                     whileHover={{ x: 5 }}
                                   >
-                                    <Link 
-                                      to={item.link.startsWith('mailto:') ? item.link : item.link} 
+                                    <Link
+                                      to={item.link.startsWith('mailto:') ? item.link : item.link}
                                       className="inline-flex items-center text-learnflow-600 dark:text-learnflow-400 hover:text-learnflow-700 dark:hover:text-learnflow-300"
                                     >
-                                      {item.linkText} 
+                                      {item.linkText}
                                       <ArrowRight className="ml-2 w-4 h-4" />
                                     </Link>
                                   </motion.div>
@@ -579,7 +579,7 @@ const HelpPage: React.FC = () => {
                       </motion.div>
                     ))
                   ) : (
-                    <motion.div 
+                    <motion.div
                       className="text-center py-10"
                       variants={fadeInVariants}
                     >
@@ -592,9 +592,9 @@ const HelpPage: React.FC = () => {
                   )}
                 </motion.div>
               </AnimatePresence>
-              
+
               {/* Contact Support Section */}
-              <motion.div 
+              <motion.div
                 className="mt-10 p-6 bg-gradient-to-r from-learnflow-50 to-blue-50 dark:from-gray-700 dark:to-gray-750 rounded-lg border border-learnflow-100 dark:border-gray-600"
                 variants={fadeInVariants}
               >
@@ -607,7 +607,7 @@ const HelpPage: React.FC = () => {
                       If you couldn't find the answer to your question, our support team is ready to assist you.
                     </p>
                     <div className="flex flex-wrap gap-3">
-                      <motion.a 
+                      <motion.a
                         href="mailto:support@learnflow.edu"
                         className="inline-flex items-center px-4 py-2 bg-learnflow-500 text-white rounded-md hover:bg-learnflow-600 transition-colors"
                         whileHover={{ scale: 1.05 }}
@@ -616,26 +616,29 @@ const HelpPage: React.FC = () => {
                         <Mail className="w-5 h-5 mr-2" />
                         Email Support
                       </motion.a>
-                      <motion.a 
-                        href="/FeedbackPage"
-                        className="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-800 text-learnflow-600 dark:text-learnflow-400 border border-learnflow-200 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                      <motion.div
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
-                        <HelpCircle className="w-5 h-5 mr-2" />
-                        Submit a Request
-                      </motion.a>
+                        <Link
+                          to="/feedback"
+                          className="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-800 text-learnflow-600 dark:text-learnflow-400 border border-learnflow-200 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                        >
+                          <HelpCircle className="w-5 h-5 mr-2" />
+                          Submit a Request
+                        </Link>
+                      </motion.div>
                     </div>
                   </div>
                   <div className="md:w-1/3 mt-6 md:mt-0 flex justify-center">
                     <motion.div
-                      animate={{ 
+                      animate={{
                         y: [0, -10, 0],
                       }}
-                      transition={{ 
-                        repeat: Infinity, 
+                      transition={{
+                        repeat: Infinity,
                         duration: 3,
-                        ease: "easeInOut" 
+                        ease: "easeInOut"
                       }}
                     >
                       <svg width="120" height="120" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-learnflow-500 dark:text-learnflow-400">
@@ -647,13 +650,13 @@ const HelpPage: React.FC = () => {
                   </div>
                 </div>
               </motion.div>
-              
+
               {/* Quick Links Section */}
-              <motion.div 
+              <motion.div
                 className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4"
                 variants={containerVariants}
               >
-                <motion.div 
+                <motion.div
                   className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-md transition-shadow"
                   variants={itemVariants}
                   whileHover={{ y: -5 }}
@@ -665,15 +668,15 @@ const HelpPage: React.FC = () => {
                   <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">
                     Access study materials, notes, and past papers
                   </p>
-                  <Link 
-                    to="/Resources" 
+                  <Link
+                    to="/resources"
                     className="text-learnflow-600 dark:text-learnflow-400 text-sm flex items-center hover:underline"
                   >
                     Browse resources <ArrowRight className="ml-1 w-4 h-4" />
                   </Link>
                 </motion.div>
-                
-                <motion.div 
+
+                <motion.div
                   className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-md transition-shadow"
                   variants={itemVariants}
                   whileHover={{ y: -5 }}
@@ -685,15 +688,15 @@ const HelpPage: React.FC = () => {
                   <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">
                     Use our CGPA calculator, study timer, and more
                   </p>
-                  <Link 
-                    to="/Tools" 
+                  <Link
+                    to="/tools"
                     className="text-learnflow-600 dark:text-learnflow-400 text-sm flex items-center hover:underline"
                   >
                     Explore tools <ArrowRight className="ml-1 w-4 h-4" />
                   </Link>
                 </motion.div>
-                
-                <motion.div 
+
+                <motion.div
                   className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-md transition-shadow"
                   variants={itemVariants}
                   whileHover={{ y: -5 }}
@@ -705,15 +708,15 @@ const HelpPage: React.FC = () => {
                   <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">
                     Share your notes and resources with other students
                   </p>
-                  <Link 
-                    to="/upload" 
+                  <Link
+                    to="/upload"
                     className="text-learnflow-600 dark:text-learnflow-400 text-sm flex items-center hover:underline"
                   >
                     Upload now <ArrowRight className="ml-1 w-4 h-4" />
                   </Link>
                 </motion.div>
-                
-                <motion.div 
+
+                <motion.div
                   className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-md transition-shadow"
                   variants={itemVariants}
                   whileHover={{ y: -5 }}
@@ -725,8 +728,8 @@ const HelpPage: React.FC = () => {
                   <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">
                     Manage your profile and preferences
                   </p>
-                  <Link 
-                    to="/ProfilePage" 
+                  <Link
+                    to="/profile"
                     className="text-learnflow-600 dark:text-learnflow-400 text-sm flex items-center hover:underline"
                   >
                     Go to profile <ArrowRight className="ml-1 w-4 h-4" />

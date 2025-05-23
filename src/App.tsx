@@ -24,6 +24,7 @@ import AuthCallback from "./pages/auth/callback";
 import ForgotPassword from "./pages/forgot-password";
 import ResetPassword from "./pages/auth/reset-password";
 import HelpPage from "./pages/HelpPage";
+import FeedbackPage from "./pages/FeedbackPage";
 import ChatbotWidget from "./components/Chatbot/ChatbotWidget";
 import GoToTopButton from "./components/GoToTopButton";
 import NotificationManager from "./components/NotificationManager";
@@ -88,6 +89,7 @@ const App = () => {
                     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                     <Route path="/terms-of-service" element={<TermsOfService />} />
                     <Route path="/help" element={<HelpPage />} />
+                    <Route path="/feedback" element={<FeedbackPage />} />
 
                     {/* Auth Pages */}
                     <Route path="/auth-error" element={<AuthError />} />
@@ -96,7 +98,7 @@ const App = () => {
                     <Route path="/forgot-password" element={<ForgotPassword />} />
                     <Route path="/auth/callback" element={<AuthCallback />} />
                     <Route path="/auth/reset-password" element={<ResetPassword />} />
-                    
+
                     {/* Profile Page */}
                     <Route path="/profile" element={<ProfilePageWrapper />} />
 

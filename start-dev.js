@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // Script to start both frontend and backend servers
-const { spawn } = require('child_process');
+import { spawn } from 'child_process';
 
 // Start frontend
 const frontend = spawn('npm', ['run', 'dev'], {
