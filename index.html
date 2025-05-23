@@ -56,10 +56,16 @@
 
   <!-- Theme script to prevent flash of unstyled content -->
   <script>
-    // Check for dark mode preference
+    // Set dark mode as default
     (function () {
-      const isDarkMode = localStorage.getItem('theme') === 'dark' ||
-        (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      const storedTheme = localStorage.getItem('theme');
+      
+      if (!storedTheme) {
+        // If no theme preference is stored, set dark mode as default
+        localStorage.setItem('theme', 'dark');
+      }
+      
+      const isDarkMode = localStorage.getItem('theme') === 'dark';
 
       if (isDarkMode) {
         document.documentElement.classList.add('dark');

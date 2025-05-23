@@ -25,6 +25,8 @@ import ForgotPassword from "./pages/forgot-password";
 import ResetPassword from "./pages/auth/reset-password";
 import HelpPage from "./pages/HelpPage";
 import FeedbackPage from "./pages/FeedbackPage";
+import NoticesPage from "./pages/NoticesPage";
+import ReleaseNotesPage from "./pages/ReleaseNotesPage";
 import ChatbotWidget from "./components/Chatbot/ChatbotWidget";
 import GoToTopButton from "./components/GoToTopButton";
 import NotificationManager from "./components/NotificationManager";
@@ -90,6 +92,8 @@ const App = () => {
                     <Route path="/terms-of-service" element={<TermsOfService />} />
                     <Route path="/help" element={<HelpPage />} />
                     <Route path="/feedback" element={<FeedbackPage />} />
+                    <Route path="/notices" element={<NoticesPage />} />
+                    <Route path="/release-notes" element={<ReleaseNotesPage />} />
 
                     {/* Auth Pages */}
                     <Route path="/auth-error" element={<AuthError />} />
