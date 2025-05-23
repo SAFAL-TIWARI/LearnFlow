@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/SupabaseAuthContext';
+import MonkeyAvatar from '../components/MonkeyAvatar';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -10,6 +11,7 @@ const Login = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const passwordFieldRef = React.useRef<HTMLInputElement>(null);
   const { signIn, signUp, signInWithGoogle, resetPassword, user } = useAuth();
   const navigate = useNavigate();
 
@@ -251,7 +253,10 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
+          {/* Monkey Avatar */}
+          <MonkeyAvatar showPassword={showPassword} passwordFieldRef={passwordFieldRef} />
+          
+          <h2 className="mt-4 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
             {isSignUp ? 'Create your account' : 'Sign in to your account'}
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
@@ -318,6 +323,7 @@ const Login = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm dark:bg-gray-700"
                 placeholder="Password"
+                ref={passwordFieldRef}
               />
               <button
                 type="button"

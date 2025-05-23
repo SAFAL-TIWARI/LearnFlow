@@ -1,0 +1,207 @@
+.monkeyContainer {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto;
+  margin-bottom: 1rem;
+  animation: bounceIn 0.6s ease-out;
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+@media (max-width: 640px) {
+  .monkeyContainer {
+    width: 80px;
+    height: 80px;
+  }
+}
+
+.monkeyFace {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background-color: #f59e0b; /* amber-500 */
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+}
+
+.monkeyContainer:hover .monkeyFace {
+  transform: scale(0.93);
+}
+
+.monkeyBackground {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background-color: #fef3c7; /* amber-100 */
+}
+
+.ear {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #d97706; /* amber-600 */
+}
+
+.earLeft {
+  left: -4px;
+  top: -4px;
+}
+
+.earRight {
+  right: -4px;
+  top: -4px;
+}
+
+.innerEar {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: #f9a8d4; /* pink-300 */
+}
+
+.innerEarLeft {
+  left: 2px;
+  top: 2px;
+}
+
+.innerEarRight {
+  right: 2px;
+  top: 2px;
+}
+
+.eyesContainer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.eyes {
+  position: relative;
+  width: 64px;
+  height: 24px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.eye {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: white;
+  overflow: hidden;
+  transform: scaleY(1);
+  transition: transform 0.1s ease;
+}
+
+.eyeBlinking {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: white;
+  overflow: hidden;
+  transform: scaleY(0.2);
+  transition: transform 0.1s ease;
+}
+
+.pupil {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: black;
+  transition: transform 0.05s ease-out;
+}
+
+.mouth {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 32px;
+  height: 16px;
+  background-color: black;
+  border-radius: 0 0 16px 16px;
+}
+
+.nose {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -4px);
+  width: 20px;
+  height: 12px;
+  background-color: black;
+  border-radius: 50%;
+}
+
+.handsContainer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+
+.hand {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  background-color: #d97706; /* amber-600 */
+  border-radius: 50%;
+  top: 30%;
+  transition: transform 0.5s ease;
+}
+
+.handLeft {
+  left: 8px;
+}
+
+.handRight {
+  right: 8px;
+}
+
+/* Dark mode styles */
+:global(.dark) .monkeyBackground {
+  background-color: #92400e; /* amber-800 */
+}
+
+:global(.dark) .monkeyFace {
+  background-color: #d97706; /* amber-600 */
+}
+
+:global(.dark) .ear,
+:global(.dark) .hand {
+  background-color: #b45309; /* amber-700 */
+}
+
+:global(.dark) .innerEar {
+  background-color: #f472b6; /* pink-400 */
+}
+
+:global(.dark) .eye {
+  background-color: #e5e7eb; /* gray-200 */
+}
+
+:global(.dark) .mouth,
+:global(.dark) .nose {
+  background-color: #111827; /* gray-900 */
+}
