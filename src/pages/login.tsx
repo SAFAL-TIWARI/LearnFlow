@@ -11,6 +11,7 @@ const Login = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const emailFieldRef = React.useRef<HTMLInputElement>(null);
   const passwordFieldRef = React.useRef<HTMLInputElement>(null);
   const { signIn, signUp, signInWithGoogle, resetPassword, user } = useAuth();
   const navigate = useNavigate();
@@ -44,14 +45,14 @@ const Login = () => {
       } else if (isSignUp) {
         // Show confirmation message for sign up
         setSuccessMessage('Check your email for the confirmation link.');
-        
+
         // Trigger browser password save prompt for new accounts
         // This is done by submitting a hidden form with the credentials
         triggerPasswordSave(email, password);
       } else {
         // For sign in, also trigger the password save/update prompt
         triggerPasswordSave(email, password);
-        
+
         // If this was opened in a new window, close it and refresh the parent
         if (window.opener) {
           window.opener.location.reload();
@@ -64,7 +65,7 @@ const Login = () => {
       setLoading(false);
     }
   };
-  
+
   // Helper function to trigger browser's password save prompt
   const triggerPasswordSave = (email: string, password: string) => {
     try {
@@ -75,38 +76,38 @@ const Login = () => {
       tempForm.action = '#'; // Non-navigating action
       tempForm.id = 'password-save-form';
       tempForm.autocomplete = 'on';
-      
+
       // Create email/username field
       const emailField = document.createElement('input');
       emailField.type = 'email';
       emailField.name = 'email';
       emailField.autocomplete = isSignUp ? 'email' : 'username';
       emailField.value = email;
-      
+
       // Create password field
       const passwordField = document.createElement('input');
       passwordField.type = 'password';
       passwordField.name = 'password';
       passwordField.autocomplete = isSignUp ? 'new-password' : 'current-password';
       passwordField.value = password;
-      
+
       // Add fields to form
       tempForm.appendChild(emailField);
       tempForm.appendChild(passwordField);
-      
+
       // Add form to document
       document.body.appendChild(tempForm);
-      
+
       // Submit the form to trigger browser's password save prompt
       tempForm.submit();
-      
+
       // Remove the form after a short delay
       setTimeout(() => {
         if (document.body.contains(tempForm)) {
           document.body.removeChild(tempForm);
         }
       }, 1000);
-      
+
       console.log('Triggered browser password save prompt');
     } catch (err) {
       console.error('Error triggering password save:', err);
@@ -148,10 +149,10 @@ const Login = () => {
             // Verify the message is from our popup
             if (event.data && event.data.type === 'AUTH_COMPLETE') {
               console.log('Received auth complete message from popup', event.data);
-              
+
               // Remove the listener
               window.removeEventListener('message', messageListener);
-              
+
               // Navigate to home page or reload to update auth state
               if (window.location.pathname === '/login') {
                 navigate('/');
@@ -160,31 +161,31 @@ const Login = () => {
               }
             }
           };
-          
+
           // Add the message listener
           window.addEventListener('message', messageListener);
 
           // Define a global property to detect auth completion
           (window as any).authCompleted = false;
-          
+
           // Set up a check to see if the popup was closed or auth completed
           const checkPopupStatus = setInterval(() => {
             // Check if popup was closed
             if (popup.closed) {
               clearInterval(checkPopupStatus);
               window.removeEventListener('message', messageListener);
-              
+
               // Check if auth was completed by checking localStorage
               const authCompleted = localStorage.getItem('auth_completed') === 'true';
               const authTimestamp = localStorage.getItem('auth_timestamp');
-              
+
               // Only reload if auth was completed recently (within last 30 seconds)
               if (authCompleted && authTimestamp) {
                 const timestamp = parseInt(authTimestamp, 10);
                 const now = Date.now();
                 if (now - timestamp < 30000) {
                   console.log('Auth was completed, closing login window');
-                  
+
                   // If this is a popup window itself, close it
                   if (window.opener) {
                     // Notify the opener that auth is complete
@@ -196,13 +197,13 @@ const Login = () => {
                     window.close();
                     return;
                   }
-                  
+
                   // Otherwise redirect to home
                   window.location.href = '/?auth=success&provider=google';
                   return;
                 }
               }
-              
+
               // If we get here, the popup was closed without completing auth
               console.log('Popup closed without completing auth');
               setLoading(false);
@@ -254,8 +255,8 @@ const Login = () => {
       <div className="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg">
         <div>
           {/* Monkey Avatar */}
-          <MonkeyAvatar showPassword={showPassword} passwordFieldRef={passwordFieldRef} />
-          
+          <MonkeyAvatar showPassword={showPassword} passwordFieldRef={passwordFieldRef} emailFieldRef={emailFieldRef} />
+
           <h2 className="mt-4 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
             {isSignUp ? 'Create your account' : 'Sign in to your account'}
           </h2>
@@ -291,7 +292,7 @@ const Login = () => {
           {isSignUp && (
             <input type="text" name="username" autoComplete="username" style={{ display: 'none' }} />
           )}
-          
+
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="email-address" className="sr-only">
@@ -307,6 +308,7 @@ const Login = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm dark:bg-gray-700"
                 placeholder="Email address"
+                ref={emailFieldRef}
               />
             </div>
             <div className="relative">

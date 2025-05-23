@@ -4,7 +4,7 @@ const ReleaseNotesPage: React.FC = () => {
   const releases = [
     {
       version: '1.2.0',
-      date: 'June 15, 2024',
+      date: 'June 15, 2025',
       features: [
         'Added user profiles with customizable information',
         'Implemented file upload functionality for students',
@@ -15,7 +15,7 @@ const ReleaseNotesPage: React.FC = () => {
     },
     {
       version: '1.1.0',
-      date: 'May 1, 2024',
+      date: 'May 1, 2025',
       features: [
         'Added academic resources section',
         'Improved mobile responsiveness',
@@ -25,7 +25,7 @@ const ReleaseNotesPage: React.FC = () => {
     },
     {
       version: '1.0.0',
-      date: 'April 10, 2024',
+      date: 'April 10, 2025',
       features: [
         'Initial release of LearnFlow',
         'Basic authentication with Google',

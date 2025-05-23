@@ -1,7 +1,7 @@
 .monkeyContainer {
   position: relative;
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
   margin: 0 auto;
   margin-bottom: 1rem;
   animation: bounceIn 0.6s ease-out;
@@ -22,65 +22,65 @@
 
 @media (max-width: 640px) {
   .monkeyContainer {
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
   }
 }
 
 .monkeyFace {
   position: absolute;
-  inset: 0;
+  inset: 8%;
   border-radius: 50%;
-  background-color: #f59e0b; /* amber-500 */
-  transform: scale(0.9);
+  background-color: #d2691e; /* saddle brown */
   transition: transform 0.3s ease;
 }
 
 .monkeyContainer:hover .monkeyFace {
-  transform: scale(0.93);
+  transform: scale(1.02);
 }
 
 .monkeyBackground {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background-color: #fef3c7; /* amber-100 */
+  background-color: #f5f5f5; /* light gray border */
+  border: 3px solid #e0e0e0;
 }
 
 .ear {
   position: absolute;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  background-color: #d97706; /* amber-600 */
+  background-color: #d2691e; /* saddle brown */
 }
 
 .earLeft {
-  left: -4px;
-  top: -4px;
+  left: -8px;
+  top: 8px;
 }
 
 .earRight {
-  right: -4px;
-  top: -4px;
+  right: -8px;
+  top: 8px;
 }
 
 .innerEar {
   position: absolute;
-  width: 16px;
-  height: 16px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  background-color: #f9a8d4; /* pink-300 */
+  background-color: #deb887; /* burlywood */
 }
 
 .innerEarLeft {
-  left: 2px;
-  top: 2px;
+  left: -4px;
+  top: 12px;
 }
 
 .innerEarRight {
-  right: 2px;
-  top: 2px;
+  right: -4px;
+  top: 12px;
 }
 
 .eyesContainer {
@@ -132,23 +132,34 @@
 
 .mouth {
   position: absolute;
-  bottom: 20px;
+  bottom: 25px;
   left: 50%;
   transform: translateX(-50%);
-  width: 32px;
-  height: 16px;
-  background-color: black;
-  border-radius: 0 0 16px 16px;
+  width: 20px;
+  height: 10px;
+  background-color: #8b4513; /* saddle brown dark */
+  border-radius: 0 0 10px 10px;
 }
 
 .nose {
   position: absolute;
-  top: 50%;
+  top: 55%;
   left: 50%;
-  transform: translate(-50%, -4px);
-  width: 20px;
-  height: 12px;
-  background-color: black;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 6px;
+  background-color: #654321; /* dark brown */
+  border-radius: 50%;
+}
+
+.muzzle {
+  position: absolute;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 25px;
+  background-color: #deb887; /* burlywood */
   border-radius: 50%;
 }
 
@@ -163,45 +174,140 @@
 
 .hand {
   position: absolute;
-  width: 32px;
-  height: 32px;
-  background-color: #d97706; /* amber-600 */
+  width: 30px;
+  height: 30px;
+  background-color: #d2691e; /* saddle brown */
   border-radius: 50%;
-  top: 30%;
+  top: 32%;
   transition: transform 0.5s ease;
 }
 
 .handLeft {
-  left: 8px;
+  left: 12px;
 }
 
 .handRight {
+  right: 12px;
+}
+
+/* Realistic hand with fingers */
+.hand::before {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 12px;
+  background-color: #d2691e;
+  border-radius: 4px;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.hand::after {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 10px;
+  background-color: #d2691e;
+  border-radius: 3px;
+  top: -4px;
+  left: 20%;
+}
+
+.handLeft::after {
+  left: 20%;
+}
+
+.handRight::after {
+  right: 20%;
+  left: auto;
+}
+
+/* Additional fingers */
+.finger1, .finger2, .finger3 {
+  position: absolute;
+  background-color: #d2691e;
+  border-radius: 2px;
+}
+
+.handLeft .finger1 {
+  width: 4px;
+  height: 8px;
+  top: -5px;
+  left: 8px;
+}
+
+.handLeft .finger2 {
+  width: 4px;
+  height: 9px;
+  top: -6px;
+  left: 14px;
+}
+
+.handLeft .finger3 {
+  width: 4px;
+  height: 7px;
+  top: -4px;
+  left: 20px;
+}
+
+.handRight .finger1 {
+  width: 4px;
+  height: 8px;
+  top: -5px;
   right: 8px;
+}
+
+.handRight .finger2 {
+  width: 4px;
+  height: 9px;
+  top: -6px;
+  right: 14px;
+}
+
+.handRight .finger3 {
+  width: 4px;
+  height: 7px;
+  top: -4px;
+  right: 20px;
 }
 
 /* Dark mode styles */
 :global(.dark) .monkeyBackground {
-  background-color: #92400e; /* amber-800 */
+  background-color: #374151; /* gray-700 */
+  border-color: #4b5563; /* gray-600 */
 }
 
 :global(.dark) .monkeyFace {
-  background-color: #d97706; /* amber-600 */
+  background-color: #a0522d; /* sienna */
 }
 
 :global(.dark) .ear,
 :global(.dark) .hand {
-  background-color: #b45309; /* amber-700 */
+  background-color: #a0522d; /* sienna */
 }
 
-:global(.dark) .innerEar {
-  background-color: #f472b6; /* pink-400 */
+:global(.dark) .innerEar,
+:global(.dark) .muzzle {
+  background-color: #deb887; /* burlywood */
 }
 
 :global(.dark) .eye {
-  background-color: #e5e7eb; /* gray-200 */
+  background-color: #f9fafb; /* gray-50 */
 }
 
-:global(.dark) .mouth,
+:global(.dark) .mouth {
+  background-color: #7c2d12; /* red-900 */
+}
+
 :global(.dark) .nose {
-  background-color: #111827; /* gray-900 */
+  background-color: #451a03; /* amber-950 */
+}
+
+:global(.dark) .hand::before,
+:global(.dark) .hand::after,
+:global(.dark) .finger1,
+:global(.dark) .finger2,
+:global(.dark) .finger3 {
+  background-color: #a0522d; /* sienna */
 }
