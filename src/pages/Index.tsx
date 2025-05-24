@@ -10,6 +10,8 @@ import TestimonialsSection from '../components/TestimonialsSection';
 import CallToActionSection from '../components/CallToActionSection';
 import Footer from '../components/Footer';
 import PageFadeSection from '../components/PageFadeSection';
+import LiveAnalyticsBadge from '../components/LiveAnalyticsBadge';
+import AnalyticsStatus from '../components/AnalyticsStatus';
 import { ThemeProvider } from '../hooks/useTheme';
 
 const Index = () => {
@@ -79,6 +81,9 @@ const Index = () => {
         >
           <Footer />
         </PageFadeSection>
+
+        {/* Live Analytics Badge */}
+        <LiveAnalyticsBadge variant="compact" />
       </div>
     </ThemeProvider>
   );

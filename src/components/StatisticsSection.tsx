@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Users, BookOpen, Download, Award, TrendingUp, Clock } from 'lucide-react';
 import FadeInElement from './FadeInElement';
+import { useAnalytics } from '../hooks/useAnalytics';
 
 const StatisticsSection: React.FC = () => {
+  const { liveStats, isLoading } = useAnalytics();
   const [counters, setCounters] = useState({
     students: 0,
     resources: 0,
@@ -11,10 +13,10 @@ const StatisticsSection: React.FC = () => {
   });
 
   const finalStats = {
-    students: 15000,
-    resources: 2500,
-    downloads: 50000,
-    success: 98
+    students: liveStats.totalVisitors,
+    resources: liveStats.resourceCount,
+    downloads: liveStats.downloadCount,
+    success: Math.round(liveStats.successRate)
   };
 
   // Animated counter effect
@@ -113,7 +115,7 @@ const StatisticsSection: React.FC = () => {
                 LearnFlow by the Numbers
               </h2>
               <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto font-isidora">
-                Join a thriving community of students who are transforming their educational experience 
+                Join a thriving community of students who are transforming their educational experience
                 with LearnFlow's comprehensive platform.
               </p>
             </div>
@@ -122,11 +124,11 @@ const StatisticsSection: React.FC = () => {
           {/* Statistics Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             {stats.map((stat, index) => (
-              <FadeInElement 
+              <FadeInElement
                 key={index}
-                delay={200 + index * 100} 
-                direction="up" 
-                distance={30} 
+                delay={200 + index * 100}
+                direction="up"
+                distance={30}
                 duration={800}
               >
                 <div className={`p-6 rounded-xl border-2 ${stat.color} text-center hover:shadow-lg transition-all duration-300 hover:-translate-y-1`}>
@@ -179,7 +181,7 @@ const StatisticsSection: React.FC = () => {
                   Making Education Accessible for Everyone
                 </h3>
                 <p className="text-blue-100 mb-6 max-w-3xl mx-auto text-lg">
-                  Our mission is to democratize education by providing free access to high-quality academic resources 
+                  Our mission is to democratize education by providing free access to high-quality academic resources
                   and tools. Every student deserves the opportunity to excel, regardless of their background.
                 </p>
                 <div className="flex flex-col sm:flex-row justify-center gap-4">

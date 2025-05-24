@@ -6,8 +6,11 @@ import BlurTextAnimation from './BlurTextAnimation';
 import ProximityTextAnimation from './ProximityTextAnimation';
 import FadeInElement from './FadeInElement';
 import StarBorder from './StarBorder';
+import { useAnalytics } from '../hooks/useAnalytics';
 
 const Hero: React.FC = () => {
+  const { liveStats, isLoading } = useAnalytics();
+
   return (
     <div className="relative bg-gradient-to-br from-gray-50 via-blue-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-800 py-20 md:py-24 lg:py-32 overflow-hidden">
       {/* Background Pattern */}
@@ -24,7 +27,7 @@ const Hero: React.FC = () => {
           <FadeInElement delay={50} direction="up" distance={20} duration={600}>
             <div className="inline-flex items-center bg-learnflow-100 dark:bg-learnflow-900/30 text-learnflow-700 dark:text-learnflow-300 px-4 py-2 rounded-full text-sm font-medium mb-6 border border-learnflow-200 dark:border-learnflow-800">
               <span className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
-              15,000+ Students Already Learning
+              {isLoading ? '15,000+' : liveStats.totalVisitors.toLocaleString() + '+'} Students Already Learning
             </div>
           </FadeInElement>
 
@@ -53,7 +56,7 @@ const Hero: React.FC = () => {
             <div className="flex flex-wrap justify-center gap-6 md:gap-8 mb-10 text-sm md:text-base">
               <div className="flex items-center text-gray-600 dark:text-gray-400">
                 <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
-                2500+ Resources
+                {isLoading ? '2500+' : liveStats.resourceCount.toLocaleString() + '+'} Resources
               </div>
               <div className="flex items-center text-gray-600 dark:text-gray-400">
                 <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
@@ -64,8 +67,8 @@ const Hero: React.FC = () => {
                 100% Free
               </div>
               <div className="flex items-center text-gray-600 dark:text-gray-400">
-                <div className="w-2 h-2 bg-orange-500 rounded-full mr-2"></div>
-                24/7 Access
+                <div className="w-2 h-2 bg-orange-500 rounded-full mr-2 animate-pulse"></div>
+                {isLoading ? '150+' : liveStats.onlineUsers.toLocaleString() + '+'} Online Now
               </div>
             </div>
           </FadeInElement>
@@ -109,9 +112,9 @@ const Hero: React.FC = () => {
               </p>
               <div className="flex flex-wrap justify-center gap-2 text-xs text-gray-400 dark:text-gray-500">
                 <span className="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">SATI Vidisha</span>
-                <span className="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">IIT Delhi</span>
-                <span className="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">NIT Bhopal</span>
                 <span className="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">MANIT Bhopal</span>
+                <span className="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">NIT Bhopal</span>
+                <span className="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">IIT Delhi</span>
               </div>
             </div>
           </FadeInElement>

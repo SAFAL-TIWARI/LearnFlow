@@ -2,8 +2,11 @@ import React from 'react';
 import { Calculator, Calendar, Clock, BarChart3, Target, Zap, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import FadeInElement from './FadeInElement';
+import { useAnalytics } from '../hooks/useAnalytics';
 
 const StudentToolsShowcase: React.FC = () => {
+  const { liveStats, isLoading } = useAnalytics();
+
   const tools = [
     {
       icon: <Calculator className="w-8 h-8 text-blue-500" />,
@@ -56,10 +59,26 @@ const StudentToolsShowcase: React.FC = () => {
   ];
 
   const stats = [
-    { number: "10,000+", label: "Calculations Performed", icon: <Calculator className="w-6 h-6" /> },
-    { number: "5,000+", label: "Students Helped", icon: <Target className="w-6 h-6" /> },
-    { number: "95%", label: "Accuracy Rate", icon: <BarChart3 className="w-6 h-6" /> },
-    { number: "24/7", label: "Available", icon: <Clock className="w-6 h-6" /> }
+    {
+      number: isLoading ? "10,000+" : liveStats.calculationsPerformed.toLocaleString() + "+",
+      label: "Calculations Performed",
+      icon: <Calculator className="w-6 h-6" />
+    },
+    {
+      number: isLoading ? "5,000+" : liveStats.studentsHelped.toLocaleString() + "+",
+      label: "Students Helped",
+      icon: <Target className="w-6 h-6" />
+    },
+    {
+      number: isLoading ? "95%" : Math.round(liveStats.accuracyRate) + "%",
+      label: "Accuracy Rate",
+      icon: <BarChart3 className="w-6 h-6" />
+    },
+    {
+      number: "24/7",
+      label: "Available",
+      icon: <Clock className="w-6 h-6" />
+    }
   ];
 
   return (

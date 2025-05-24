@@ -24,6 +24,7 @@ import {
   getWebSearchContext
 } from './utils/webSearchUtils.js';
 import handleSitemapRequest from './api/sitemap.js';
+import analyticsRouter from './api/analytics.js';
 
 // Load environment variables
 dotenv.config();
@@ -78,6 +79,9 @@ app.get('/api/sitemap', (req, res) => {
 app.get('/sitemap.xml', (req, res) => {
   handleSitemapRequest(req, res);
 });
+
+// Analytics API routes
+app.use('/api/analytics', analyticsRouter);
 
 // Rate limiting configuration
 const rateLimits = {

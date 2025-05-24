@@ -30,6 +30,8 @@ dist-ssr
 !.env.example
 server/.env
 .vercel
+google-analytics-key.json
+*.json
 
 # Local development files
 *.local
