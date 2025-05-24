@@ -4,6 +4,38 @@ import BackButton from '../components/BackButton';
 const ReleaseNotesPage: React.FC = () => {
   const releases = [
     {
+      version: '1.5.0',
+      date: 'June 25, 2025',
+      features: [
+        'Added interactive monkey animation on login page with cursor tracking and password visibility reactions',
+        'Enhanced CGPA calculator with year-based structure and multiple university formulas including SATI official formula',
+        'Added comprehensive accessibility features with aria-labels and tooltips for all interactive elements',
+        'Improved social media buttons in footer with visible names/tooltips on hover for better user experience'
+      ]
+    },
+    {
+      version: '1.4.0',
+      date: 'June 20, 2024',
+      features: [
+        'Implemented click spark animation with customizable parameters (26px size, 45px radius, 11 sparks, 500ms duration)',
+        'Added blue spark animation in light mode while maintaining current colors in dark mode',
+        'Enhanced back button navigation to use browser history instead of always going to home page',
+        'Integrated SATI college branding throughout the application with college name display',
+        'Added bounce animation to GoToTop button and other interactive UI elements for better visual feedback'
+      ]
+    },
+    {
+      version: '1.3.0',
+      date: 'June 17, 2024',
+      features: [
+        'Enhanced authentication system with automatic window closure after Google sign-in',
+        'Implemented Supabase storage buckets alongside manual file management within free tier limitations',
+        'Added proper font integration: Bodoni for "Learning Made Simple", Isidora for hero description, Teko for "LearnFlow" branding',
+        'Improved CGPA calculator with working formulas, automatic calculation from subject marks, and CGPA to percentage converter',
+        'Enhanced tools pages with proper semester-based SGPA calculation and cumulative CGPA averaging'
+      ]
+    },
+    {
       version: '1.2.0',
       date: 'June 15, 2025',
       features: [
