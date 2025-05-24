@@ -5,6 +5,7 @@ import { InstagramIcon, LinkedInIcon, GitHubIcon, YouTubeIcon } from './Icons';
 import { scrollToTop } from '../utils/scrollUtils';
 import ExternalLink from './ExternalLink';
 import { Dialog } from '@/components/ui/dialog';
+import CookieManager from './CookieManager';
 
 const Footer: React.FC = () => {
   const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
@@ -111,20 +112,27 @@ const Footer: React.FC = () => {
           <p className="text-center text-gray-600 dark:text-gray-400 text-sm">
             © 2025 LearnFlow | All rights reserved.
           </p>
-          <div className="text-center">
-            <ExternalLink
-              to="/privacy-policy"
-              className="text-gray-600 dark:text-gray-400 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors cursor-pointer"
-            >
-              Privacy Policy
-            </ExternalLink>
-            <span className="mx-2 text-gray-600 dark:text-gray-400">|</span>
-            <ExternalLink
-              to="/terms-of-service"
-              className="text-gray-600 dark:text-gray-400 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors cursor-pointer"
-            >
-              Terms of Service
-            </ExternalLink>
+          <div className="text-center space-y-2">
+            <div>
+              <ExternalLink
+                to="/privacy-policy"
+                className="text-gray-600 dark:text-gray-400 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors cursor-pointer"
+              >
+                Privacy Policy
+              </ExternalLink>
+              <span className="mx-2 text-gray-600 dark:text-gray-400">|</span>
+              <ExternalLink
+                to="/terms-of-service"
+                className="text-gray-600 dark:text-gray-400 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors cursor-pointer"
+              >
+                Terms of Service
+              </ExternalLink>
+            </div>
+
+            {/* Cookie Manager */}
+            <div className="flex justify-center">
+              <CookieManager className="text-xs" />
+            </div>
           </div>
 
         </div>

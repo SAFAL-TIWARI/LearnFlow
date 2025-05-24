@@ -49,19 +49,19 @@ const AuthTestButton: React.FC = () => {
     );
   }
 
-  return (
-    <div className="fixed top-4 right-4 bg-blue-500 text-white p-4 rounded-lg shadow-lg z-50">
-      <div className="text-sm">
-        <div>❌ Not signed in</div>
-        <button
-          onClick={handleTestSignIn}
-          className="mt-2 px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded text-xs"
-        >
-          Test Sign In
-        </button>
-      </div>
-    </div>
-  );
+  // return (
+  //   <div className="fixed top-4 right-4 bg-blue-500 text-white p-4 rounded-lg shadow-lg z-50">
+  //     <div className="text-sm">
+  //       <div>❌ Not signed in</div>
+  //       <button
+  //         onClick={handleTestSignIn}
+  //         className="mt-2 px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded text-xs"
+  //       >
+  //         Test Sign In
+  //       </button>
+  //     </div>
+  //   </div>
+  // );
 };
 
 export default AuthTestButton;
