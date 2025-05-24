@@ -135,6 +135,24 @@ export default {
           "0%": { transform: "translate(0%, 0%)", opacity: "1000" },
           "100%": { transform: "translate(100%, 0%)", opacity: "1000" },
         },
+        "hamburger-to-x": {
+          "0%": { transform: "rotate(0deg) scale(1)", opacity: "1" },
+          "50%": { transform: "rotate(90deg) scale(0.8)", opacity: "0.5" },
+          "100%": { transform: "rotate(180deg) scale(0.75)", opacity: "0" },
+        },
+        "x-to-hamburger": {
+          "0%": { transform: "rotate(180deg) scale(0.75)", opacity: "0" },
+          "50%": { transform: "rotate(90deg) scale(0.8)", opacity: "0.5" },
+          "100%": { transform: "rotate(0deg) scale(1)", opacity: "1" },
+        },
+        "menu-slide-down": {
+          "0%": { transform: "translateY(-20px) scale(0.95)", opacity: "0" },
+          "100%": { transform: "translateY(0) scale(1)", opacity: "1" },
+        },
+        "menu-slide-up": {
+          "0%": { transform: "translateY(0) scale(1)", opacity: "1" },
+          "100%": { transform: "translateY(-20px) scale(0.95)", opacity: "0" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -148,6 +166,10 @@ export default {
         "hover-zoom": "hover-zoom 0.2s ease-out forwards",
         "star-movement-bottom": "star-movement-bottom linear infinite alternate",
         "star-movement-top": "star-movement-top linear infinite alternate",
+        "hamburger-to-x": "hamburger-to-x 0.3s ease-in-out forwards",
+        "x-to-hamburger": "x-to-hamburger 0.3s ease-in-out forwards",
+        "menu-slide-down": "menu-slide-down 0.3s ease-out forwards",
+        "menu-slide-up": "menu-slide-up 0.3s ease-in forwards",
       },
     },
   },
