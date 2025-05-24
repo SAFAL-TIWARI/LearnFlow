@@ -67,12 +67,35 @@ if (fs.existsSync(sourceAds)) {
   console.log('✅ ads.txt copied successfully');
 }
 
+// Copy favicon.ico
+const sourceFavicon = path.join(projectRoot, 'public', 'favicon.ico');
+const destFavicon = path.join(distDir, 'favicon.ico');
+
+if (fs.existsSync(sourceFavicon)) {
+  console.log('📄 Copying favicon.ico...');
+  fs.copyFileSync(sourceFavicon, destFavicon);
+  console.log('✅ favicon.ico copied successfully');
+} else {
+  console.warn('⚠️  favicon.ico not found in public directory');
+}
+
+// Copy sitemap.xml if it exists
+const sourceSitemap = path.join(projectRoot, 'public', 'sitemap.xml');
+const destSitemap = path.join(distDir, 'sitemap.xml');
+
+if (fs.existsSync(sourceSitemap)) {
+  console.log('📄 Copying sitemap.xml...');
+  fs.copyFileSync(sourceSitemap, destSitemap);
+  console.log('✅ sitemap.xml copied successfully');
+}
+
 // Verify essential files
 console.log('\n🔍 Verifying build output...');
 const essentialFiles = [
   'index.html',
   '404.html',
-  '_redirects'
+  '_redirects',
+  'favicon.ico'
 ];
 
 let allFilesPresent = true;
