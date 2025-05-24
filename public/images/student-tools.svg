@@ -1,0 +1,158 @@
+<svg width="600" height="400" viewBox="0 0 600 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="600" height="400" fill="#f1f5f9"/>
+  
+  <!-- Calculator -->
+  <g id="calculator">
+    <rect x="50" y="50" width="120" height="160" rx="12" fill="#1e293b"/>
+    <rect x="60" y="60" width="100" height="40" rx="4" fill="#0f172a"/>
+    <text x="110" y="85" text-anchor="middle" font-family="Arial" font-size="18" fill="#10b981">3.85</text>
+    
+    <!-- Calculator buttons -->
+    <rect x="70" y="110" width="20" height="20" rx="4" fill="#3b82f6"/>
+    <rect x="100" y="110" width="20" height="20" rx="4" fill="#3b82f6"/>
+    <rect x="130" y="110" width="20" height="20" rx="4" fill="#3b82f6"/>
+    
+    <rect x="70" y="140" width="20" height="20" rx="4" fill="#6b7280"/>
+    <rect x="100" y="140" width="20" height="20" rx="4" fill="#6b7280"/>
+    <rect x="130" y="140" width="20" height="20" rx="4" fill="#6b7280"/>
+    
+    <rect x="70" y="170" width="20" height="20" rx="4" fill="#6b7280"/>
+    <rect x="100" y="170" width="20" height="20" rx="4" fill="#6b7280"/>
+    <rect x="130" y="170" width="20" height="20" rx="4" fill="#ef4444"/>
+  </g>
+  
+  <!-- Calendar/Planner -->
+  <g id="calendar">
+    <rect x="200" y="50" width="140" height="120" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="2"/>
+    <rect x="200" y="50" width="140" height="30" rx="8" fill="#3b82f6"/>
+    <text x="270" y="70" text-anchor="middle" font-family="Arial" font-size="14" fill="#ffffff">March 2025</text>
+    
+    <!-- Calendar grid -->
+    <g fill="#374151" font-family="Arial" font-size="10">
+      <text x="220" y="100">S</text>
+      <text x="235" y="100">M</text>
+      <text x="250" y="100">T</text>
+      <text x="265" y="100">W</text>
+      <text x="280" y="100">T</text>
+      <text x="295" y="100">F</text>
+      <text x="310" y="100">S</text>
+    </g>
+    
+    <!-- Calendar dates -->
+    <g fill="#6b7280" font-family="Arial" font-size="9">
+      <text x="220" y="115">1</text>
+      <text x="235" y="115">2</text>
+      <text x="250" y="115">3</text>
+      <text x="265" y="115">4</text>
+      <text x="280" y="115">5</text>
+      <text x="295" y="115">6</text>
+      <text x="310" y="115">7</text>
+      
+      <text x="220" y="130">8</text>
+      <text x="235" y="130">9</text>
+      <text x="250" y="130">10</text>
+      <text x="265" y="130">11</text>
+      <text x="280" y="130">12</text>
+      <text x="295" y="130">13</text>
+      <text x="310" y="130">14</text>
+    </g>
+    
+    <!-- Highlighted date -->
+    <circle cx="250" cy="127" r="8" fill="#10b981" opacity="0.3"/>
+    <text x="250" y="131" text-anchor="middle" font-family="Arial" font-size="9" fill="#059669">10</text>
+  </g>
+  
+  <!-- Progress Chart -->
+  <g id="chart">
+    <rect x="380" y="50" width="160" height="120" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="2"/>
+    <text x="460" y="75" text-anchor="middle" font-family="Arial" font-size="12" fill="#374151">Performance</text>
+    
+    <!-- Chart bars -->
+    <rect x="400" y="130" width="15" height="30" fill="#3b82f6"/>
+    <rect x="420" y="120" width="15" height="40" fill="#10b981"/>
+    <rect x="440" y="110" width="15" height="50" fill="#f59e0b"/>
+    <rect x="460" y="100" width="15" height="60" fill="#ef4444"/>
+    <rect x="480" y="90" width="15" height="70" fill="#8b5cf6"/>
+    <rect x="500" y="85" width="15" height="75" fill="#06b6d4"/>
+    
+    <!-- Chart labels -->
+    <g fill="#6b7280" font-family="Arial" font-size="8">
+      <text x="407" y="175" text-anchor="middle">Jan</text>
+      <text x="427" y="175" text-anchor="middle">Feb</text>
+      <text x="447" y="175" text-anchor="middle">Mar</text>
+      <text x="467" y="175" text-anchor="middle">Apr</text>
+      <text x="487" y="175" text-anchor="middle">May</text>
+      <text x="507" y="175" text-anchor="middle">Jun</text>
+    </g>
+  </g>
+  
+  <!-- Study Timer -->
+  <g id="timer">
+    <circle cx="120" cy="300" r="50" fill="#ffffff" stroke="#e2e8f0" stroke-width="3"/>
+    <circle cx="120" cy="300" r="40" fill="none" stroke="#3b82f6" stroke-width="6" stroke-dasharray="150 100" transform="rotate(-90 120 300)"/>
+    <text x="120" y="295" text-anchor="middle" font-family="Arial" font-size="12" fill="#374151">25:00</text>
+    <text x="120" y="310" text-anchor="middle" font-family="Arial" font-size="8" fill="#6b7280">Focus Time</text>
+    
+    <!-- Play button -->
+    <polygon points="110,320 110,330 125,325" fill="#10b981"/>
+  </g>
+  
+  <!-- Notes/Documents -->
+  <g id="notes">
+    <rect x="220" y="220" width="100" height="130" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="2"/>
+    <rect x="230" y="230" width="80" height="4" fill="#e5e7eb"/>
+    <rect x="230" y="240" width="60" height="4" fill="#e5e7eb"/>
+    <rect x="230" y="250" width="70" height="4" fill="#e5e7eb"/>
+    <rect x="230" y="260" width="50" height="4" fill="#e5e7eb"/>
+    <rect x="230" y="270" width="75" height="4" fill="#e5e7eb"/>
+    
+    <!-- Highlight -->
+    <rect x="230" y="280" width="65" height="4" fill="#fbbf24"/>
+    <rect x="230" y="290" width="55" height="4" fill="#e5e7eb"/>
+    <rect x="230" y="300" width="70" height="4" fill="#e5e7eb"/>
+    
+    <!-- Bookmark -->
+    <polygon points="300,220 310,220 305,235" fill="#ef4444"/>
+  </g>
+  
+  <!-- Goal Tracker -->
+  <g id="goals">
+    <rect x="360" y="220" width="120" height="130" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="2"/>
+    <text x="420" y="240" text-anchor="middle" font-family="Arial" font-size="12" fill="#374151">Goals</text>
+    
+    <!-- Goal items -->
+    <circle cx="375" cy="260" r="6" fill="#10b981"/>
+    <text x="390" y="265" font-family="Arial" font-size="10" fill="#374151">Complete Math Assignment</text>
+    <path d="M 375 260 L 378 263 L 383 255" stroke="#ffffff" stroke-width="2" fill="none"/>
+    
+    <circle cx="375" cy="280" r="6" fill="#e5e7eb"/>
+    <text x="390" y="285" font-family="Arial" font-size="10" fill="#6b7280">Study for Physics Exam</text>
+    
+    <circle cx="375" cy="300" r="6" fill="#e5e7eb"/>
+    <text x="390" y="305" font-family="Arial" font-size="10" fill="#6b7280">Submit Project Report</text>
+    
+    <circle cx="375" cy="320" r="6" fill="#fbbf24"/>
+    <text x="390" y="325" font-family="Arial" font-size="10" fill="#374151">Review Chemistry Notes</text>
+  </g>
+  
+  <!-- Floating icons -->
+  <g id="floating-icons" opacity="0.6">
+    <circle cx="500" cy="320" r="15" fill="#ddd6fe"/>
+    <text x="500" y="327" text-anchor="middle" font-family="Arial" font-size="16" fill="#7c3aed">📚</text>
+    
+    <circle cx="80" cy="180" r="12" fill="#fef3c7"/>
+    <text x="80" y="186" text-anchor="middle" font-family="Arial" font-size="14" fill="#d97706">💡</text>
+    
+    <circle cx="550" cy="120" r="10" fill="#dcfce7"/>
+    <text x="550" y="126" text-anchor="middle" font-family="Arial" font-size="12" fill="#16a34a">✓</text>
+  </g>
+  
+  <!-- Connection lines -->
+  <g id="connections" opacity="0.2">
+    <line x1="170" y1="120" x2="200" y2="110" stroke="#3b82f6" stroke-width="2" stroke-dasharray="3,3"/>
+    <line x1="340" y1="110" x2="380" y2="120" stroke="#10b981" stroke-width="2" stroke-dasharray="3,3"/>
+    <line x1="170" y1="300" x2="220" y2="280" stroke="#f59e0b" stroke-width="2" stroke-dasharray="3,3"/>
+    <line x1="320" y1="280" x2="360" y2="280" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="3,3"/>
+  </g>
+</svg>
