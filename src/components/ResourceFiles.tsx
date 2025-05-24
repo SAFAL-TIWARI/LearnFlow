@@ -1,52 +1,18 @@
-
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAcademic } from '../context/AcademicContext';
 import { resourceFiles, subjectMaterials, FileResource } from '../data/academicData';
 import { getFileIcon, DownloadIcon } from './Icons';
-import { useSession } from '../lib/auth-fallback';
 import { downloadGoogleDriveFile } from '../utils/downloadUtils';
-import { isAuthenticated as isFallbackAuthenticated } from '../lib/auth-fallback';
 import { AnimatedList } from './magicui/animated-list';
 import { useIframeTouchScroll } from '../hooks/use-iframe-touch-scroll';
 import '../styles/iframe-touch-fix.css';
 import { fetchSubjectMaterialFiles } from '../lib/academicStorageMapper';
 import SupabaseFileUploader from './SupabaseFileUploader';
-
-// Fallback authentication state if NextAuth fails
-const useAuthFallback = () => {
-  const [localAuth, setLocalAuth] = useState<{ isAuthenticated: boolean }>({
-    isAuthenticated: false
-  });
-
-  // Check if user is authenticated in localStorage
-  useEffect(() => {
-    const storedAuth = localStorage.getItem('user-auth');
-    if (storedAuth) {
-      try {
-        setLocalAuth(JSON.parse(storedAuth));
-      } catch (e) {
-        console.error('Failed to parse stored auth', e);
-      }
-    }
-  }, []);
-
-  const login = () => {
-    setLocalAuth({ isAuthenticated: true });
-    localStorage.setItem('user-auth', JSON.stringify({ isAuthenticated: true }));
-  };
-
-  const logout = () => {
-    setLocalAuth({ isAuthenticated: false });
-    localStorage.setItem('user-auth', JSON.stringify({ isAuthenticated: false }));
-  };
-
-  return { ...localAuth, login, logout };
-};
+import { useUnifiedAuth } from '../hooks/useUnifiedAuth';
 
 const ResourceFiles: React.FC = () => {
   const { state } = useAcademic();
-  const { data: session, status } = useSession();
-  const fallbackAuth = useAuthFallback();
+  const { isAuthenticated, user, loading: authLoading, authMethod } = useUnifiedAuth();
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const { containerRef, overlayRef } = useIframeTouchScroll();
   const [storageFiles, setStorageFiles] = useState<FileResource[]>([]);
@@ -61,7 +27,6 @@ const ResourceFiles: React.FC = () => {
         return;
       }
 
-      // setIsLoading(true);
       try {
         // Convert 'Syllabus' to 'syllabus' for storage path
         const materialType = state.selectedMaterial === 'Syllabus'
@@ -85,29 +50,20 @@ const ResourceFiles: React.FC = () => {
     fetchStorageFiles();
   }, [state.selectedSubject, state.selectedMaterial, refreshTrigger]);
 
-  // Use either NextAuth session or fallback authentication
-  const isAuthenticated = (() => {
-    // First try NextAuth
-    if (status === 'authenticated') return !!session;
-
-    // If NextAuth status is error, use fallback
-    if (status === 'unauthenticated') {
-      // Try our fallback auth first
-      if (isFallbackAuthenticated()) {
-        return true;
-      }
-
-      // Then try the local auth
-      return fallbackAuth.isAuthenticated;
-    }
-
-    // Check both fallback mechanisms as last resort
-    try {
-      return isFallbackAuthenticated() || fallbackAuth.isAuthenticated;
-    } catch (e) {
-      return false;
-    }
-  })();
+  // Add a visual debug indicator for authentication state
+  const renderAuthDebug = () => {
+    // if (process.env.NODE_ENV === 'development') {
+    //   return (
+    //     <div className="fixed bottom-4 left-4 bg-black text-white p-2 rounded text-xs z-50 max-w-xs">
+    //       {/* <div>Auth Status: {isAuthenticated ? '✅ Authenticated' : '❌ Not Authenticated'}</div> */}
+    //       {/* <div>User: {user?.email || user?.name || 'none'}</div> */}
+    //       {/* <div>Method: {authMethod}</div> */}
+    //       {/* <div>Loading: {authLoading ? 'yes' : 'no'}</div> */}
+    //     </div>
+    //   );
+    // }
+    return null;
+  };
 
   // Only render if material type is selected
   if (!state.selectedMaterial) {
@@ -167,6 +123,7 @@ const ResourceFiles: React.FC = () => {
         {state.selectedSubject && state.selectedMaterial && (
           <SupabaseFileUploader onUploadComplete={refreshFiles} />
         )}
+        {renderAuthDebug()}
       </div>
     );
   }
@@ -179,6 +136,7 @@ const ResourceFiles: React.FC = () => {
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-learnflow-500"></div>
           <span className="ml-2 text-gray-600 dark:text-gray-400">Loading materials...</span>
         </div>
+        {renderAuthDebug()}
       </div>
     );
   }
@@ -231,7 +189,7 @@ const ResourceFiles: React.FC = () => {
                               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                               </svg>
-                              <span class="font-medium">Please sign up to download the material</span>
+                              <span class="font-medium">Please sign up or sign in to download the material</span>
                             </div>
                             <button class="text-white" onclick="this.parentNode.parentNode.remove()">
                               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -338,7 +296,7 @@ const ResourceFiles: React.FC = () => {
                               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                               </svg>
-                              <span class="font-medium">Please sign up to download the material and then refresh the page</span>
+                              <span class="font-medium">Please sign up or sign in to download the material</span>
                             </div>
                             <button class="text-white" onclick="this.parentNode.parentNode.remove()">
                               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -374,6 +332,7 @@ const ResourceFiles: React.FC = () => {
           </div>
         </div>
       )}
+      {renderAuthDebug()}
     </div>
   );
 };

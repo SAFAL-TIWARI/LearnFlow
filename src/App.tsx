@@ -37,6 +37,7 @@ import { ThemeProvider } from "./hooks/useTheme";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react"
 import ProfilePageWrapper from './components/ProfilePageWrapper';
+import AuthTestButton from './components/AuthTestButton';
 // import './App.css';
 
 // Create a client
@@ -122,6 +123,9 @@ const App = () => {
 
                   {/* Click Spark Animation */}
                   <ClickSparkAnimation />
+
+                  {/* Auth Test Button (for development) */}
+                  {process.env.NODE_ENV === 'development' && <AuthTestButton />}
                 </BrowserRouter>
               </TooltipProvider>
             </QueryClientProvider>

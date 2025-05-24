@@ -20,8 +20,23 @@ export interface FallbackSession {
  */
 export const isAuthenticated = (): boolean => {
   try {
+    // First check if we have auth data in localStorage
     const authData = localStorage.getItem(AUTH_STORAGE_KEY);
-    if (!authData) return false;
+    if (!authData) {
+      // Also check for user-auth as a fallback (used in ResourceFiles.tsx)
+      const userAuth = localStorage.getItem('user-auth');
+      if (userAuth) {
+        try {
+          const parsed = JSON.parse(userAuth);
+          if (parsed && parsed.isAuthenticated === true) {
+            return true;
+          }
+        } catch (e) {
+          console.error('Failed to parse user-auth', e);
+        }
+      }
+      return false;
+    }
     
     const { expires } = JSON.parse(authData);
     // Check if the session has expired
@@ -33,6 +48,16 @@ export const isAuthenticated = (): boolean => {
     return true;
   } catch (error) {
     console.error('Error checking authentication status:', error);
+    // As a last resort, check for user-auth
+    try {
+      const userAuth = localStorage.getItem('user-auth');
+      if (userAuth) {
+        const parsed = JSON.parse(userAuth);
+        return parsed && parsed.isAuthenticated === true;
+      }
+    } catch (e) {
+      // Ignore errors in fallback
+    }
     return false;
   }
 };
@@ -92,8 +117,27 @@ export const signOut = async (): Promise<void> => {
  * Create a hook to use the session
  */
 export const useSession = () => {
+  // Check for session
   const session = getSession();
-  const status = session ? 'authenticated' : 'unauthenticated';
+  
+  // Also check for user-auth as a fallback
+  let status = 'unauthenticated';
+  
+  if (session) {
+    status = 'authenticated';
+  } else {
+    try {
+      const userAuth = localStorage.getItem('user-auth');
+      if (userAuth) {
+        const parsed = JSON.parse(userAuth);
+        if (parsed && parsed.isAuthenticated === true) {
+          status = 'authenticated';
+        }
+      }
+    } catch (e) {
+      console.error('Error checking user-auth in useSession', e);
+    }
+  }
   
   return {
     data: session,

@@ -72,9 +72,9 @@ const Footer: React.FC = () => {
               <a href="https://www.github.com/SAFAL-TIWARI/" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
                 <GitHubIcon />
               </a>
-              <a href="https://www.youtube.com/@safal_editz" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors">
+              {/* <a href="https://www.youtube.com/@safal_editz" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors">
                 <YouTubeIcon />
-              </a>
+              </a> */}
             </div>
           </div>
         </div>
