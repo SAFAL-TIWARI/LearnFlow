@@ -89,12 +89,25 @@ if (fs.existsSync(sourceSitemap)) {
   console.log('✅ sitemap.xml copied successfully');
 }
 
+// Copy _headers file for Netlify
+const sourceHeaders = path.join(projectRoot, 'public', '_headers');
+const destHeaders = path.join(distDir, '_headers');
+
+if (fs.existsSync(sourceHeaders)) {
+  console.log('📄 Copying _headers for Netlify MIME types...');
+  fs.copyFileSync(sourceHeaders, destHeaders);
+  console.log('✅ _headers copied successfully');
+} else {
+  console.warn('⚠️  _headers not found in public directory');
+}
+
 // Verify essential files
 console.log('\n🔍 Verifying build output...');
 const essentialFiles = [
   'index.html',
   '404.html',
   '_redirects',
+  '_headers',
   'favicon.ico'
 ];
 
