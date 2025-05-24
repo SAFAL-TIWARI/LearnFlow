@@ -110,6 +110,16 @@ const CGPACalculator = () => {
   const [percentageFormula, setPercentageFormula] = useState('sati-formula'); // sati-formula, indian-standard, direct-multiply, custom
 
   const addSubject = (yearId: string, semesterId: string) => {
+    // Find the current semester to check subject count
+    const currentYear = years.find(year => year.id === yearId);
+    const currentSemester = currentYear?.semesters.find(sem => sem.id === semesterId);
+
+    // Check if semester already has 10 subjects
+    if (currentSemester && currentSemester.subjects.length >= 10) {
+      alert('Maximum 10 subjects allowed per semester');
+      return;
+    }
+
     const newSubject: Subject = {
       id: Date.now().toString(),
       name: '',
@@ -178,6 +188,12 @@ const CGPACalculator = () => {
   };
 
   const addYear = () => {
+    // Check if already at maximum 10 years
+    if (years.length >= 4) {
+      alert('Maximum 10 years allowed');
+      return;
+    }
+
     const yearNumber = years.length + 1;
     const semesterStartNumber = (years.length * 2) + 1;
 
@@ -310,23 +326,45 @@ const CGPACalculator = () => {
                 Grade Point Calculator
               </CardTitle>
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                Add your subjects with credits and grades to calculate your CGPA
+                Add your subjects with credits and grades to calculate your CGPA.
               </p>
             </CardHeader>
             <CardContent>
               <Tabs value={currentYear} onValueChange={setCurrentYear}>
-                <div className="flex items-center justify-between mb-4">
-                  <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
-                    {years.map(year => (
-                      <TabsTrigger key={year.id} value={year.id}>
-                        {year.name}
-                      </TabsTrigger>
-                    ))}
-                  </TabsList>
-                  <Button onClick={addYear} size="sm" variant="outline">
-                    <Plus className="h-4 w-4 mr-1" />
-                    Add Year
-                  </Button>
+                <div className="space-y-4 mb-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold">Academic Years</h3>
+                    <Button
+                      onClick={addYear}
+                      size="sm"
+                      variant="outline"
+                      disabled={years.length >= 4}
+                      title={years.length >= 4 ? "Maximum 4 years allowed" : "Add new academic year"}
+                    >
+                      <Plus className="h-4 w-4 mr-1" />
+                      Add Year {years.length >= 4 ? `(${years.length}/4)` : null}
+                    </Button>
+                  </div>
+
+                  <div className="overflow-x-auto">
+                    <TabsList className={`inline-flex h-10 items-center justify-start rounded-md bg-muted p-1 text-muted-foreground ${
+                      years.length <= 2 ? 'w-full grid grid-cols-2' :
+                      years.length <= 4 ? 'w-full grid grid-cols-4' :
+                      'flex gap-1'
+                    }`}>
+                      {years.map(year => (
+                        <TabsTrigger
+                          key={year.id}
+                          value={year.id}
+                          className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm ${
+                            years.length > 4 ? 'flex-shrink-0 min-w-[100px]' : ''
+                          }`}
+                        >
+                          {year.name}
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
+                  </div>
                 </div>
 
                 {years.map(year => (
@@ -346,10 +384,10 @@ const CGPACalculator = () => {
                           {semester.subjects.map(subject => (
                             <div key={subject.id} className="grid grid-cols-12 gap-2 items-end p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                               <div className="col-span-4">
-                                <Label htmlFor={`subject-${subject.id}`}>Subject Name</Label>
+                                <Label htmlFor={`subject-${subject.id}`}>Subject Name/Code</Label>
                                 <Input
                                   id={`subject-${subject.id}`}
-                                  placeholder="e.g., Mathematics"
+                                  placeholder="e.g., Mathematics/MAB 101"
                                   value={subject.name}
                                   onChange={(e) => updateSubject(year.id, semester.id, subject.id, 'name', e.target.value)}
                                 />
@@ -405,9 +443,11 @@ const CGPACalculator = () => {
                             onClick={() => addSubject(year.id, semester.id)}
                             variant="outline"
                             className="w-full"
+                            disabled={semester.subjects.length >= 10}
+                            title={semester.subjects.length >= 10 ? "Maximum 10 subjects allowed per semester" : "Add new subject"}
                           >
                             <Plus className="h-4 w-4 mr-2" />
-                            Add Subject to {semester.name}
+                            Add Subject to {semester.name} {semester.subjects.length >= 10 ? '(Max 10)' : `(${semester.subjects.length}/10)`}
                           </Button>
                         </div>
                       ))}
@@ -453,6 +493,9 @@ const CGPACalculator = () => {
           <Card>
             <CardHeader>
               <CardTitle>Settings</CardTitle>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                Limits: Max 10 years, Max 10 subjects per semester
+              </p>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
