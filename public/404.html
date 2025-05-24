@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>LearnFlow - Student Zone</title>
+  <meta name="description" content="Access all your course materials in one place. Find resources by year, semester, branch, and subject.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  
+  <!-- GitHub Pages SPA Redirect Script -->
+  <script type="text/javascript">
+    // Single Page Apps for GitHub Pages
+    // MIT License
+    // https://github.com/rafgraph/spa-github-pages
+    // This script checks to see if a redirect is present in the query string,
+    // converts it back into the correct url and adds it to the
+    // browser's history using window.history.replaceState(...),
+    // which won't cause the browser to attempt to load the new url.
+    // When the single page app is loaded further down in this file,
+    // the correct url will be waiting in the browser's history for
+    // the single page app to route accordingly.
+    (function(l) {
+      if (l.search[1] === '/' ) {
+        var decoded = l.search.slice(1).split('&').map(function(s) { 
+          return s.replace(/~and~/g, '&')
+        }).join('?');
+        window.history.replaceState(null, null,
+            l.pathname.slice(0, -1) + decoded + l.hash
+        );
+      }
+    }(window.location))
+  </script>
+  
+  <!-- Redirect to index.html for SPA routing -->
+  <script type="text/javascript">
+    // Store the current path for the React app to handle
+    var currentPath = window.location.pathname + window.location.search + window.location.hash;
+    
+    // If we're not already on the root path, redirect to index.html with the path as a parameter
+    if (window.location.pathname !== '/') {
+      // Encode the path to preserve special characters
+      var encodedPath = encodeURIComponent(currentPath);
+      
+      // Redirect to index.html with the original path
+      window.location.replace(window.location.origin + '/index.html?redirect=' + encodedPath);
+    }
+  </script>
+</head>
+<body>
+  <!-- Fallback content while redirecting -->
+  <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial, sans-serif;">
+    <div style="text-align: center;">
+      <h2>Loading LearnFlow...</h2>
+      <p>Redirecting you to the correct page...</p>
+      <div style="margin-top: 20px;">
+        <div style="border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 2s linear infinite; margin: 0 auto;"></div>
+      </div>
+    </div>
+  </div>
+  
+  <style>
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+  
+  <!-- If JavaScript is disabled, provide a manual link -->
+  <noscript>
+    <div style="text-align: center; margin-top: 50px;">
+      <p>JavaScript is required for this application.</p>
+      <a href="/index.html" style="color: #3498db; text-decoration: none;">Click here to go to LearnFlow</a>
+    </div>
+  </noscript>
+</body>
+</html>

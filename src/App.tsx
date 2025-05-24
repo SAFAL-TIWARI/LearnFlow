@@ -52,14 +52,29 @@ const queryClient = new QueryClient();
 
 const App = () => {
   React.useEffect(() => {
-    // Check if there's a path parameter in the URL
+    // Check if there's a redirect parameter from GitHub Pages 404.html
     const urlParams = new URLSearchParams(window.location.search);
+    const redirectParam = urlParams.get('redirect');
     const pathParam = urlParams.get('path');
 
     // Check for INITIAL_PATH from the window object (set in our static HTML files)
     const initialPath = (window as any).INITIAL_PATH;
 
-    if (pathParam) {
+    if (redirectParam) {
+      // Decode the redirect parameter and navigate to it
+      try {
+        const decodedPath = decodeURIComponent(redirectParam);
+        // Clean up the URL by removing the redirect parameter
+        const cleanUrl = window.location.origin + window.location.pathname;
+        window.history.replaceState({}, document.title, cleanUrl);
+        // Navigate to the intended path
+        window.history.pushState({}, document.title, decodedPath);
+      } catch (error) {
+        console.error('Error decoding redirect parameter:', error);
+        // Fallback to home page
+        window.history.replaceState({}, document.title, '/');
+      }
+    } else if (pathParam) {
       // Remove the path parameter from the URL
       window.history.replaceState({}, document.title, window.location.pathname);
 

@@ -27,7 +27,14 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     copyPublicDir: true,
-    outDir: "dist", // Output directory for Firebase hosting
+    outDir: "dist", // Output directory for static hosting
     target: "esnext", // Change from default to support top-level await
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+        // Ensure 404.html is included for GitHub Pages
+        404: path.resolve(__dirname, 'public/404.html')
+      }
+    }
   }
 }));

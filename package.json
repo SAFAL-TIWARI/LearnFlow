@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node src/scripts/generate-sitemap.js",
+    "build": "vite build && node src/scripts/generate-sitemap.js && node scripts/build-for-static-hosting.js",
     "build:dev": "vite build --mode development",
+    "build:static": "vite build && node src/scripts/generate-sitemap.js && node scripts/build-for-static-hosting.js",
     "vercel-build": "node vercel.build.js && vite build && node src/scripts/generate-sitemap.js",
     "lint": "eslint .",
     "preview": "vite preview",
