@@ -2,6 +2,8 @@ import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import BlurTextAnimation from '../components/BlurTextAnimation';
+import { useTheme } from '../hooks/useTheme';
+import BackButton from '../components/BackButton';
 
 // Icons
 import {
@@ -28,6 +30,7 @@ import {
 } from 'lucide-react';
 
 const HelpPage: React.FC = () => {
+  const { theme } = useTheme();
   const [activeCategory, setActiveCategory] = useState('getting-started');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedFaqs, setExpandedFaqs] = useState<number[]>([]);
@@ -46,7 +49,7 @@ const HelpPage: React.FC = () => {
   };
 
   const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
+    hidden: { y: 20, opacity: 0.7 },
     visible: {
       y: 0,
       opacity: 1,
@@ -55,7 +58,7 @@ const HelpPage: React.FC = () => {
   };
 
   const fadeInVariants = {
-    hidden: { opacity: 0 },
+    hidden: { opacity: 0.6 },
     visible: {
       opacity: 1,
       transition: { duration: 0.5 }
@@ -339,15 +342,7 @@ const HelpPage: React.FC = () => {
     >
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center mb-6">
-          <button 
-            onClick={() => window.location.href = '/'}
-            className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            aria-label="Go back to home page"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-          </button>
+          <BackButton />
         </div>
         <motion.div
           className="text-center mb-12"
@@ -532,26 +527,32 @@ const HelpPage: React.FC = () => {
                 >
                   {filteredFaqs.length > 0 ? (
                     filteredFaqs.map((item, index) => (
-                      <motion.div
+                      <div
                         key={index}
                         className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
-                        variants={itemVariants}
-                        initial="hidden"
-                        animate="visible"
-                        transition={{ delay: index * 0.1 }}
                       >
                         <button
                           onClick={() => toggleFaq(index)}
-                          className="w-full text-left px-5 py-4 flex items-center justify-between bg-gray-50 dark:bg-gray-750 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                          className="w-full text-left px-5 py-4 flex items-center justify-between bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                          style={{ opacity: 1 }}
                         >
-                          <div className="flex items-center">
-                            <span className="mr-3">{item.icon}</span>
-                            <h3 className="text-lg font-medium text-gray-800 dark:text-white">
+                          <div className="flex items-center" style={{ opacity: 1 }}>
+                            <span className="mr-3" style={{ opacity: 1 }}>{item.icon}</span>
+                            <h3
+                              className="text-lg font-medium text-gray-800 dark:text-white"
+                              style={{
+                                opacity: '1 !important',
+                                visibility: 'visible !important',
+                                display: 'block !important',
+                                color: theme === 'dark' ? '#ffffff' : '#1f2937'
+                              }}
+                            >
                               {item.question}
                             </h3>
                           </div>
                           <ChevronDown
-                            className={`w-5 h-5 text-gray-500 transition-transform ${expandedFaqs.includes(index) ? 'transform rotate-180' : ''}`}
+                            className={`w-5 h-5 text-gray-500 dark:text-gray-400 transition-transform ${expandedFaqs.includes(index) ? 'transform rotate-180' : ''}`}
+                            style={{ opacity: 1 }}
                           />
                         </button>
 
@@ -564,8 +565,16 @@ const HelpPage: React.FC = () => {
                               transition={{ duration: 0.3 }}
                               className="overflow-hidden"
                             >
-                              <div className="p-5 bg-white dark:bg-gray-800">
-                                <p className="text-gray-600 dark:text-gray-300 whitespace-pre-line">
+                              <div className="p-5 bg-white dark:bg-gray-800" style={{ opacity: 1 }}>
+                                <p
+                                  className="text-gray-600 dark:text-gray-300 whitespace-pre-line"
+                                  style={{
+                                    opacity: '1 !important',
+                                    visibility: 'visible !important',
+                                    display: 'block !important',
+                                    color: theme === 'dark' ? '#d1d5db' : '#4b5563'
+                                  }}
+                                >
                                   {item.answer}
                                 </p>
 
@@ -587,7 +596,7 @@ const HelpPage: React.FC = () => {
                             </motion.div>
                           )}
                         </AnimatePresence>
-                      </motion.div>
+                      </div>
                     ))
                   ) : (
                     <motion.div
@@ -606,7 +615,7 @@ const HelpPage: React.FC = () => {
 
               {/* Contact Support Section */}
               <motion.div
-                className="mt-10 p-6 bg-gradient-to-r from-learnflow-50 to-blue-50 dark:from-gray-700 dark:to-gray-750 rounded-lg border border-learnflow-100 dark:border-gray-600"
+                className="mt-10 p-6 bg-gradient-to-r from-learnflow-50 to-blue-50 dark:from-gray-700 dark:to-gray-800 rounded-lg border border-learnflow-100 dark:border-gray-600"
                 variants={fadeInVariants}
               >
                 <div className="flex flex-col md:flex-row items-center">

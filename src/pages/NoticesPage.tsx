@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import { format, parseISO } from 'date-fns';
 import { Bell, AlertTriangle, Info, Calendar, Clock, ChevronDown, ChevronUp, ExternalLink, FileText, Tag } from 'lucide-react';
+import BackButton from '../components/BackButton';
 
 // Define the Notice interface
 interface Notice {
@@ -155,14 +156,14 @@ const NoticesPage: React.FC = () => {
         //   .order('created_at', { ascending: false });
 
         // if (error) throw error;
-        
+
         // For now, use sample data
         // Simulate API delay
         setTimeout(() => {
           setNotices(sampleNotices);
           setLoading(false);
         }, 800);
-        
+
       } catch (error) {
         console.error('Error fetching notices:', error);
         setError('Failed to load notices. Please try again later.');
@@ -178,7 +179,7 @@ const NoticesPage: React.FC = () => {
     .filter(notice => {
       // Filter by category
       if (filter !== 'all' && notice.category !== filter) return false;
-      
+
       // Filter by search query
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
@@ -188,7 +189,7 @@ const NoticesPage: React.FC = () => {
           notice.tags.some(tag => tag.toLowerCase().includes(query))
         );
       }
-      
+
       return true;
     })
     .sort((a, b) => {
@@ -234,15 +235,7 @@ const NoticesPage: React.FC = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center mb-6">
-          <button 
-            onClick={() => window.location.href = '/'}
-            className="mr-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            aria-label="Go back to home page"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-          </button>
+          <BackButton className="mr-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" />
           <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Notices & Updates</h1>
         </div>
 
@@ -258,7 +251,7 @@ const NoticesPage: React.FC = () => {
         </motion.div>
 
         {/* Search and Filter Controls */}
-        <motion.div 
+        <motion.div
           className="mb-8 bg-white dark:bg-gray-800 rounded-lg shadow-md p-4"
           initial="hidden"
           animate="visible"
@@ -370,7 +363,7 @@ const NoticesPage: React.FC = () => {
                 No notices found
               </h3>
               <p className="text-gray-500 dark:text-gray-400">
-                {searchQuery 
+                {searchQuery
                   ? "Try adjusting your search or filters to find what you're looking for."
                   : "There are no notices available at the moment."}
               </p>
@@ -391,13 +384,13 @@ const NoticesPage: React.FC = () => {
                         <div className="mr-2">
                           {categories.find(cat => cat.id === notice.category)?.icon || <Info className="w-5 h-5 text-gray-500" />}
                         </div>
-                        
+
                         {/* Title */}
                         <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
                           {notice.title}
                         </h2>
                       </div>
-                      
+
                       {/* Meta information */}
                       <div className="flex flex-wrap items-center text-sm text-gray-500 dark:text-gray-400 mb-3 gap-3">
                         {/* Date */}
@@ -405,20 +398,20 @@ const NoticesPage: React.FC = () => {
                           <Clock className="w-4 h-4 mr-1" />
                           <span>{formatDate(notice.created_at)}</span>
                         </div>
-                        
+
                         {/* Category */}
                         <div className="flex items-center">
                           <Tag className="w-4 h-4 mr-1" />
                           <span className="capitalize">{notice.category}</span>
                         </div>
-                        
+
                         {/* Priority badge */}
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getPriorityColor(notice.priority)}`}>
                           {notice.priority} priority
                         </span>
                       </div>
                     </div>
-                    
+
                     {/* Expand/collapse button */}
                     <button
                       onClick={() => toggleNotice(notice.id)}
@@ -432,12 +425,12 @@ const NoticesPage: React.FC = () => {
                       )}
                     </button>
                   </div>
-                  
+
                   {/* Preview content (always visible) */}
                   <p className="text-gray-600 dark:text-gray-400 line-clamp-2">
                     {notice.content}
                   </p>
-                  
+
                   {/* Expanded content */}
                   <AnimatePresence>
                     {expandedNotice === notice.id && (
@@ -453,12 +446,12 @@ const NoticesPage: React.FC = () => {
                           <p className="text-gray-600 dark:text-gray-400 mb-4">
                             {notice.content}
                           </p>
-                          
+
                           {/* Tags */}
                           {notice.tags && notice.tags.length > 0 && (
                             <div className="flex flex-wrap gap-2 mb-4">
                               {notice.tags.map((tag, index) => (
-                                <span 
+                                <span
                                   key={index}
                                   className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
                                 >
@@ -467,7 +460,7 @@ const NoticesPage: React.FC = () => {
                               ))}
                             </div>
                           )}
-                          
+
                           {/* Additional information */}
                           <div className="flex flex-wrap gap-4 text-sm">
                             {/* Expiry date if available */}
@@ -477,7 +470,7 @@ const NoticesPage: React.FC = () => {
                                 <span>Valid until: {formatDate(notice.expiry_date)}</span>
                               </div>
                             )}
-                            
+
                             {/* Attachment if available */}
                             {notice.attachment_url && (
                               <a

@@ -55,20 +55,62 @@
   .legal-content {
     color: #e5e7eb;
   }
-  
+
   .legal-content h1 {
     color: #3b82f6;
   }
-  
+
   .legal-content h2 {
     color: #60a5fa;
   }
-  
+
   .legal-content h3 {
     color: #93c5fd;
   }
-  
+
   .legal-content a {
     color: #3b82f6;
   }
+}
+
+/* Manual dark mode toggle support */
+.dark .legal-content {
+  color: #e5e7eb !important;
+}
+
+.dark .legal-content h1 {
+  color: #3b82f6 !important;
+}
+
+.dark .legal-content h2 {
+  color: #60a5fa !important;
+}
+
+.dark .legal-content h3 {
+  color: #93c5fd !important;
+}
+
+.dark .legal-content a {
+  color: #3b82f6 !important;
+}
+
+/* Light mode explicit colors to ensure visibility */
+.legal-content {
+  color: #333 !important;
+}
+
+.legal-content h1 {
+  color: #2563eb !important;
+}
+
+.legal-content h2 {
+  color: #1e40af !important;
+}
+
+.legal-content h3 {
+  color: #1e3a8a !important;
+}
+
+.legal-content a {
+  color: #2563eb !important;
 }

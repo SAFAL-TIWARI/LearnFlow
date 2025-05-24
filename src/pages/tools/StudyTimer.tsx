@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Play, Pause, RotateCcw, Settings, Clock, Coffee, Target } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import BackButton from '../../components/BackButton';
 
 interface TimerSettings {
   workDuration: number;
@@ -167,13 +168,7 @@ const StudyTimer = () => {
   return (
     <div className="container mx-auto p-8 max-w-4xl">
       <div className="flex items-center mb-8">
-        <Button
-          variant="outline"
-          onClick={() => navigate('/tools')}
-          className="mr-4"
-        >
-          Back to Tools
-        </Button>
+        <BackButton fallbackPath="/tools" className="mr-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" />
         <h1 className="text-3xl font-bold">Study Timer</h1>
       </div>
 

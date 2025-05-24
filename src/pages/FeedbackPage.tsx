@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { getSession, isAuthenticated } from '../lib/auth-fallback';
 import { useSession } from '../lib/auth-fallback';
+import BackButton from '../components/BackButton';
 
 const FeedbackPage: React.FC = () => {
   const [feedbackType, setFeedbackType] = useState('suggestion');
@@ -10,26 +11,26 @@ const FeedbackPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Try to use NextAuth session first
   const { data: nextAuthSession, status } = useSession();
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!feedbackText.trim()) {
       setError('Please enter your feedback before submitting.');
       return;
     }
-    
+
     try {
       setIsSubmitting(true);
       setError(null);
-      
+
       // Get user information from either NextAuth or fallback
       let userEmail = '';
       let userName = '';
-      
+
       if (status === 'authenticated' && nextAuthSession) {
         // Using NextAuth
         userEmail = nextAuthSession.user?.email || '';
@@ -44,7 +45,7 @@ const FeedbackPage: React.FC = () => {
         userEmail = 'anonymous@user.com';
         userName = 'Anonymous User';
       }
-      
+
       // Submit feedback to Supabase
       const { error: submitError } = await supabase
         .from('feedback')
@@ -57,17 +58,17 @@ const FeedbackPage: React.FC = () => {
             user_name: userName,
           },
         ]);
-        
+
       if (submitError) {
         console.error('Error submitting feedback:', submitError);
         throw submitError;
       }
-      
+
       // Reset form and show success message
       setFeedbackText('');
       setRating(null);
       setIsSubmitted(true);
-      
+
       // Reset success message after 5 seconds
       setTimeout(() => {
         setIsSubmitted(false);
@@ -79,29 +80,21 @@ const FeedbackPage: React.FC = () => {
       setIsSubmitting(false);
     }
   };
-  
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center mb-6">
-          <button 
-            onClick={() => window.location.href = '/'}
-            className="mr-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            aria-label="Go back to home page"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-          </button>
+          <BackButton className="mr-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" />
           <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Feedback</h1>
         </div>
-        
+
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
           <div className="p-6">
             <p className="text-gray-600 dark:text-gray-400 mb-6">
               We value your feedback! Please let us know how we can improve LearnFlow to better serve your educational needs.
             </p>
-            
+
             {isSubmitted ? (
               <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-md p-4 mb-6">
                 <div className="flex items-center">
@@ -123,7 +116,7 @@ const FeedbackPage: React.FC = () => {
                     </div>
                   </div>
                 )}
-                
+
                 <div className="mb-6">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Feedback Type
@@ -145,7 +138,7 @@ const FeedbackPage: React.FC = () => {
                     ))}
                   </div>
                 </div>
-                
+
                 <div className="mb-6">
                   <label htmlFor="feedback" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Your Feedback
@@ -160,7 +153,7 @@ const FeedbackPage: React.FC = () => {
                     required
                   />
                 </div>
-                
+
                 <div className="mb-8">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     How would you rate your experience with LearnFlow?
@@ -190,7 +183,7 @@ const FeedbackPage: React.FC = () => {
                     ))}
                   </div>
                 </div>
-                
+
                 <div className="flex justify-end">
                   <button
                     type="submit"

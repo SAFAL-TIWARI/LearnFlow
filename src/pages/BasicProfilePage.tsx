@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/SupabaseAuthContext';
 import { getSession, isAuthenticated } from '../lib/auth-fallback';
+import BackButton from '../components/BackButton';
 
 const BasicProfilePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -22,17 +23,17 @@ const BasicProfilePage: React.FC = () => {
 
   // Try to use Supabase auth
   const { user } = useAuth();
-  
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         setLoading(true);
-        
+
         // Check which auth method we're using
         let userName = '';
         let userEmail = '';
         let userPicture = '';
-        
+
         if (user) {
           // Using Supabase auth
           userName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'User';
@@ -47,7 +48,7 @@ const BasicProfilePage: React.FC = () => {
           userPicture = fallbackSession?.user.image || '';
           console.log('Using fallback auth:', fallbackSession);
         }
-        
+
         // Set user data
         setUserData({
           name: userName,
@@ -63,7 +64,7 @@ const BasicProfilePage: React.FC = () => {
         setLoading(false);
       }
     };
-    
+
     fetchUserData();
   }, [user]);
 
@@ -77,7 +78,7 @@ const BasicProfilePage: React.FC = () => {
     localStorage.setItem(`profile_year_${userData.email}`, userData.year);
     localStorage.setItem(`profile_semester_${userData.email}`, userData.semester);
     localStorage.setItem(`profile_branch_${userData.email}`, userData.branch);
-    
+
     alert('Profile updated successfully!');
   };
 
@@ -93,15 +94,7 @@ const BasicProfilePage: React.FC = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
         <div className="flex items-center mb-4 w-full max-w-md justify-between">
-          <button 
-            onClick={() => window.location.href = '/'}
-            className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            aria-label="Go back to home page"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-          </button>
+          <BackButton />
           <h1 className="text-2xl font-bold">Please Sign In</h1>
           <div className="w-8"></div> {/* Empty div for balance */}
         </div>
@@ -121,25 +114,17 @@ const BasicProfilePage: React.FC = () => {
       <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
         <div className="p-6">
           <div className="flex items-center mb-6">
-            <button 
-              onClick={() => window.location.href = '/'}
-              className="mr-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              aria-label="Go back to home page"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-            </button>
+            <BackButton className="mr-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" />
             <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Your Profile</h1>
           </div>
-          
+
           <div className="flex flex-col md:flex-row gap-8">
             {/* Profile Picture Section */}
             <div className="flex flex-col items-center">
               <div className="relative">
-                <img 
-                  src={userData.profilePicture} 
-                  alt="Profile" 
+                <img
+                  src={userData.profilePicture}
+                  alt="Profile"
                   className="w-32 h-32 rounded-full object-cover border-4 border-gray-200"
                   onError={(e) => {
                     // Fallback if image fails to load
@@ -148,7 +133,7 @@ const BasicProfilePage: React.FC = () => {
                 />
               </div>
             </div>
-            
+
             {/* Profile Information Section */}
             <div className="flex-1">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -164,7 +149,7 @@ const BasicProfilePage: React.FC = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-learnflow-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Email
@@ -176,7 +161,7 @@ const BasicProfilePage: React.FC = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 dark:bg-gray-600 dark:border-gray-600 dark:text-gray-300"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Year
@@ -194,7 +179,7 @@ const BasicProfilePage: React.FC = () => {
                     <option value="4">4th Year</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Semester
@@ -216,7 +201,7 @@ const BasicProfilePage: React.FC = () => {
                     <option value="8">8th Semester</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Branch
@@ -237,7 +222,7 @@ const BasicProfilePage: React.FC = () => {
                   </select>
                 </div>
               </div>
-              
+
               <div className="mt-6">
                 <button
                   onClick={handleSaveProfile}

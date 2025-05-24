@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import '../styles/legal-pages.css';
+import BackButton from '../components/BackButton';
 
 const PrivacyPolicy: React.FC = () => {
   useEffect(() => {
@@ -13,16 +14,19 @@ const PrivacyPolicy: React.FC = () => {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <main className="flex-grow container mx-auto px-4 py-8">
+        <div className="flex items-center mb-6">
+          <BackButton className="mr-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" />
+        </div>
         <div className="prose dark:prose-invert max-w-none legal-content">
           <h1>Privacy Policy</h1>
           <p>Last updated: May 04, 2025</p>
           <p>This Privacy Policy describes Our policies and procedures on the collection, use and disclosure of Your information when You use the Service and tells You about Your privacy rights and how the law protects You.</p>
           <p>We use Your Personal data to provide and improve the Service. By using the Service, You agree to the collection and use of information in accordance with this Privacy Policy.</p>
-          
+
           <h2>Interpretation and Definitions</h2>
           <h3>Interpretation</h3>
           <p>The words of which the initial letter is capitalized have meanings defined under the following conditions. The following definitions shall have the same meaning regardless of whether they appear in singular or in plural.</p>
-          
+
           <h3>Definitions</h3>
           <p>For the purposes of this Privacy Policy:</p>
           <ul>
@@ -40,7 +44,7 @@ const PrivacyPolicy: React.FC = () => {
             <li><p><strong>Website</strong> refers to LearnFlow, accessible from <a href="https://learn-flow-seven.vercel.app/" rel="external nofollow noopener" target="_blank">https://learn-flow-seven.vercel.app/</a></p></li>
             <li><p><strong>You</strong> means the individual accessing or using the Service, or the company, or other legal entity on behalf of which such individual is accessing or using the Service, as applicable.</p></li>
           </ul>
-          
+
           <h2>Collecting and Using Your Personal Data</h2>
           <h3>Types of Data Collected</h3>
           <h4>Personal Data</h4>
@@ -50,11 +54,11 @@ const PrivacyPolicy: React.FC = () => {
             <li><p>First name and last name</p></li>
             <li><p>Usage Data</p></li>
           </ul>
-          
+
           <h4>Usage Data</h4>
           <p>Usage Data is collected automatically when using the Service.</p>
           <p>Usage Data may include information such as Your Device's Internet Protocol address (e.g. IP address), browser type, browser version, the pages of our Service that You visit, the time and date of Your visit, the time spent on those pages, unique device identifiers and other diagnostic data.</p>
-          
+
           <h2>Contact Us</h2>
           <p>If you have any questions about this Privacy Policy, You can contact us:</p>
           <ul>

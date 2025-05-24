@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Trash2, Plus, Calculator, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import BackButton from '../../components/BackButton';
 
 interface Subject {
   id: string;
@@ -306,13 +307,7 @@ const CGPACalculator = () => {
   return (
     <div className="container mx-auto p-8 max-w-6xl">
       <div className="flex items-center mb-8">
-        <Button
-          variant="outline"
-          onClick={() => navigate('/tools')}
-          className="mr-4"
-        >
-          Back to Tools
-        </Button>
+        <BackButton fallbackPath="/tools" className="mr-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" />
         <h1 className="text-3xl font-bold">CGPA Calculator</h1>
       </div>
 
