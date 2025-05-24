@@ -7,7 +7,6 @@ interface ToolCardProps {
   description: string;
   route: string;
   icon: React.ReactNode;
-  comingSoon?: boolean;
   onClick?: () => void;
 }
 
@@ -33,7 +32,6 @@ const ToolCard: React.FC<ToolCardProps> = ({
   }, []);
 
   const handleClick = () => {
-    if (comingSoon) return;
     if (onClick) {
       onClick();
     } else {
@@ -74,11 +72,6 @@ const ToolCard: React.FC<ToolCardProps> = ({
           </svg>
         </span>
         
-        {comingSoon && (
-          <Badge variant="secondary" className="text-xs sm:text-sm bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100">
-            {screenWidth <= 480 ? "Soon" : "Coming Soon"}
-          </Badge>
-        )}
       </div>
     </div>
   );

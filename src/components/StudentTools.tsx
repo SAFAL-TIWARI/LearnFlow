@@ -25,7 +25,6 @@ interface ToolProps {
   name: string;
   description: string;
   route: string;
-  comingSoon?: boolean;
 }
 
 const toolIcons = {
@@ -81,49 +80,41 @@ const StudentTools: React.FC = () => {
     {
       name: "Attendance Tracker",
       description: "Keep track of your attendance across all subjects and never miss important classes.",
-      route: "/tools/attendance-tracker",
-      comingSoon: true
+      route: "/tools/attendance-tracker"
     },
     {
       name: "Study Planner",
       description: "Plan your study schedule effectively with our intelligent study planner and time management tools.",
-      route: "/tools/study-planner",
-      comingSoon: true
+      route: "/tools/study-planner"
     },
     {
       name: "Performance Analytics",
       description: "Analyze your academic performance with detailed insights and improvement suggestions.",
-      route: "/tools/performance-analytics",
-      comingSoon: true
+      route: "/tools/performance-analytics"
     },
     {
       name: "Goal Tracker",
       description: "Set and track your academic goals. Monitor your progress and celebrate achievements.",
-      route: "/tools/goal-tracker",
-      comingSoon: true
-    },
-    {
-      name: "Quick Tools",
-      description: "Access a collection of quick utility tools for everyday academic tasks and calculations.",
-      route: "/tools/quick-tools",
-      comingSoon: true
+      route: "/tools/goal-tracker"
     },
     {
       name: "Progress Tracker",
       description: "Monitor your academic progress and identify areas for improvement.",
-      route: "/tools/progress-tracker",
-      comingSoon: true
+      route: "/tools/progress-tracker"
     },
     {
       name: "Flashcards",
       description: "Create and study with digital flashcards for quick knowledge review.",
-      route: "#",
-      comingSoon: true
+      route: "/tools/flashcards"
+    },
+    {
+      name: "Quick Tools",
+      description: "Access a collection of quick utility tools for everyday academic tasks and calculations.",
+      route: "/tools/quick-tools"
     }
   ];
 
   const handleToolClick = (tool: ToolProps) => {
-    if (tool.comingSoon) return;
     setSelectedTool(tool);
     setTimeout(() => {
       navigate(tool.route);
@@ -140,7 +131,6 @@ const StudentTools: React.FC = () => {
         description={tool.description}
         route={tool.route}
         icon={<IconComponent className="w-8 h-8 text-white" />}
-        comingSoon={tool.comingSoon}
         onClick={() => handleToolClick(tool)}
       />
     );
@@ -183,19 +173,13 @@ const StudentTools: React.FC = () => {
                 key={index}
                 variant={selectedTool?.name === tool.name ? "default" : "outline"}
                 className="transition-all duration-300 text-xs sm:text-sm md:text-base px-2 sm:px-3 py-1 sm:py-2 h-auto"
-                onClick={() => !tool.comingSoon && handleToolClick(tool)}
-                disabled={tool.comingSoon}
-                title={tool.comingSoon ? `${tool.name} - Coming Soon` : `Select ${tool.name} tool`}
-                aria-label={tool.comingSoon ? `${tool.name} tool coming soon` : `Select ${tool.name} tool`}
+                onClick={() => handleToolClick(tool)}
+                title={`Select ${tool.name} tool`}
+                aria-label={`Select ${tool.name} tool`}
               >
                 {tool.name.length > 10 && windowWidth < 640
                   ? tool.name.split(' ')[0]
                   : tool.name}
-                {tool.comingSoon && (
-                  <Badge variant="secondary" className="ml-1 sm:ml-2 text-xs bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100">
-                    Soon
-                  </Badge>
-                )}
               </Button>
             ))}
           </div>

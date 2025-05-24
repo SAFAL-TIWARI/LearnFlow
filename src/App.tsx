@@ -15,6 +15,13 @@ import CGPACalculator from "./pages/tools/CGPACalculator";
 import StudyTimer from "./pages/tools/StudyTimer";
 import ExamScheduler from "./pages/tools/ExamScheduler";
 import NoteOrganizer from "./pages/tools/NoteOrganizer";
+import AttendanceTracker from "./pages/tools/AttendanceTracker";
+import StudyPlanner from "./pages/tools/StudyPlanner";
+import PerformanceAnalytics from "./pages/tools/PerformanceAnalytics";
+import GoalTracker from "./pages/tools/GoalTracker";
+import QuickTools from "./pages/tools/QuickTools";
+import ProgressTracker from "./pages/tools/ProgressTracker";
+import Flashcards from "./pages/tools/Flashcards";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import AuthError from "./pages/auth-error";
@@ -82,34 +89,41 @@ const App = () => {
                       <Route path="/tools" element={<Tools />} />
                       <Route path="/resources" element={<Resources />} />
 
-                    {/* Tool Routes */}
-                    <Route path="/tools/cgpa-calculator" element={<CGPACalculator />} />
-                    <Route path="/tools/study-timer" element={<StudyTimer />} />
-                    <Route path="/tools/exam-scheduler" element={<ExamScheduler />} />
-                    <Route path="/tools/note-organizer" element={<NoteOrganizer />} />
+                      {/* Tool Routes */}
+                      <Route path="/tools/cgpa-calculator" element={<CGPACalculator />} />
+                      <Route path="/tools/study-timer" element={<StudyTimer />} />
+                      <Route path="/tools/exam-scheduler" element={<ExamScheduler />} />
+                      <Route path="/tools/note-organizer" element={<NoteOrganizer />} />
+                      <Route path="/tools/attendance-tracker" element={<AttendanceTracker />} />
+                      <Route path="/tools/study-planner" element={<StudyPlanner />} />
+                      <Route path="/tools/performance-analytics" element={<PerformanceAnalytics />} />
+                      <Route path="/tools/goal-tracker" element={<GoalTracker />} />
+                      <Route path="/tools/quick-tools" element={<QuickTools />} />
+                      <Route path="/tools/progress-tracker" element={<ProgressTracker />} />
+                      <Route path="/tools/flashcards" element={<Flashcards />} />
 
-                    {/* Legal Pages */}
-                    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                    <Route path="/terms-of-service" element={<TermsOfService />} />
-                    <Route path="/help" element={<HelpPage />} />
-                    <Route path="/feedback" element={<FeedbackPage />} />
-                    <Route path="/notices" element={<NoticesPage />} />
-                    <Route path="/release-notes" element={<ReleaseNotesPage />} />
+                      {/* Legal Pages */}
+                      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                      <Route path="/terms-of-service" element={<TermsOfService />} />
+                      <Route path="/help" element={<HelpPage />} />
+                      <Route path="/feedback" element={<FeedbackPage />} />
+                      <Route path="/notices" element={<NoticesPage />} />
+                      <Route path="/release-notes" element={<ReleaseNotesPage />} />
 
-                    {/* Auth Pages */}
-                    <Route path="/auth-error" element={<AuthError />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/signup" element={<Signup />} />
-                    <Route path="/forgot-password" element={<ForgotPassword />} />
-                    <Route path="/auth/callback" element={<AuthCallback />} />
-                    <Route path="/auth/reset-password" element={<ResetPassword />} />
+                      {/* Auth Pages */}
+                      <Route path="/auth-error" element={<AuthError />} />
+                      <Route path="/login" element={<Login />} />
+                      <Route path="/signup" element={<Signup />} />
+                      <Route path="/forgot-password" element={<ForgotPassword />} />
+                      <Route path="/auth/callback" element={<AuthCallback />} />
+                      <Route path="/auth/reset-password" element={<ResetPassword />} />
 
-                    {/* Profile Page */}
-                    <Route path="/profile" element={<ProfilePageWrapper />} />
+                      {/* Profile Page */}
+                      <Route path="/profile" element={<ProfilePageWrapper />} />
 
-                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
+                      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
                   </AcademicProvider>
 
                   {/* Chatbot Widget */}
