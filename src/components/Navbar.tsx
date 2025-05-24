@@ -28,11 +28,11 @@ const Navbar: React.FC = () => {
   // Handle About dialog open/close and manage scroll blocking
   useEffect(() => {
     let timeoutId: number;
-    
+
     if (aboutDialogOpen) {
       // Disable scrolling when the dialog is opened from navbar
       disableScroll();
-      
+
       // Auto-close About dialog after 20 seconds
       timeoutId = window.setTimeout(() => {
         setAboutDialogOpen(false);
@@ -41,7 +41,7 @@ const Navbar: React.FC = () => {
       // Enable scrolling when the dialog is closed
       enableScroll();
     }
-    
+
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
     };
@@ -75,6 +75,8 @@ const Navbar: React.FC = () => {
             <button
               onClick={() => setAboutDialogOpen(true)}
               className="text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"
+              title="Learn more about LearnFlow"
+              aria-label="Open About Us dialog"
             >
               About Us
             </button>
@@ -83,7 +85,12 @@ const Navbar: React.FC = () => {
 
         <div className="flex items-center space-x-4">
           {/* Theme Toggle */}
-          <button onClick={toggleTheme} className="p-2">
+          <button
+            onClick={toggleTheme}
+            className="p-2"
+            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
             {theme === 'dark' ? (
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4V2m0 20v-2m8-8h2M2 12h2m15.536 6.364l1.414 1.414M4.05 4.05l1.414 1.414M19.95 4.05l-1.414 1.414M4.05 19.95l1.414-1.414M12 8a4 4 0 100 8 4 4 0 000-8z" />
@@ -104,6 +111,8 @@ const Navbar: React.FC = () => {
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="md:hidden text-gray-700 dark:text-gray-200"
+            title={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-label={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
           >
             {isMenuOpen ? (
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -145,6 +154,8 @@ const Navbar: React.FC = () => {
                 setIsMenuOpen(false);
               }}
               className="text-left text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors"
+              title="Learn more about LearnFlow"
+              aria-label="Open About Us dialog"
             >
               About Us
             </button>
@@ -164,6 +175,8 @@ const Navbar: React.FC = () => {
               <button
                 onClick={() => setAboutDialogOpen(false)}
                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                title="Close About Us dialog"
+                aria-label="Close About Us dialog"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

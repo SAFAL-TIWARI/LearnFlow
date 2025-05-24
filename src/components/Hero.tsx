@@ -78,6 +78,8 @@ const Hero: React.FC = () => {
                 className="group"
                 color="#0c8ee0" // Using learnflow-500 color
                 speed="2s"
+                title="Access academic resources and study materials"
+                aria-label="Get started with LearnFlow resources"
               >
                 <div className="flex items-center justify-center font-poppins text-lg px-2 py-0">
                   Get Started
@@ -91,6 +93,8 @@ const Hero: React.FC = () => {
                 className="group"
                 color="#7c5cfc" // Using learnflow-purple color
                 speed="2s"
+                title="Discover student tools and utilities"
+                aria-label="Explore LearnFlow student tools"
               >
                 <span className="font-poppins text-lg px-2 py-1">Explore Tools</span>
               </StarBorder>

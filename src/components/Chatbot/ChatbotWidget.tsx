@@ -12,27 +12,27 @@ interface Message {
 
 // List of available commands
 const COMMANDS = [
-  // { 
-  //   command: '/scan', 
-  //   description: 'Scan project files for issues', 
+  // {
+  //   command: '/scan',
+  //   description: 'Scan project files for issues',
   //   usage: '/scan [directory]',
   //   example: '/scan src/components'
   // },
-  // { 
-  //   command: '/debug', 
-  //   description: 'Debug code issues in project files', 
+  // {
+  //   command: '/debug',
+  //   description: 'Debug code issues in project files',
   //   usage: '/debug [directory]',
   //   example: '/debug server'
   // },
-  { 
-    command: '/clear', 
-    description: 'Clear chat history', 
+  {
+    command: '/clear',
+    description: 'Clear chat history',
     usage: '/clear',
     example: '/clear'
   },
-  { 
-    command: '/help', 
-    description: 'Show available commands', 
+  {
+    command: '/help',
+    description: 'Show available commands',
     usage: '/help',
     example: '/help'
   }
@@ -55,7 +55,7 @@ const ChatbotWidget: React.FC = () => {
     const initializeChatbot = async () => {
       // Always set server as available to ensure input works
       setServerAvailable(true);
-      
+
       // Load saved messages if available
       const savedMessages = sessionStorage.getItem('chatMessages');
       if (savedMessages) {
@@ -70,19 +70,19 @@ const ChatbotWidget: React.FC = () => {
         // Add welcome message if no saved messages
         addWelcomeMessage();
       }
-      
+
       // Try to check server health in the background
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
-        
+
         const response = await fetch('http://localhost:3001/api/health', {
           method: 'GET',
           signal: controller.signal
         });
-        
+
         clearTimeout(timeoutId);
-        
+
         if (!response.ok) {
           console.warn('Server health check returned non-OK status');
           // Don't disable the chat - we'll handle errors during message sending
@@ -92,7 +92,7 @@ const ChatbotWidget: React.FC = () => {
         // Don't disable the chat - we'll handle errors during message sending
       }
     };
-    
+
     const addWelcomeMessage = () => {
       const welcomeMessage: Message = {
         role: 'assistant',
@@ -101,7 +101,7 @@ const ChatbotWidget: React.FC = () => {
       };
       setMessages([welcomeMessage]);
     };
-    
+
     initializeChatbot();
   }, []);
 
@@ -123,7 +123,7 @@ const ChatbotWidget: React.FC = () => {
       inputRef.current.focus();
     }
   }, [isOpen]);
-  
+
   // Clean up body style when component unmounts
   useEffect(() => {
     return () => {
@@ -149,7 +149,7 @@ const ChatbotWidget: React.FC = () => {
       }
     }
   };
-  
+
   // Helper function to focus on the input field
   const focusInputField = (delay = 100) => {
     setTimeout(() => {
@@ -162,7 +162,7 @@ const ChatbotWidget: React.FC = () => {
   const toggleChat = () => {
     const newIsOpen = !isOpen;
     setIsOpen(newIsOpen);
-    
+
     // If opening the chat, focus on the input field
     if (newIsOpen) {
       focusInputField(300); // Slightly longer delay to allow animation to complete
@@ -171,18 +171,18 @@ const ChatbotWidget: React.FC = () => {
       document.body.style.overflow = '';
     }
   };
-  
+
   const toggleMaximize = () => {
     const newMaximizedState = !isMaximized;
     setIsMaximized(newMaximizedState);
-    
+
     // Add/remove overflow hidden to body when maximizing/minimizing
     if (newMaximizedState) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
     }
-    
+
     // Scroll to bottom when maximizing/minimizing
     setTimeout(() => {
       scrollToBottom();
@@ -204,24 +204,24 @@ const ChatbotWidget: React.FC = () => {
   const handleClientCommand = (command: string): boolean => {
     const commandParts = command.split(' ');
     const commandName = commandParts[0].toLowerCase();
-    
+
     switch (commandName) {
       case '/help':
         // Display available commands
         const helpMessage: Message = {
           role: 'assistant',
-          content: `Available commands:\n\n${COMMANDS.map(cmd => 
+          content: `Available commands:\n\n${COMMANDS.map(cmd =>
             `**${cmd.command}** - ${cmd.description}\nUsage: ${cmd.usage}\nExample: ${cmd.example}`
           ).join('\n\n')}`,
           timestamp: new Date()
         };
         setMessages(prev => [...prev, helpMessage]);
-        
+
         // Focus on input field after command response
         focusInputField();
-        
+
         return true;
-        
+
       case '/clear':
         // Clear chat history
         const clearMessage: Message = {
@@ -231,12 +231,12 @@ const ChatbotWidget: React.FC = () => {
         };
         setMessages([clearMessage]);
         sessionStorage.removeItem('chatMessages');
-        
+
         // Focus on input field after command response
         focusInputField();
-        
+
         return true;
-        
+
       default:
         return false; // Not a client-side command
     }
@@ -248,7 +248,7 @@ const ChatbotWidget: React.FC = () => {
 
     const trimmedInput = input.trim();
     const isCommand = trimmedInput.startsWith('/');
-    
+
     // Special handling for /reset command
     if (trimmedInput.toLowerCase() === '/reset') {
       // Clear chat history
@@ -260,13 +260,13 @@ const ChatbotWidget: React.FC = () => {
       setMessages([clearMessage]);
       sessionStorage.removeItem('chatMessages');
       setInput('');
-      
+
       // Focus on input field after reset
       focusInputField();
-      
+
       return;
     }
-    
+
     const userMessage: Message = {
       role: 'user',
       content: trimmedInput,
@@ -277,12 +277,12 @@ const ChatbotWidget: React.FC = () => {
     // Update UI immediately with user message
     setMessages(prev => [...prev, userMessage]);
     setInput('');
-    
+
     // Handle client-side commands
     if (isCommand && handleClientCommand(trimmedInput)) {
       return; // Command was handled client-side
     }
-    
+
     setIsLoading(true);
 
     // Maximum number of retries
@@ -301,15 +301,15 @@ const ChatbotWidget: React.FC = () => {
       // Try each endpoint in order
       const endpointIndex = Math.min(retries, apiEndpoints.length - 1);
       const currentEndpoint = apiEndpoints[endpointIndex];
-      
+
       try {
         console.log(`Attempt ${retries + 1}/${maxRetries + 1} using endpoint: ${currentEndpoint}`);
-        
+
         // Get all previous messages for context (last 5 messages for context)
-        const contextMessages = isCommand 
-          ? [userMessage] 
+        const contextMessages = isCommand
+          ? [userMessage]
           : [...messages.slice(-5), userMessage];
-        
+
         const recentMessages = contextMessages.map(({ role, content }) => ({
           role,
           content
@@ -319,7 +319,7 @@ const ChatbotWidget: React.FC = () => {
         const systemMessage = {
           role: 'system',
           content: `You are a helpful educational assistant for LearnFlow platform powered by Google Gemini.
-          
+
 You can answer questions about:
 1. Educational topics and concepts
 2. Programming and coding help
@@ -355,17 +355,17 @@ Always provide helpful, accurate, and educational responses.`
             const waitTime = Math.ceil((errorData.resetTime - Date.now()) / 1000);
             throw new Error(`Rate limit exceeded. Please try again in ${waitTime} seconds.`);
           }
-          
+
           const errorData = await response.json().catch(() => ({}));
           throw new Error(`Server error: ${response.status} ${errorData.error || ''}`);
         }
 
         const data = await response.json();
-        
+
         if (!data.message || !data.message.content) {
           throw new Error('Invalid response format from server');
         }
-        
+
         // Add assistant response to chat
         const assistantMessage: Message = {
           role: 'assistant',
@@ -375,33 +375,33 @@ Always provide helpful, accurate, and educational responses.`
 
         setMessages(prev => [...prev, assistantMessage]);
         success = true;
-        
+
         // Focus on input field after receiving response
         focusInputField();
       } catch (error) {
         console.error(`Error sending message (attempt ${retries + 1}/${maxRetries + 1}):`, error);
         retries++;
-        
+
         // Only show error message if all retries failed
         if (retries > maxRetries) {
           // Generate a fallback response on the client side if server is unreachable
           let fallbackResponse = 'Sorry, I couldn\'t connect to the server right now. Try again later.';
-          
+
           // Simple fallback responses based on user input
           if (trimmedInput.toLowerCase().includes('hello') || trimmedInput.toLowerCase().includes('hi')) {
             fallbackResponse = "Hello! I'm LearnFlow Assistant powered by Google Gemini. I'm having trouble connecting to my knowledge base right now, but I'll try to help as best I can.";
           } else if (trimmedInput.toLowerCase().includes('help')) {
             fallbackResponse = "I'd like to help, but I'm having connection issues with the Gemini API. Please try again later or check the Resources section for immediate assistance.";
           }
-          
+
           const errorMessage: Message = {
             role: 'assistant',
             content: fallbackResponse,
             timestamp: new Date()
           };
-          
+
           setMessages(prev => [...prev, errorMessage]);
-          
+
           // Focus on input field after error message
           focusInputField();
         } else {
@@ -410,7 +410,7 @@ Always provide helpful, accurate, and educational responses.`
         }
       }
     }
-    
+
     setIsLoading(false);
   };
 
@@ -422,12 +422,12 @@ Always provide helpful, accurate, and educational responses.`
   // State for command suggestions
   const [showCommandSuggestions, setShowCommandSuggestions] = useState(false);
   const [commandSuggestions, setCommandSuggestions] = useState<typeof COMMANDS>([]);
-  
+
   // Handle input changes and show command suggestions
   useEffect(() => {
     if (input.startsWith('/')) {
       const inputCommand = input.split(' ')[0].toLowerCase();
-      const suggestions = COMMANDS.filter(cmd => 
+      const suggestions = COMMANDS.filter(cmd =>
         cmd.command.toLowerCase().includes(inputCommand)
       );
       setCommandSuggestions(suggestions);
@@ -436,35 +436,35 @@ Always provide helpful, accurate, and educational responses.`
       setShowCommandSuggestions(false);
     }
   }, [input]);
-  
+
   // Handle command selection
   const selectCommand = (command: string) => {
     setInput(command + ' ');
     setShowCommandSuggestions(false);
     focusInputField(0)
   };
-  
+
   // Format message content with markdown-like syntax
   const formatMessageContent = (content: string) => {
     // Replace markdown-style bold with HTML
     const boldText = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    
+
     // Replace markdown-style code blocks with HTML
     const codeBlocks = boldText.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
-    
+
     // Replace markdown-style inline code with HTML
     const inlineCode = codeBlocks.replace(/`([^`]+)`/g, '<code>$1</code>');
-    
+
     // Replace URLs with clickable links
     const withLinks = inlineCode.replace(
-      /(https?:\/\/[^\s]+)/g, 
+      /(https?:\/\/[^\s]+)/g,
       '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'
     );
-    
+
     // Replace newlines with <br>
     return withLinks.replace(/\n/g, '<br>');
   };
-  
+
   // Prevent scroll propagation to the background
   const preventScrollPropagation = (e: React.UIEvent<HTMLDivElement>) => {
     e.stopPropagation();
@@ -473,7 +473,7 @@ Always provide helpful, accurate, and educational responses.`
   return (
     <div className={`chatbot-container ${theme === 'dark' ? 'dark-theme' : 'light-theme'}`}>
       {/* Chat toggle button */}
-      <button 
+      <button
         className="chat-toggle-btn"
         onClick={toggleChat}
         aria-label={isOpen ? "Close chat" : "Open chat"}
@@ -491,7 +491,7 @@ Always provide helpful, accurate, and educational responses.`
 
       {/* Chat window */}
       {isOpen && (
-        <div 
+        <div
           className={`chat-window ${isMaximized ? 'maximized' : ''}`}
           onWheel={preventScrollPropagation}
           onTouchMove={preventScrollPropagation}
@@ -499,7 +499,7 @@ Always provide helpful, accurate, and educational responses.`
           <div className="chat-header">
             <h3>LearnFlow Assistant</h3>
             <div className="header-actions">
-              <button 
+              <button
                 className="help-btn"
                 onClick={() => handleClientCommand('/help')}
                 aria-label="Help"
@@ -507,7 +507,7 @@ Always provide helpful, accurate, and educational responses.`
               >
                 ?
               </button>
-              <button 
+              <button
                 className="maximize-btn"
                 onClick={toggleMaximize}
                 aria-label={isMaximized ? "Minimize chat" : "Maximize chat"}
@@ -515,7 +515,7 @@ Always provide helpful, accurate, and educational responses.`
               >
                 {isMaximized ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
               </button>
-              <button 
+              <button
                 className="close-btn"
                 onClick={toggleChat}
                 aria-label="Close chat"
@@ -524,19 +524,19 @@ Always provide helpful, accurate, and educational responses.`
               </button>
             </div>
           </div>
-          
-          <div 
-            className="messages-container" 
+
+          <div
+            className="messages-container"
             onScroll={preventScrollPropagation}
             onWheel={preventScrollPropagation}
             onTouchMove={preventScrollPropagation}
           >
             {messages.map((message, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className={`message ${message.role === 'user' ? 'user-message' : 'assistant-message'} ${message.isCommand ? 'command-message' : ''}`}
               >
-                <div 
+                <div
                   className="message-content"
                   dangerouslySetInnerHTML={{ __html: formatMessageContent(message.content) }}
                 />
@@ -553,8 +553,8 @@ Always provide helpful, accurate, and educational responses.`
             )}
             <div ref={messagesEndRef} />
           </div>
-          
-          <div 
+
+          <div
             className="chat-input-container"
             onWheel={preventScrollPropagation}
             onTouchMove={preventScrollPropagation}
@@ -562,8 +562,8 @@ Always provide helpful, accurate, and educational responses.`
             {showCommandSuggestions && (
               <div className="command-suggestions">
                 {commandSuggestions.map((cmd, index) => (
-                  <div 
-                    key={index} 
+                  <div
+                    key={index}
                     className="command-suggestion"
                     onClick={() => selectCommand(cmd.command)}
                   >
@@ -583,7 +583,7 @@ Always provide helpful, accurate, and educational responses.`
               rows={1}
               disabled={isLoading} // Only disable when loading
             />
-            <button 
+            <button
               className="send-btn"
               onClick={handleSendMessage}
               disabled={input.trim() === '' || isLoading} // Only disable when empty or loading
@@ -592,43 +592,49 @@ Always provide helpful, accurate, and educational responses.`
               <Send size={18} />
             </button>
           </div>
-          
+
           {/* Educational suggestions */}
           <div className="suggestion-chips">
-            {/* <button 
+            {/* <button
               className="suggestion-chip"
               onClick={() => setInput("Explain the concept of nanomaterials in CHB 101.")}
               disabled={isLoading}
             >
               Nanomaterials in CHB 101 */}
             {/* </button> */}
-            <button 
+            <button
               className="suggestion-chip"
               onClick={() => {
                 setInput("Give me Python code for a bubble sort algorithm.");
                 focusInputField(0);
               }}
               disabled={isLoading}
+              title="Get Python bubble sort code example"
+              aria-label="Ask for Python bubble sort algorithm code"
             >
               Bubble sort in Python
             </button>
-            <button 
+            <button
               className="suggestion-chip"
               onClick={() => {
                 setInput("What are the latest advancements in quantum computing?");
                 focusInputField(0);
               }}
               disabled={isLoading}
+              title="Learn about quantum computing advancements"
+              aria-label="Ask about latest quantum computing news"
             >
               Quantum computing news
             </button>
-            <button 
+            <button
               className="suggestion-chip"
               onClick={() => {
                 setInput("How do I find the course materials for CSE 2nd semester?");
                 focusInputField(0);
               }}
               disabled={isLoading}
+              title="Find CSE course materials"
+              aria-label="Ask how to find CSE 2nd semester materials"
             >
               Find CSE materials
             </button>

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { 
+import {
   Calculator,
   Timer,
   Calendar,
@@ -42,12 +42,12 @@ const StudentTools: React.FC = () => {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    
+
     const handleResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-  
+
   const tools: ToolProps[] = [
     {
       name: "CGPA Calculator",
@@ -114,7 +114,7 @@ const StudentTools: React.FC = () => {
           <h2 className="text-3xl font-bold text-center mb-2 text-gray-800 dark:text-gray-100">Student Tools</h2>
           <p className="text-center text-gray-600 dark:text-gray-400 mb-8">Boost your productivity with our suite of academic tools</p>
         </FadeInElement>
-        
+
         {/* Rolling Gallery for Tools */}
         <div className="mb-16 py-10 px-2 sm:px-4 md:px-6 bg-gray-100 dark:bg-gray-800 rounded-2xl shadow-inner">
           <h3 className="text-xl sm:text-2xl font-bold text-center mb-4 sm:mb-6 text-gray-800 dark:text-gray-100">
@@ -129,14 +129,14 @@ const StudentTools: React.FC = () => {
           </p> */}
           <FadeInElement delay={100} direction="up" distance={30} duration={800}>
             <div className="mx-auto max-w-[1200px]">
-              <RollingGallery 
-                autoplay={true} 
-                pauseOnHover={true} 
-                items={toolCards} 
+              <RollingGallery
+                autoplay={true}
+                pauseOnHover={true}
+                items={toolCards}
               />
             </div>
           </FadeInElement>
-          
+
           {/* Tool Names */}
           <div className="flex justify-center flex-wrap gap-2 sm:gap-3 md:gap-4 mt-6 sm:mt-8 px-2 sm:px-4">
             {tools.map((tool, index) => (
@@ -146,9 +146,11 @@ const StudentTools: React.FC = () => {
                 className="transition-all duration-300 text-xs sm:text-sm md:text-base px-2 sm:px-3 py-1 sm:py-2 h-auto"
                 onClick={() => !tool.comingSoon && handleToolClick(tool)}
                 disabled={tool.comingSoon}
+                title={tool.comingSoon ? `${tool.name} - Coming Soon` : `Select ${tool.name} tool`}
+                aria-label={tool.comingSoon ? `${tool.name} tool coming soon` : `Select ${tool.name} tool`}
               >
-                {tool.name.length > 10 && windowWidth < 640 
-                  ? tool.name.split(' ')[0] 
+                {tool.name.length > 10 && windowWidth < 640
+                  ? tool.name.split(' ')[0]
                   : tool.name}
                 {tool.comingSoon && (
                   <Badge variant="secondary" className="ml-1 sm:ml-2 text-xs bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100">
@@ -159,7 +161,7 @@ const StudentTools: React.FC = () => {
             ))}
           </div>
         </div>
-        
+
         {/* Traditional Grid View (as a fallback or alternative view)
         <div className="flex items-center justify-center mb-8">
           <div className="h-0.5 bg-gray-200 dark:bg-gray-700 w-16 mr-4"></div>
@@ -169,15 +171,15 @@ const StudentTools: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {tools.map((tool, index) => {
             const IconComponent = toolIcons[tool.name as keyof typeof toolIcons];
-            
+
             // Calculate staggered delay based on index
             const staggerDelay = 100 + (index * 100);
-            
+
             return (
-              <FadeInElement 
-                key={index} 
-                delay={staggerDelay} 
-                direction="up" 
+              <FadeInElement
+                key={index}
+                delay={staggerDelay}
+                direction="up"
                 distance={30}
                 duration={800}
                 threshold={0.1}
@@ -206,7 +208,7 @@ const StudentTools: React.FC = () => {
                     >
                       Launch Tool
                     </StarBorder>
-                    
+
                     {tool.comingSoon && (
                       <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100">
                         Coming Soon

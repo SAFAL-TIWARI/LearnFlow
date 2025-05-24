@@ -63,16 +63,44 @@ const Footer: React.FC = () => {
             </div>
 
             <div className="flex space-x-4">
-              <a href="https://www.instagram.com/itz_safal_/" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 transition-colors">
+              <a
+                href="https://www.instagram.com/itz_safal_/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 transition-colors"
+                title="Follow us on Instagram"
+                aria-label="Follow LearnFlow on Instagram"
+              >
                 <InstagramIcon />
               </a>
-              <a href="https://www.linkedin.com/in/safal-tiwari/" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+              <a
+                href="https://www.linkedin.com/in/safal-tiwari/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                title="Connect with us on LinkedIn"
+                aria-label="Connect with LearnFlow on LinkedIn"
+              >
                 <LinkedInIcon />
               </a>
-              <a href="https://www.github.com/SAFAL-TIWARI/" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+              <a
+                href="https://www.github.com/SAFAL-TIWARI/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                title="View our projects on GitHub"
+                aria-label="View LearnFlow projects on GitHub"
+              >
                 <GitHubIcon />
               </a>
-              {/* <a href="https://www.youtube.com/@safal_editz" target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors">
+              {/* <a
+                href="https://www.youtube.com/@safal_editz"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                title="Subscribe to our YouTube channel"
+                aria-label="Subscribe to LearnFlow on YouTube"
+              >
                 <YouTubeIcon />
               </a> */}
             </div>
@@ -111,6 +139,8 @@ const Footer: React.FC = () => {
               <button
                 onClick={() => setAboutDialogOpen(false)}
                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                title="Close About Us dialog"
+                aria-label="Close About Us dialog"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
