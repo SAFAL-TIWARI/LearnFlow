@@ -22,6 +22,13 @@ interface Semester {
   id: string;
   name: string;
   subjects: Subject[];
+  sgpa: number;
+}
+
+interface Year {
+  id: string;
+  name: string;
+  semesters: Semester[];
 }
 
 const gradeMapping = {
@@ -84,9 +91,17 @@ const gradingSystemOptions = {
 
 const CGPACalculator = () => {
   const navigate = useNavigate();
-  const [semesters, setSemesters] = useState<Semester[]>([
-    { id: '1', name: 'Semester 1', subjects: [] }
+  const [years, setYears] = useState<Year[]>([
+    {
+      id: '1',
+      name: '1st Year',
+      semesters: [
+        { id: '1', name: '1st Semester', subjects: [], sgpa: 0 },
+        { id: '2', name: '2nd Semester', subjects: [], sgpa: 0 }
+      ]
+    }
   ]);
+  const [currentYear, setCurrentYear] = useState('1');
   const [currentSemester, setCurrentSemester] = useState('1');
   const [cgpa, setCgpa] = useState(0);
   const [percentage, setPercentage] = useState(0);
@@ -94,7 +109,7 @@ const CGPACalculator = () => {
   const [gradingSystem, setGradingSystem] = useState('sati-system');
   const [percentageFormula, setPercentageFormula] = useState('sati-formula'); // sati-formula, indian-standard, direct-multiply, custom
 
-  const addSubject = (semesterId: string) => {
+  const addSubject = (yearId: string, semesterId: string) => {
     const newSubject: Subject = {
       id: Date.now().toString(),
       name: '',
@@ -103,29 +118,43 @@ const CGPACalculator = () => {
       gradePoints: 0
     };
 
-    setSemesters(prev => prev.map(sem =>
-      sem.id === semesterId
-        ? { ...sem, subjects: [...sem.subjects, newSubject] }
-        : sem
+    setYears(prev => prev.map(year =>
+      year.id === yearId
+        ? {
+            ...year,
+            semesters: year.semesters.map(sem =>
+              sem.id === semesterId
+                ? { ...sem, subjects: [...sem.subjects, newSubject] }
+                : sem
+            )
+          }
+        : year
     ));
   };
 
-  const updateSubject = (semesterId: string, subjectId: string, field: keyof Subject, value: any) => {
-    setSemesters(prev => prev.map(sem =>
-      sem.id === semesterId
+  const updateSubject = (yearId: string, semesterId: string, subjectId: string, field: keyof Subject, value: any) => {
+    setYears(prev => prev.map(year =>
+      year.id === yearId
         ? {
-            ...sem,
-            subjects: sem.subjects.map(sub =>
-              sub.id === subjectId
+            ...year,
+            semesters: year.semesters.map(sem =>
+              sem.id === semesterId
                 ? {
-                    ...sub,
-                    [field]: value,
-                    gradePoints: field === 'grade' ? getCurrentGradeMapping()[value as string] || 0 : sub.gradePoints
+                    ...sem,
+                    subjects: sem.subjects.map(sub =>
+                      sub.id === subjectId
+                        ? {
+                            ...sub,
+                            [field]: value,
+                            gradePoints: field === 'grade' ? getCurrentGradeMapping()[value as string] || 0 : sub.gradePoints
+                          }
+                        : sub
+                    )
                   }
-                : sub
+                : sem
             )
           }
-        : sem
+        : year
     ));
   };
 
@@ -133,37 +162,92 @@ const CGPACalculator = () => {
     return gradingSystemOptions[gradingSystem as keyof typeof gradingSystemOptions] || gradingSystemOptions['sati-system'];
   };
 
-  const removeSubject = (semesterId: string, subjectId: string) => {
-    setSemesters(prev => prev.map(sem =>
-      sem.id === semesterId
-        ? { ...sem, subjects: sem.subjects.filter(sub => sub.id !== subjectId) }
-        : sem
+  const removeSubject = (yearId: string, semesterId: string, subjectId: string) => {
+    setYears(prev => prev.map(year =>
+      year.id === yearId
+        ? {
+            ...year,
+            semesters: year.semesters.map(sem =>
+              sem.id === semesterId
+                ? { ...sem, subjects: sem.subjects.filter(sub => sub.id !== subjectId) }
+                : sem
+            )
+          }
+        : year
     ));
   };
 
-  const addSemester = () => {
-    const newSemester: Semester = {
-      id: (semesters.length + 1).toString(),
-      name: `Semester ${semesters.length + 1}`,
-      subjects: []
+  const addYear = () => {
+    const yearNumber = years.length + 1;
+    const semesterStartNumber = (years.length * 2) + 1;
+
+    const newYear: Year = {
+      id: Date.now().toString(),
+      name: `${yearNumber}${yearNumber === 1 ? 'st' : yearNumber === 2 ? 'nd' : yearNumber === 3 ? 'rd' : 'th'} Year`,
+      semesters: [
+        {
+          id: (semesterStartNumber).toString(),
+          name: `${semesterStartNumber}${semesterStartNumber === 1 ? 'st' : semesterStartNumber === 2 ? 'nd' : semesterStartNumber === 3 ? 'rd' : 'th'} Semester`,
+          subjects: [],
+          sgpa: 0
+        },
+        {
+          id: (semesterStartNumber + 1).toString(),
+          name: `${semesterStartNumber + 1}${(semesterStartNumber + 1) === 1 ? 'st' : (semesterStartNumber + 1) === 2 ? 'nd' : (semesterStartNumber + 1) === 3 ? 'rd' : 'th'} Semester`,
+          subjects: [],
+          sgpa: 0
+        }
+      ]
     };
-    setSemesters(prev => [...prev, newSemester]);
+    setYears(prev => [...prev, newYear]);
+  };
+
+  const calculateSGPA = (semester: Semester): number => {
+    let totalGradePoints = 0;
+    let totalCredits = 0;
+
+    semester.subjects.forEach(subject => {
+      if (subject.grade && subject.credits > 0) {
+        totalGradePoints += subject.gradePoints * subject.credits;
+        totalCredits += subject.credits;
+      }
+    });
+
+    return totalCredits > 0 ? totalGradePoints / totalCredits : 0;
   };
 
   const calculateCGPA = () => {
-    let totalGradePoints = 0;
+    let totalSGPA = 0;
+    let semesterCount = 0;
     let totalCreditsSum = 0;
 
-    semesters.forEach(semester => {
-      semester.subjects.forEach(subject => {
-        if (subject.grade && subject.credits > 0) {
-          totalGradePoints += subject.gradePoints * subject.credits;
-          totalCreditsSum += subject.credits;
-        }
-      });
-    });
+    // Update SGPA for each semester and calculate CGPA as average of SGPAs
+    const updatedYears = years.map(year => ({
+      ...year,
+      semesters: year.semesters.map(semester => {
+        const sgpa = calculateSGPA(semester);
 
-    const calculatedCGPA = totalCreditsSum > 0 ? totalGradePoints / totalCreditsSum : 0;
+        // Count semesters with subjects for CGPA calculation
+        if (semester.subjects.length > 0) {
+          totalSGPA += sgpa;
+          semesterCount++;
+        }
+
+        // Count total credits
+        semester.subjects.forEach(subject => {
+          if (subject.grade && subject.credits > 0) {
+            totalCreditsSum += subject.credits;
+          }
+        });
+
+        return { ...semester, sgpa };
+      })
+    }));
+
+    setYears(updatedYears);
+
+    // CGPA = Average of all SGPAs (SATI method)
+    const calculatedCGPA = semesterCount > 0 ? totalSGPA / semesterCount : 0;
     setCgpa(calculatedCGPA);
     setTotalCredits(totalCreditsSum);
 
@@ -199,21 +283,9 @@ const CGPACalculator = () => {
 
   useEffect(() => {
     calculateCGPA();
-  }, [semesters, gradingSystem, percentageFormula]);
+  }, [years, gradingSystem, percentageFormula]);
 
-  const getSemesterGPA = (semester: Semester) => {
-    let totalGradePoints = 0;
-    let totalCreditsSum = 0;
 
-    semester.subjects.forEach(subject => {
-      if (subject.grade && subject.credits > 0) {
-        totalGradePoints += subject.gradePoints * subject.credits;
-        totalCreditsSum += subject.credits;
-      }
-    });
-
-    return totalCreditsSum > 0 ? totalGradePoints / totalCreditsSum : 0;
-  };
 
   return (
     <div className="container mx-auto p-8 max-w-6xl">
@@ -242,97 +314,103 @@ const CGPACalculator = () => {
               </p>
             </CardHeader>
             <CardContent>
-              <Tabs value={currentSemester} onValueChange={setCurrentSemester}>
+              <Tabs value={currentYear} onValueChange={setCurrentYear}>
                 <div className="flex items-center justify-between mb-4">
-                  <TabsList className="grid w-full grid-cols-4 lg:grid-cols-6">
-                    {semesters.map(semester => (
-                      <TabsTrigger key={semester.id} value={semester.id}>
-                        Sem {semester.id}
+                  <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
+                    {years.map(year => (
+                      <TabsTrigger key={year.id} value={year.id}>
+                        {year.name}
                       </TabsTrigger>
                     ))}
                   </TabsList>
-                  <Button onClick={addSemester} size="sm" variant="outline">
+                  <Button onClick={addYear} size="sm" variant="outline">
                     <Plus className="h-4 w-4 mr-1" />
-                    Add Semester
+                    Add Year
                   </Button>
                 </div>
 
-                {semesters.map(semester => (
-                  <TabsContent key={semester.id} value={semester.id}>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold">{semester.name}</h3>
-                        <Badge variant="secondary">
-                          GPA: {getSemesterGPA(semester).toFixed(2)}
-                        </Badge>
-                      </div>
+                {years.map(year => (
+                  <TabsContent key={year.id} value={year.id}>
+                    <div className="space-y-6">
+                      <h3 className="text-xl font-bold text-center">{year.name}</h3>
 
-                      {semester.subjects.map(subject => (
-                        <div key={subject.id} className="grid grid-cols-12 gap-2 items-end p-4 border rounded-lg">
-                          <div className="col-span-4">
-                            <Label htmlFor={`subject-${subject.id}`}>Subject Name</Label>
-                            <Input
-                              id={`subject-${subject.id}`}
-                              placeholder="e.g., Mathematics"
-                              value={subject.name}
-                              onChange={(e) => updateSubject(semester.id, subject.id, 'name', e.target.value)}
-                            />
+                      {year.semesters.map(semester => (
+                        <div key={semester.id} className="border rounded-lg p-4 space-y-4">
+                          <div className="flex items-center justify-between">
+                            <h4 className="text-lg font-semibold">{semester.name}</h4>
+                            <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                              SGPA: {semester.sgpa.toFixed(2)}
+                            </Badge>
                           </div>
-                          <div className="col-span-2">
-                            <Label htmlFor={`credits-${subject.id}`}>Credits</Label>
-                            <Input
-                              id={`credits-${subject.id}`}
-                              type="number"
-                              min="1"
-                              max="6"
-                              value={subject.credits}
-                              onChange={(e) => updateSubject(semester.id, subject.id, 'credits', parseInt(e.target.value) || 0)}
-                            />
-                          </div>
-                          <div className="col-span-3">
-                            <Label htmlFor={`grade-${subject.id}`}>Grade</Label>
-                            <Select
-                              value={subject.grade}
-                              onValueChange={(value) => updateSubject(semester.id, subject.id, 'grade', value)}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select grade" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {Object.entries(getCurrentGradeMapping()).map(([grade, points]) => (
-                                  <SelectItem key={grade} value={grade}>
-                                    {grade} ({points})
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="col-span-2">
-                            <Label>Points</Label>
-                            <div className="h-10 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded">
-                              {subject.gradePoints * subject.credits}
+
+                          {semester.subjects.map(subject => (
+                            <div key={subject.id} className="grid grid-cols-12 gap-2 items-end p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                              <div className="col-span-4">
+                                <Label htmlFor={`subject-${subject.id}`}>Subject Name</Label>
+                                <Input
+                                  id={`subject-${subject.id}`}
+                                  placeholder="e.g., Mathematics"
+                                  value={subject.name}
+                                  onChange={(e) => updateSubject(year.id, semester.id, subject.id, 'name', e.target.value)}
+                                />
+                              </div>
+                              <div className="col-span-2">
+                                <Label htmlFor={`credits-${subject.id}`}>Credits</Label>
+                                <Input
+                                  id={`credits-${subject.id}`}
+                                  type="number"
+                                  min="1"
+                                  max="6"
+                                  value={subject.credits}
+                                  onChange={(e) => updateSubject(year.id, semester.id, subject.id, 'credits', parseInt(e.target.value) || 0)}
+                                />
+                              </div>
+                              <div className="col-span-3">
+                                <Label htmlFor={`grade-${subject.id}`}>Grade</Label>
+                                <Select
+                                  value={subject.grade}
+                                  onValueChange={(value) => updateSubject(year.id, semester.id, subject.id, 'grade', value)}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select grade" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {Object.entries(getCurrentGradeMapping()).map(([grade, points]) => (
+                                      <SelectItem key={grade} value={grade}>
+                                        {grade} ({points})
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div className="col-span-2">
+                                <Label>Points</Label>
+                                <div className="h-10 flex items-center justify-center bg-white dark:bg-gray-700 rounded border">
+                                  {subject.gradePoints * subject.credits}
+                                </div>
+                              </div>
+                              <div className="col-span-1">
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  onClick={() => removeSubject(year.id, semester.id, subject.id)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
                             </div>
-                          </div>
-                          <div className="col-span-1">
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => removeSubject(semester.id, subject.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
+                          ))}
+
+                          <Button
+                            onClick={() => addSubject(year.id, semester.id)}
+                            variant="outline"
+                            className="w-full"
+                          >
+                            <Plus className="h-4 w-4 mr-2" />
+                            Add Subject to {semester.name}
+                          </Button>
                         </div>
                       ))}
-
-                      <Button
-                        onClick={() => addSubject(semester.id)}
-                        variant="outline"
-                        className="w-full"
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Subject
-                      </Button>
                     </div>
                   </TabsContent>
                 ))}
@@ -417,9 +495,18 @@ const CGPACalculator = () => {
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
               <div>
+                <strong>SGPA Formula:</strong>
+                <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded mt-1 font-mono">
+                  SGPA = Σ(Grade Points × Credits) / Σ(Credits)
+                </div>
+              </div>
+              <div>
                 <strong>CGPA Formula:</strong>
                 <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded mt-1 font-mono">
-                  CGPA = Σ(Grade Points × Credits) / Σ(Credits)
+                  {gradingSystem === 'sati-system' ?
+                    'CGPA = Average of all SGPAs' :
+                    'CGPA = Σ(Grade Points × Credits) / Σ(Credits)'
+                  }
                 </div>
               </div>
               <div>
