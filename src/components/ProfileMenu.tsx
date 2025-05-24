@@ -1,21 +1,74 @@
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/SupabaseAuthContext';
 
 export default function ProfileMenu() {
   const [isOpen, setIsOpen] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const { user, logout } = useAuth();
+
+  // Calculate dropdown position based on button position
+  const updateDropdownPosition = () => {
+    if (buttonRef.current) {
+      const buttonRect = buttonRef.current.getBoundingClientRect();
+      const dropdownWidth = 256; // w-64 = 16rem = 256px
+
+      // Center the dropdown relative to the button
+      const buttonCenter = buttonRect.left + (buttonRect.width / 2);
+      const dropdownLeft = buttonCenter - (dropdownWidth / 2);
+
+      // Ensure dropdown doesn't go off-screen
+      const padding = 16;
+      const maxLeft = window.innerWidth - dropdownWidth - padding;
+      const finalLeft = Math.max(padding, Math.min(dropdownLeft, maxLeft));
+
+      setDropdownPosition({
+        top: buttonRect.bottom + 8, // 8px gap below button
+        left: finalLeft, // Use left instead of right for better control
+      });
+    }
+  };
+
+  // Update position when dropdown opens, window resizes, or page scrolls
+  useEffect(() => {
+    if (isOpen) {
+      updateDropdownPosition();
+
+      // Add event listeners for resize and scroll
+      window.addEventListener('resize', updateDropdownPosition);
+      window.addEventListener('scroll', updateDropdownPosition, true); // true for capture phase to catch all scroll events
+
+      return () => {
+        window.removeEventListener('resize', updateDropdownPosition);
+        window.removeEventListener('scroll', updateDropdownPosition, true);
+      };
+    }
+  }, [isOpen]);
+
+
 
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+
+      // Check if click is outside both dropdown and button
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(target) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(target)
+      ) {
         setIsOpen(false);
       }
     };
 
+    // Add event listener
     document.addEventListener('mousedown', handleClickOutside);
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
@@ -34,6 +87,8 @@ export default function ProfileMenu() {
     setIsOpen(false);
   };
 
+
+
   // Log user data for debugging
   useEffect(() => {
     if (user) {
@@ -41,6 +96,8 @@ export default function ProfileMenu() {
       console.log('User metadata:', user.user_metadata);
     }
   }, [user]);
+
+
 
   // Get user's name or email for display
   const getUserName = () => {
@@ -71,7 +128,7 @@ export default function ProfileMenu() {
       'User';
 
     // Simple hash function to generate a consistent color
-    const hash = name.split('').reduce((acc, char) => {
+    const hash = name.split('').reduce((acc: number, char: string) => {
       return char.charCodeAt(0) + ((acc << 5) - acc);
     }, 0);
 
@@ -119,6 +176,7 @@ export default function ProfileMenu() {
   return (
     <div className="relative" ref={dropdownRef}>
       <button
+        ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center focus:outline-none"
         aria-label="Profile menu"
@@ -136,8 +194,25 @@ export default function ProfileMenu() {
         )}
       </button>
 
-      {isOpen && (
-        <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-2 z-50 border border-gray-200 dark:border-gray-700 animate-fade-in-down">
+      {isOpen && createPortal(
+        <div
+          ref={dropdownRef}
+          className="profile-dropdown-portal fixed w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-2 border border-gray-200 dark:border-gray-700 animate-fade-in-down relative"
+          style={{
+            zIndex: 999999,
+            top: dropdownPosition.top,
+            left: dropdownPosition.left,
+            position: 'fixed',
+          }}
+        >
+          {/* Arrow pointing up to the button */}
+          <div
+            className="absolute -top-2 w-4 h-4 bg-white dark:bg-gray-800 border-l border-t border-gray-200 dark:border-gray-700 transform rotate-45"
+            style={{
+              left: '50%',
+              marginLeft: '-8px', // Half of width to center
+            }}
+          ></div>
           {/* User info section - only shown when logged in */}
           {user && (
             <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
@@ -270,7 +345,8 @@ export default function ProfileMenu() {
               </button>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

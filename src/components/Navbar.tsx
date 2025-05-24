@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { Dialog } from '@/components/ui/dialog';
-import { scrollToSection, disableScroll, enableScroll } from '../utils/scrollUtils';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { disableScroll, enableScroll } from '../utils/scrollUtils';
+import { Link } from 'react-router-dom';
 import SmartAuthButton from './SmartAuthButton';
 // import NotificationButton from './NotificationButton';
 
@@ -22,24 +22,14 @@ const toolsData = [
   { name: "Quick Tools", route: "/tools/quick-tools" }
 ];
 
-// Resources data for dropdown
-const resourcesData = [
-  { name: "1st Year", route: "/resources?year=1" },
-  { name: "2nd Year", route: "/resources?year=2" },
-  { name: "3rd Year", route: "/resources?year=3" },
-  { name: "4th Year", route: "/resources?year=4" }
-];
+
 
 const Navbar: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
   const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [toolsDropdownOpen, setToolsDropdownOpen] = useState(false);
-  const [resourcesDropdownOpen, setResourcesDropdownOpen] = useState(false);
   const [toolsTimeout, setToolsTimeout] = useState<NodeJS.Timeout | null>(null);
-  const [resourcesTimeout, setResourcesTimeout] = useState<NodeJS.Timeout | null>(null);
-  const location = useLocation();
-  const navigate = useNavigate();
 
   // Handle dropdown hover with delay
   const handleToolsMouseEnter = () => {
@@ -57,39 +47,14 @@ const Navbar: React.FC = () => {
     setToolsTimeout(timeout);
   };
 
-  const handleResourcesMouseEnter = () => {
-    if (resourcesTimeout) {
-      clearTimeout(resourcesTimeout);
-      setResourcesTimeout(null);
-    }
-    setResourcesDropdownOpen(true);
-  };
-
-  const handleResourcesMouseLeave = () => {
-    const timeout = setTimeout(() => {
-      setResourcesDropdownOpen(false);
-    }, 150); // 150ms delay before closing
-    setResourcesTimeout(timeout);
-  };
-
   // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
       if (toolsTimeout) clearTimeout(toolsTimeout);
-      if (resourcesTimeout) clearTimeout(resourcesTimeout);
     };
-  }, [toolsTimeout, resourcesTimeout]);
+  }, [toolsTimeout]);
 
-  // Function to handle navigation based on current location
-  const handleNavigation = (target: string) => {
-    if (location.pathname === '/') {
-      // If on home page, use scroll to section
-      scrollToSection(target);
-    } else {
-      // If on another page, navigate to home page with hash using React Router
-      navigate(`/#${target}`);
-    }
-  };
+
 
   // Handle About dialog open/close and manage scroll blocking
   useEffect(() => {
@@ -157,39 +122,15 @@ const Navbar: React.FC = () => {
               )}
             </div>
 
-            {/* Resources Dropdown */}
-            <div
-              className="relative"
-              onMouseEnter={handleResourcesMouseEnter}
-              onMouseLeave={handleResourcesMouseLeave}
+            {/* Resources Link */}
+            <Link
+              to="/resources"
+              className="text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"
+              title="Navigate to Resources page"
+              aria-label="Navigate to academic resources and materials"
             >
-              <Link
-                to="/resources"
-                className="text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"
-              >
-                Resources
-              </Link>
-
-              {/* Resources Dropdown Menu */}
-              {resourcesDropdownOpen && (
-                <div className="absolute top-full left-0 mt-1 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 animate-in fade-in-0 zoom-in-95 duration-200">
-                  <div className="py-2">
-                    {resourcesData.map((resource, index) => (
-                      <Link
-                        key={index}
-                        to={resource.route}
-                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"
-                        onClick={() => setResourcesDropdownOpen(false)}
-                        title={`Go to ${resource.name} resources`}
-                        aria-label={`Navigate to ${resource.name} academic resources`}
-                      >
-                        {resource.name}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+              Resources
+            </Link>
 
             {/* <NotificationButton /> */}
             <button
@@ -254,10 +195,10 @@ const Navbar: React.FC = () => {
       </div>
 
       {/* Mobile Menu */}
-      <div className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+      <div className={`md:hidden transition-all duration-300 ease-in-out ${
         isMenuOpen
           ? 'max-h-96 opacity-100'
-          : 'max-h-0 opacity-0'
+          : 'max-h-0 opacity-0 overflow-hidden'
       }`}>
         <div className={`bg-white dark:bg-gray-800 py-4 px-4 transform transition-all duration-300 ease-in-out ${
           isMenuOpen
