@@ -37,6 +37,17 @@ const gradeMapping = {
 
 // Alternative grading systems
 const gradingSystemOptions = {
+  'sati-system': {
+    'A+': 10, // 91-100 Outstanding
+    'A': 9,   // 81-90 Excellent
+    'B+': 8,  // 71-80 Very Good
+    'B': 7,   // 61-70 Good
+    'C+': 6,  // 51-60 Average
+    'C': 5,   // 41-50 Satisfactory
+    'D': 4,   // 40 only Marginal (PG)
+    'E': 3,   // 31-40 Marginal (UG)
+    'F': 0    // Fail
+  },
   '10-point': {
     'O': 10,
     'A+': 9,
@@ -80,8 +91,8 @@ const CGPACalculator = () => {
   const [cgpa, setCgpa] = useState(0);
   const [percentage, setPercentage] = useState(0);
   const [totalCredits, setTotalCredits] = useState(0);
-  const [gradingSystem, setGradingSystem] = useState('10-point');
-  const [percentageFormula, setPercentageFormula] = useState('indian-standard'); // indian-standard, direct-multiply, custom
+  const [gradingSystem, setGradingSystem] = useState('sati-system');
+  const [percentageFormula, setPercentageFormula] = useState('sati-formula'); // sati-formula, indian-standard, direct-multiply, custom
 
   const addSubject = (semesterId: string) => {
     const newSubject: Subject = {
@@ -119,7 +130,7 @@ const CGPACalculator = () => {
   };
 
   const getCurrentGradeMapping = () => {
-    return gradingSystemOptions[gradingSystem as keyof typeof gradingSystemOptions] || gradingSystemOptions['10-point'];
+    return gradingSystemOptions[gradingSystem as keyof typeof gradingSystemOptions] || gradingSystemOptions['sati-system'];
   };
 
   const removeSubject = (semesterId: string, subjectId: string) => {
@@ -160,6 +171,10 @@ const CGPACalculator = () => {
     let calculatedPercentage = 0;
     if (calculatedCGPA > 0) {
       switch (percentageFormula) {
+        case 'sati-formula':
+          // SATI Official Formula: Percentage = (CGPA obtained by student / 10) × 100
+          calculatedPercentage = (calculatedCGPA / 10) * 100;
+          break;
         case 'indian-standard':
           calculatedPercentage = (calculatedCGPA - 0.75) * 10;
           break;
@@ -176,7 +191,7 @@ const CGPACalculator = () => {
           calculatedPercentage = (calculatedCGPA * 10) - 7.5;
           break;
         default:
-          calculatedPercentage = (calculatedCGPA - 0.75) * 10;
+          calculatedPercentage = (calculatedCGPA / 10) * 100;
       }
     }
     setPercentage(Math.max(0, calculatedPercentage));
@@ -369,6 +384,7 @@ const CGPACalculator = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="sati-system">SATI System (A+ to F)</SelectItem>
                     <SelectItem value="10-point">10-Point Scale</SelectItem>
                     <SelectItem value="4-point">4-Point Scale</SelectItem>
                     <SelectItem value="percentage">Percentage Based</SelectItem>
@@ -383,6 +399,7 @@ const CGPACalculator = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="sati-formula">SATI Formula: (CGPA ÷ 10) × 100</SelectItem>
                     <SelectItem value="direct-multiply">CGPA × 10</SelectItem>
                     <SelectItem value="indian-standard">(CGPA - 0.75) × 10</SelectItem>
                     <SelectItem value="vtu-formula">(CGPA - 0.5) × 10</SelectItem>
@@ -408,6 +425,7 @@ const CGPACalculator = () => {
               <div>
                 <strong>Percentage Formula:</strong>
                 <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded mt-1 font-mono">
+                  {percentageFormula === 'sati-formula' && 'Percentage = (CGPA ÷ 10) × 100'}
                   {percentageFormula === 'direct-multiply' && 'Percentage = CGPA × 10'}
                   {percentageFormula === 'indian-standard' && 'Percentage = (CGPA - 0.75) × 10'}
                   {percentageFormula === 'vtu-formula' && 'Percentage = (CGPA - 0.5) × 10'}
@@ -416,7 +434,10 @@ const CGPACalculator = () => {
                 </div>
               </div>
               <div className="text-xs text-gray-500">
-                * Select the formula used by your institution
+                {gradingSystem === 'sati-system' ?
+                  '* Official SATI (Samrat Ashok Technological Institute) grading system' :
+                  '* Select the formula used by your institution'
+                }
               </div>
             </CardContent>
           </Card>
