@@ -6,7 +6,11 @@ import {
   Calendar,
   FileText,
   BookOpen,
-  Activity
+  Activity,
+  Clock,
+  BarChart3,
+  Target,
+  Zap
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
@@ -31,6 +35,11 @@ const toolIcons = {
   "Note Organizer": FileText,
   "Flashcards": BookOpen,
   "Progress Tracker": Activity,
+  "Attendance Tracker": Calendar,
+  "Study Planner": Clock,
+  "Performance Analytics": BarChart3,
+  "Goal Tracker": Target,
+  "Quick Tools": Zap,
 };
 
 const StudentTools: React.FC = () => {
@@ -70,14 +79,44 @@ const StudentTools: React.FC = () => {
       route: "/tools/note-organizer"
     },
     {
-      name: "Flashcards",
-      description: "Create and study with digital flashcards for quick knowledge review.",
-      route: "#",
+      name: "Attendance Tracker",
+      description: "Keep track of your attendance across all subjects and never miss important classes.",
+      route: "/tools/attendance-tracker",
+      comingSoon: true
+    },
+    {
+      name: "Study Planner",
+      description: "Plan your study schedule effectively with our intelligent study planner and time management tools.",
+      route: "/tools/study-planner",
+      comingSoon: true
+    },
+    {
+      name: "Performance Analytics",
+      description: "Analyze your academic performance with detailed insights and improvement suggestions.",
+      route: "/tools/performance-analytics",
+      comingSoon: true
+    },
+    {
+      name: "Goal Tracker",
+      description: "Set and track your academic goals. Monitor your progress and celebrate achievements.",
+      route: "/tools/goal-tracker",
+      comingSoon: true
+    },
+    {
+      name: "Quick Tools",
+      description: "Access a collection of quick utility tools for everyday academic tasks and calculations.",
+      route: "/tools/quick-tools",
       comingSoon: true
     },
     {
       name: "Progress Tracker",
       description: "Monitor your academic progress and identify areas for improvement.",
+      route: "/tools/progress-tracker",
+      comingSoon: true
+    },
+    {
+      name: "Flashcards",
+      description: "Create and study with digital flashcards for quick knowledge review.",
       route: "#",
       comingSoon: true
     }

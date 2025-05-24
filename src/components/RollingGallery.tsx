@@ -36,7 +36,7 @@ const RollingGallery: React.FC<RollingGalleryProps> = ({
   
   if (screenWidth <= 480) {
     // Extra small screens (mobile)
-    cylinderWidth = 800;
+    cylinderWidth = 900;
   } else if (screenWidth <= 640) {
     // Small screens
     cylinderWidth = 1000;
@@ -45,28 +45,30 @@ const RollingGallery: React.FC<RollingGalleryProps> = ({
     cylinderWidth = 1200;
   } else if (screenWidth <= 1024) {
     // Large screens
-    cylinderWidth = 2000;
+    cylinderWidth = 1900;
   } else {
     // Extra large screens
-    cylinderWidth = 2000;
+    cylinderWidth = 2300;
   }
   
   const faceCount: number = items.length;
   // Adjust face width based on screen size
-  faceWidth = Math.min((cylinderWidth / faceCount) * 1.5, screenWidth * 0.7);
+  faceWidth = Math.min((cylinderWidth / faceCount) * 1.7, screenWidth * 0.7);
   
   // Calculate radius - adjust for different screen sizes to prevent overlapping
   let radiusAdjustment;
   if (screenWidth <= 480) {
-    radiusAdjustment = 1.5; // Extra space for very small screens
+    radiusAdjustment = 1.6; // Extra space for very small screens
   } else if (screenWidth <= 640) {
     radiusAdjustment = 1.4; // More space for small screens
   } else if (screenWidth <= 768) {
     radiusAdjustment = 1.2; // Slightly more space for medium screens
+  } else if (screenWidth <= 1024) {
+    radiusAdjustment = 1.1; // Less space for large screens
   } else {
     radiusAdjustment = 1; // Default for larger screens
   }
-  
+
   const radius: number = (cylinderWidth / (2 * Math.PI)) * radiusAdjustment;
 
   // Framer Motion values and controls
@@ -177,7 +179,7 @@ const RollingGallery: React.FC<RollingGalleryProps> = ({
             
             if (screenWidth <= 480) {
               // For very small screens, show fewer items like mobile
-              isVisible = (angle <= 30 || angle >= 25 || (angle >= 135 && angle <= 225));
+              isVisible = (angle <= 1 || angle >= 1 || (angle >= 135 && angle <= 225));
             } else if (screenWidth <= 640) {
               // For small screens
               isVisible = (angle <= 60 || angle >= 300 || (angle >= 120 && angle <= 240));
