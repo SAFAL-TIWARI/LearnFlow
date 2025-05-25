@@ -16,6 +16,18 @@ const Login = () => {
   const { signIn, signUp, signInWithGoogle, resetPassword, user } = useAuth();
   const navigate = useNavigate();
 
+  // Check URL parameters to set initial mode
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const mode = urlParams.get('mode');
+
+    if (mode === 'signup') {
+      setIsSignUp(true);
+    } else if (mode === 'signin') {
+      setIsSignUp(false);
+    }
+  }, []);
+
   // If user is already logged in, redirect to home
   useEffect(() => {
     if (user) {

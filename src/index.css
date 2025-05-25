@@ -216,10 +216,60 @@
   }
 }
 
+@keyframes viewer-open {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 .animate-slide-in {
   animation: slide-in 0.3s ease-out;
 }
 
 .animate-slide-out {
   animation: slide-out 0.3s ease-in;
+}
+
+.animate-viewer-open {
+  animation: viewer-open 0.3s ease-out;
+}
+
+/* File viewer specific styles */
+.file-viewer-container {
+  /* Ensure proper viewport handling on mobile */
+  height: 100vh;
+  height: 100dvh; /* Dynamic viewport height for mobile browsers */
+}
+
+/* Allow background scrolling when file viewer is open */
+body.file-viewer-open {
+  overflow: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 640px) {
+  .file-viewer-container {
+    /* On mobile, use slightly less height to account for browser UI */
+    max-height: 95vh;
+    max-height: 95dvh;
+  }
+
+  /* Ensure mobile viewer doesn't get cut off */
+  .file-viewer-modal {
+    height: 85vh !important;
+    max-height: 85vh !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .file-viewer-modal {
+    height: 80vh !important;
+    max-height: 70vh !important;
+    margin: -1rem !important;
+  }
 }

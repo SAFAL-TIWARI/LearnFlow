@@ -5,7 +5,7 @@ export default function AuthButton() {
 
   const handleSignIn = () => {
     // Open login page in a new window
-    const loginWindow = window.open('/login', '_blank', 'width=500,height=600');
+    const loginWindow = window.open('/login?mode=signin', '_blank', 'width=500,height=600');
     
     // Focus the new window
     if (loginWindow) {

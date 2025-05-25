@@ -25,7 +25,7 @@ export default function ResetPassword() {
         const query = window.location.search;
         
         if (!hash && !query) {
-          navigate('/login');
+          navigate('/login?mode=signin');
         }
       }
     };

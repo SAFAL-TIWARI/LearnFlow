@@ -57,7 +57,7 @@ Please return to login and try again.`);
         
         if (!code) {
           console.log('No authentication code found in URL');
-          navigate('/login', { replace: true });
+          navigate('/login?mode=signin', { replace: true });
           return;
         }
         
@@ -206,7 +206,7 @@ Please return to login and try again.`);
 
             <div className="flex space-x-4">
               <button
-                onClick={() => navigate('/login')}
+                onClick={() => navigate('/login?mode=signin')}
                 className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
               >
                 Return to Login

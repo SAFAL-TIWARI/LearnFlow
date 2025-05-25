@@ -7,7 +7,7 @@ const { user } = useAuth()
 const router = useRouter()
 
 useEffect(() => {
-if (!user) router.push("/login")
+if (!user) router.push("/login?mode=signin")
 }, [user])
 
 if (!user) return <p>Loading...</p>
