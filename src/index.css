@@ -252,6 +252,20 @@ body.file-viewer-open {
   -webkit-overflow-scrolling: touch;
 }
 
+/* File item clickable styling */
+.file-item {
+  transition: all 0.2s ease-in-out;
+}
+
+.file-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.dark .file-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
 @media (max-width: 640px) {
   .file-viewer-container {
     /* On mobile, use slightly less height to account for browser UI */

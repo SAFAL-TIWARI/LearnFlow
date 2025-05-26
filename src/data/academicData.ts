@@ -16,7 +16,6 @@ export type FileResource = {
   type: 'pdf' | 'doc' | 'ppt' | 'xlsx' | 'zip' | 'image' | 'other';
   url: string;
   uploadDate: string;
-  size: string;
   downloadUrl: string; // Direct download URL
 };
 
@@ -139,7 +138,6 @@ export const subjectMaterials: Record<string, SubjectMaterials> = {
         type: 'pdf',
         url: 'https://drive.google.com/file/d/1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4/preview',
         uploadDate: '2025-01-15',
-        size: '1.2 MB',
         downloadUrl: 'https://drive.google.com/uc?export=download&id=1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4',
       },
 
@@ -151,7 +149,6 @@ export const subjectMaterials: Record<string, SubjectMaterials> = {
         type: 'image',
         url: 'https://drive.google.com/file/d/1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4/preview',
         uploadDate: '2025-01-10',
-        size: '754 KB',
         downloadUrl: 'https://drive.google.com/uc?export=download&id=1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4',
       },
 
@@ -163,7 +160,6 @@ export const subjectMaterials: Record<string, SubjectMaterials> = {
         type: 'doc',
         url: 'https://drive.google.com/file/d/1YHvo8DpFaSeAPVYbG2AnSXZBv5TVXVOT/preview',
         uploadDate: '2025-01-15',
-        size: '797 KB',
         downloadUrl: 'https://drive.google.com/file/d/1YHvo8DpFaSeAPVYbG2AnSXZBv5TVXVOT/preview?export=download',
       },
       {
@@ -172,7 +168,6 @@ export const subjectMaterials: Record<string, SubjectMaterials> = {
         type: 'zip',
         url: 'https://drive.google.com/file/d/1nhPVlI2EwPU6m-tRuS0WJuDW1_vwNtu3/preview',
         uploadDate: '2025-02-10',
-        size: '153 KB',
         downloadUrl: 'https://drive.google.com/file/d/1nhPVlI2EwPU6m-tRuS0WJuDW1_vwNtu3/view?export=download',
       },
     ],
@@ -183,7 +178,6 @@ export const subjectMaterials: Record<string, SubjectMaterials> = {
         type: 'doc',
         url: 'https://drive.google.com/file/d/1SmdONnxM4Q7NXgknn180zfk868jdELzu/preview',
         uploadDate: '2025-01-15',
-        size: '733 KB',
         downloadUrl: 'https://drive.google.com/uc?export=download&id=1SmdONnxM4Q7NXgknn180zfk868jdELzu',
       }
     ],
@@ -194,7 +188,6 @@ export const subjectMaterials: Record<string, SubjectMaterials> = {
         type: 'doc',
         url: 'https://drive.google.com/file/d/1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4/preview',
         uploadDate: '2025-01-15',
-        size: '1.2 MB',
         downloadUrl: 'https://drive.google.com/uc?export=download&id=1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4',
       },
     ],
@@ -213,7 +206,6 @@ export const resourceFiles: Record<string, FileResource[]> = {
   //     type: 'pdf',
   //     url: 'https://drive.google.com/file/d/1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4/preview',
   //     uploadDate: '2025-01-15',
-  //     size: '1.2 MB',
   //     downloadUrl: 'https://drive.google.com/uc?export=download&id=1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4',
   //   },
   //   {
@@ -222,7 +214,6 @@ export const resourceFiles: Record<string, FileResource[]> = {
   //     type: 'pdf',
   //     url: 'https://drive.google.com/file/d/1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4/preview',
   //     uploadDate: '2025-01-22',
-  //     size: '863 KB',
   //     downloadUrl: 'https://drive.google.com/uc?export=download&id=1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4',
   //   },
   //   {
@@ -231,7 +222,6 @@ export const resourceFiles: Record<string, FileResource[]> = {
   //     type: 'pdf',
   //     url: 'https://drive.google.com/file/d/1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4/preview',
   //     uploadDate: '2025-02-05',
-  //     size: '1.5 MB',
   //     downloadUrl: 'https://drive.google.com/uc?export=download&id=1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4',
   //   },
   // ],
@@ -242,7 +232,6 @@ export const resourceFiles: Record<string, FileResource[]> = {
   //     type: 'pdf',
   //     url: 'https://drive.google.com/file/d/1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4/preview',
   //     uploadDate: '2025-01-10',
-  //     size: '754 KB',
   //     downloadUrl: 'https://drive.google.com/uc?export=download&id=1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4',
   //   },
   //   {
@@ -251,7 +240,6 @@ export const resourceFiles: Record<string, FileResource[]> = {
   //     type: 'pdf',
   //     url: 'https://drive.google.com/file/d/1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4/preview',
   //     uploadDate: '2025-01-17',
-  //     size: '921 KB',
   //     downloadUrl: 'https://drive.google.com/uc?export=download&id=1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4',
   //   },
   //   {
@@ -260,7 +248,6 @@ export const resourceFiles: Record<string, FileResource[]> = {
   //     type: 'pdf',
   //     url: 'https://drive.google.com/file/d/1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4/preview',
   //     uploadDate: '2025-01-24',
-  //     size: '1.1 MB',
   //     downloadUrl: 'https://drive.google.com/uc?export=download&id=1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4',
   //   },
   // ],
@@ -271,7 +258,6 @@ export const resourceFiles: Record<string, FileResource[]> = {
   //     type: 'zip',
   //     url: 'https://drive.google.com/file/d/1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4/preview',
   //     uploadDate: '2025-02-10',
-  //     size: '2.3 MB',
   //     downloadUrl: 'https://drive.google.com/uc?export=download&id=1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4',
   //   },
   //   {
@@ -280,7 +266,6 @@ export const resourceFiles: Record<string, FileResource[]> = {
   //     type: 'zip',
   //     url: 'https://drive.google.com/file/d/1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4/preview',
   //     uploadDate: '2025-02-20',
-  //     size: '3.1 MB',
   //     downloadUrl: 'https://drive.google.com/uc?export=download&id=1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4',
   //   },
   //   {
@@ -289,7 +274,6 @@ export const resourceFiles: Record<string, FileResource[]> = {
   //     type: 'zip',
   //     url: 'https://drive.google.com/file/d/1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4/preview',
   //     uploadDate: '2025-03-05',
-  //     size: '4.2 MB',
   //     downloadUrl: 'https://drive.google.com/uc?export=download&id=1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4',
   //   },
   // ],
@@ -300,7 +284,6 @@ export const resourceFiles: Record<string, FileResource[]> = {
   //     type: 'pdf',
   //     url: 'https://drive.google.com/file/d/1SmdONnxM4Q7NXgknn180zfk868jdELzu/preview',
   //     uploadDate: '2025-01-15',
-  //     size: '733 KB',
   //     downloadUrl: 'https://drive.google.com/uc?export=download&id=1SmdONnxM4Q7NXgknn180zfk868jdELzu',
   //   }
   // ]

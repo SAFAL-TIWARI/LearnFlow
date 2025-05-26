@@ -86,46 +86,7 @@ export const createStorageBucket = async () => {
   }
 };
 
-/**
- * Uploads a file to the Supabase storage bucket
- */
-export const uploadFile = async (
-  folderPath: string,
-  file: File,
-  options?: { upsert?: boolean }
-) => {
-  try {
-    const filePath = `${folderPath}/${file.name}`;
 
-    const { data, error } = await supabase.storage
-      .from(STORAGE_BUCKET)
-      .upload(filePath, file, {
-        upsert: options?.upsert || false,
-        cacheControl: '3600'
-      });
-
-    if (error) {
-      console.error(`Error uploading file to ${STORAGE_BUCKET}/${filePath}:`, error);
-      return { data: null, error };
-    }
-
-    // Get the public URL
-    const { data: urlData } = supabase.storage
-      .from(STORAGE_BUCKET)
-      .getPublicUrl(filePath);
-
-    return {
-      data: {
-        ...data,
-        publicUrl: urlData.publicUrl
-      },
-      error: null
-    };
-  } catch (error) {
-    console.error('Error in uploadFile:', error);
-    return { data: null, error };
-  }
-};
 
 /**
  * Gets the public URL for a file in the Supabase storage bucket
@@ -198,50 +159,3 @@ export const deleteFile = async (filePath: string) => {
   }
 };
 
-/**
- * Uploads a study material file and stores its metadata
- */
-export const uploadStudyMaterial = async (
-  subjectCode: string,
-  materialType: string,
-  file: File,
-  title: string,
-  description: string
-) => {
-  // 1. Upload file to storage
-  const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
-  const folderPath = `${STORAGE_FOLDERS.ACADEMIC}/${subjectCode}/${materialType}`;
-  const filePath = `${folderPath}/${fileName}`;
-
-  // Create folder if it doesn't exist (by uploading an empty placeholder file)
-  try {
-    await supabase.storage
-      .from(STORAGE_BUCKET)
-      .upload(`${folderPath}/.keep`, new Uint8Array(0), {
-        contentType: 'text/plain',
-        upsert: true
-      });
-  } catch (error) {
-    // Ignore errors if folder already exists
-  }
-
-  // Upload the actual file
-  const { data: fileData, error: fileError } = await uploadFile(folderPath, file, { upsert: true });
-
-  if (fileError) return { error: fileError };
-
-  // 2. Store metadata in database
-  const { data, error } = await supabase
-    .from('materials')
-    .insert({
-      subject_id: subjectCode,
-      title: title,
-      description: description,
-      file_path: filePath,
-      type: materialType,
-      created_at: new Date().toISOString()
-    })
-    .select();
-
-  return { data, error };
-};

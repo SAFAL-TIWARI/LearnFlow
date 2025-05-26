@@ -7,18 +7,18 @@ import { AnimatedList } from './magicui/animated-list';
 import { useIframeTouchScroll } from '../hooks/use-iframe-touch-scroll';
 import '../styles/iframe-touch-fix.css';
 import { fetchSubjectMaterialFiles } from '../lib/academicStorageMapper';
-import SupabaseFileUploader from './SupabaseFileUploader';
+
 import { useUnifiedAuth } from '../hooks/useUnifiedAuth';
 
 const ResourceFiles: React.FC = () => {
   const { state } = useAcademic();
-  const { isAuthenticated, user, loading: authLoading, authMethod } = useUnifiedAuth();
+  const { isAuthenticated } = useUnifiedAuth();
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [isViewerOpen, setIsViewerOpen] = useState(false);
   const { containerRef, overlayRef } = useIframeTouchScroll();
   const [storageFiles, setStorageFiles] = useState<FileResource[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
 
   // Handle opening the file viewer
   const openFileViewer = (fileId: string) => {
@@ -87,7 +87,7 @@ const ResourceFiles: React.FC = () => {
     };
 
     fetchStorageFiles();
-  }, [state.selectedSubject, state.selectedMaterial, refreshTrigger]);
+  }, [state.selectedSubject, state.selectedMaterial]);
 
   // Add a visual debug indicator for authentication state
   const renderAuthDebug = () => {
@@ -142,10 +142,7 @@ const ResourceFiles: React.FC = () => {
 
   const files = getSubjectMaterials();
 
-  // Function to refresh files from storage
-  const refreshFiles = () => {
-    setRefreshTrigger(prev => prev + 1);
-  };
+
 
   if (files.length === 0 && !isLoading) {
     return (
@@ -158,10 +155,7 @@ const ResourceFiles: React.FC = () => {
           )}
         </p>
 
-        {/* Add file uploader component */}
-        {state.selectedSubject && state.selectedMaterial && (
-          <SupabaseFileUploader onUploadComplete={refreshFiles} />
-        )}
+
         {renderAuthDebug()}
       </div>
     );
@@ -191,33 +185,29 @@ const ResourceFiles: React.FC = () => {
           )}
         </h3>
 
-        {/* Add file uploader component */}
-        {state.selectedSubject && state.selectedMaterial && isAuthenticated && (
-          <SupabaseFileUploader onUploadComplete={refreshFiles} />
-        )}
+
 
         <AnimatedList delay={300} className="w-full mt-6">
           {files.map((file) => {
             return (
-              <div key={file.id} className="file-item w-full">
+              <div
+                key={file.id}
+                className="file-item w-full cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors rounded-lg group"
+                onClick={() => openFileViewer(file.id)}
+                title="Click to view file"
+              >
                 <div className="flex flex-grow items-center min-w-0 space-x-3">
                   <div className="flex-shrink-0">
                     {getFileIcon(file.type)}
                   </div>
-                  <span className="font-medium text-gray-800 dark:text-gray-200 truncate">{file.name}</span>
+                  <span className="font-medium text-gray-800 dark:text-gray-200 truncate group-hover:text-learnflow-600 dark:group-hover:text-learnflow-400 transition-colors">{file.name}</span>
                 </div>
-                <div className="flex flex-shrink-0 items-center space-x-4 md:space-x-6 ml-2">
-                  <span className="text-sm text-gray-500 dark:text-gray-400 hidden sm:inline">{file.size}</span>
-                  <button
-                    onClick={() => openFileViewer(file.id)}
-                    className="text-learnflow-600 dark:text-learnflow-400 hover:text-learnflow-700 dark:hover:text-learnflow-300 transition-colors"
-                  >
-                    View
-                  </button>
+                <div className="flex flex-shrink-0 items-center ml-2">
                   <button
                     className={`text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors ${!isAuthenticated ? 'opacity-50' : ''}`}
                     title={!isAuthenticated ? "Sign up to download" : "Download file"}
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent triggering the parent div's onClick
                       if (!isAuthenticated) {
                         // Show a more user-friendly error message
                         const errorDiv = document.createElement('div');

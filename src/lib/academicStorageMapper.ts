@@ -20,18 +20,6 @@ export const storageFileToResource = (
   const fileExtension = file.name.split('.').pop()?.toLowerCase() || 'other';
   const fileType = FILE_TYPE_MAP[fileExtension] || 'other';
 
-  // Calculate file size in KB or MB
-  const fileSizeInBytes = file.metadata?.size || 0;
-  let fileSize = '0 KB';
-
-  if (fileSizeInBytes > 0) {
-    if (fileSizeInBytes > 1024 * 1024) {
-      fileSize = `${(fileSizeInBytes / (1024 * 1024)).toFixed(1)} MB`;
-    } else {
-      fileSize = `${Math.ceil(fileSizeInBytes / 1024)} KB`;
-    }
-  }
-
   // Generate file path
   const filePath = `${STORAGE_FOLDERS.ACADEMIC}/${subjectCode}/${materialType}/${file.name}`;
 
@@ -44,7 +32,6 @@ export const storageFileToResource = (
     type: fileType,
     url: publicUrl,
     uploadDate: file.created_at || new Date().toISOString().split('T')[0],
-    size: fileSize,
     downloadUrl: publicUrl
   };
 };
@@ -152,64 +139,4 @@ export const mergeSubjectMaterials = async (
   }
 };
 
-/**
- * Uploads a file for a specific subject and material type to Supabase storage
- */
-export const uploadSubjectMaterial = async (
-  subjectCode: string,
-  materialType: string,
-  file: File
-): Promise<FileResource | null> => {
-  try {
-    // Create a file path
-    const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
-    const folderPath = `${STORAGE_FOLDERS.ACADEMIC}/${subjectCode}/${materialType}`;
-    const filePath = `${folderPath}/${fileName}`;
 
-    // Create folder if it doesn't exist (by uploading an empty placeholder file)
-    try {
-      await supabase.storage
-        .from(STORAGE_BUCKET)
-        .upload(`${folderPath}/.keep`, new Uint8Array(0), {
-          contentType: 'text/plain',
-          upsert: true
-        });
-    } catch (folderError) {
-      // Ignore errors if folder already exists
-    }
-
-    // Upload the file
-    const { data, error } = await supabase.storage
-      .from(STORAGE_BUCKET)
-      .upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: false
-      });
-
-    if (error) {
-      console.error(`Error uploading ${materialType} for ${subjectCode}:`, error);
-      return null;
-    }
-
-    // Get the file metadata
-    const { data: fileData } = await supabase.storage
-      .from(STORAGE_BUCKET)
-      .getPublicUrl(filePath);
-
-    // Convert to FileResource
-    return {
-      id: `storage_${subjectCode}_${materialType}_${fileName}`,
-      name: file.name.replace(/\.[^/.]+$/, "").replace(/_/g, " "),
-      type: FILE_TYPE_MAP[file.name.split('.').pop()?.toLowerCase() || 'other'] || 'other',
-      url: fileData.publicUrl,
-      uploadDate: new Date().toISOString().split('T')[0],
-      size: file.size > 1024 * 1024
-        ? `${(file.size / (1024 * 1024)).toFixed(1)} MB`
-        : `${Math.ceil(file.size / 1024)} KB`,
-      downloadUrl: fileData.publicUrl
-    };
-  } catch (error) {
-    console.error(`Error in uploadSubjectMaterial for ${subjectCode}/${materialType}:`, error);
-    return null;
-  }
-};
