@@ -2,8 +2,11 @@ import React from 'react';
 import { ArrowRight, BookOpen, Calculator, Users, Zap, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import FadeInElement from './FadeInElement';
+import { useAnalytics } from '../hooks/useAnalytics';
 
 const CallToActionSection: React.FC = () => {
+  const { liveStats, isLoading } = useAnalytics();
+
   const benefits = [
     {
       icon: <CheckCircle className="w-5 h-5 text-green-500" />,
@@ -19,7 +22,7 @@ const CallToActionSection: React.FC = () => {
     },
     {
       icon: <CheckCircle className="w-5 h-5 text-green-500" />,
-      text: "Join 15,000+ active students"
+      text: `Join ${isLoading ? '15,000+' : liveStats.totalVisitors.toLocaleString() + '+'} active students`
     },
     {
       icon: <CheckCircle className="w-5 h-5 text-green-500" />,
@@ -66,7 +69,7 @@ const CallToActionSection: React.FC = () => {
                 Ready to Transform Your Learning?
               </h2>
               <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 max-w-4xl mx-auto font-isidora">
-                Join thousands of students who are already using LearnFlow to excel in their studies. 
+                Join thousands of students who are already using LearnFlow to excel in their studies.
                 Start your journey to academic success today - it's completely free!
               </p>
             </div>
@@ -151,13 +154,15 @@ const CallToActionSection: React.FC = () => {
                   Your Academic Success Starts Here
                 </h3>
                 <p className="text-lg md:text-xl text-blue-100 mb-6 leading-relaxed">
-                  Don't let another semester pass by struggling with scattered resources and inefficient study methods. 
+                  Don't let another semester pass by struggling with scattered resources and inefficient study methods.
                   Join LearnFlow today and experience the difference organized, quality education can make.
                 </p>
                 <div className="flex flex-col sm:flex-row justify-center items-center gap-6">
                   <div className="flex items-center space-x-2">
                     <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-                    <span className="text-blue-100">15,000+ students online</span>
+                    <span className="text-blue-100">
+                      {isLoading ? '15,000+' : liveStats.totalVisitors.toLocaleString() + '+'} students online
+                    </span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <div className="w-3 h-3 bg-yellow-400 rounded-full animate-pulse"></div>

@@ -4,7 +4,6 @@ import {
   STORAGE_BUCKET,
   STORAGE_FOLDERS,
   MATERIAL_TYPES,
-  FILE_TYPE_MAP,
   getPublicUrl
 } from './supabaseStorage';
 
@@ -16,10 +15,6 @@ export const storageFileToResource = (
   subjectCode: string,
   materialType: string
 ): FileResource => {
-  // Extract file extension
-  const fileExtension = file.name.split('.').pop()?.toLowerCase() || 'other';
-  const fileType = FILE_TYPE_MAP[fileExtension] || 'other';
-
   // Generate file path
   const filePath = `${STORAGE_FOLDERS.ACADEMIC}/${subjectCode}/${materialType}/${file.name}`;
 
@@ -29,9 +24,7 @@ export const storageFileToResource = (
   return {
     id: `storage_${subjectCode}_${materialType}_${file.name}`,
     name: file.name.replace(/\.[^/.]+$/, "").replace(/_/g, " "), // Remove extension and replace underscores with spaces
-    type: fileType,
     url: publicUrl,
-    uploadDate: file.created_at || new Date().toISOString().split('T')[0],
     downloadUrl: publicUrl
   };
 };

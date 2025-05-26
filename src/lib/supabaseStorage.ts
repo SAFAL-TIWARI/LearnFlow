@@ -1,5 +1,4 @@
 import { supabase } from './supabaseClient';
-import { FileResource } from '../data/academicData';
 
 /**
  * Supabase storage bucket name (single bucket for free plan)
@@ -26,26 +25,7 @@ export const MATERIAL_TYPES = [
   'pyq'
 ];
 
-/**
- * File type mapping based on extension
- */
-export const FILE_TYPE_MAP: Record<string, FileResource['type']> = {
-  'pdf': 'pdf',
-  'doc': 'doc',
-  'docx': 'doc',
-  'ppt': 'ppt',
-  'pptx': 'ppt',
-  'xls': 'xlsx',
-  'xlsx': 'xlsx',
-  'zip': 'zip',
-  'rar': 'zip',
-  'jpg': 'image',
-  'jpeg': 'image',
-  'png': 'image',
-  'gif': 'image',
-  'txt': 'other',
-  'csv': 'other'
-};
+
 
 /**
  * Creates the storage bucket if it doesn't exist

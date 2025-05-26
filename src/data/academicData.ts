@@ -13,9 +13,7 @@ export type Subject = {
 export type FileResource = {
   id: string;
   name: string;
-  type: 'pdf' | 'doc' | 'ppt' | 'xlsx' | 'zip' | 'image' | 'other';
   url: string;
-  uploadDate: string;
   downloadUrl: string; // Direct download URL
 };
 
@@ -135,9 +133,7 @@ export const subjectMaterials: Record<string, SubjectMaterials> = {
       {
         id: 'ds_assignment1',
         name: 'Assignment 1 - Array Implementation',
-        type: 'pdf',
         url: 'https://drive.google.com/file/d/1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4/preview',
-        uploadDate: '2025-01-15',
         downloadUrl: 'https://drive.google.com/uc?export=download&id=1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4',
       },
 
@@ -146,10 +142,8 @@ export const subjectMaterials: Record<string, SubjectMaterials> = {
       {
         id: 'ds_practical1',
         name: 'Lab 1 - Stack and Queue Implementation',
-        type: 'image',
-        url: 'https://drive.google.com/file/d/1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4/preview',
-        uploadDate: '2025-01-10',
-        downloadUrl: 'https://drive.google.com/uc?export=download&id=1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4',
+        url: 'https://drive.google.com/file/d/1PRACTICAL_UNIQUE_ID_PLACEHOLDER/preview',
+        downloadUrl: 'https://drive.google.com/uc?export=download&id=1PRACTICAL_UNIQUE_ID_PLACEHOLDER',
       },
 
     ],
@@ -157,17 +151,13 @@ export const subjectMaterials: Record<string, SubjectMaterials> = {
       {
         id: 'ds_labwork1',
         name: 'DSA Experiments',
-        type: 'doc',
         url: 'https://drive.google.com/file/d/1YHvo8DpFaSeAPVYbG2AnSXZBv5TVXVOT/preview',
-        uploadDate: '2025-01-15',
         downloadUrl: 'https://drive.google.com/file/d/1YHvo8DpFaSeAPVYbG2AnSXZBv5TVXVOT/preview?export=download',
       },
       {
         id: 'ds_labwork2',
         name: 'DSA Experiments solutions',
-        type: 'zip',
         url: 'https://drive.google.com/file/d/1nhPVlI2EwPU6m-tRuS0WJuDW1_vwNtu3/preview',
-        uploadDate: '2025-02-10',
         downloadUrl: 'https://drive.google.com/file/d/1nhPVlI2EwPU6m-tRuS0WJuDW1_vwNtu3/view?export=download',
       },
     ],
@@ -175,9 +165,7 @@ export const subjectMaterials: Record<string, SubjectMaterials> = {
       {
         id: 'ds_syllabus',
         name: 'Syllabus - Data Structures And Algorithms ',
-        type: 'doc',
         url: 'https://drive.google.com/file/d/1SmdONnxM4Q7NXgknn180zfk868jdELzu/preview',
-        uploadDate: '2025-01-15',
         downloadUrl: 'https://drive.google.com/uc?export=download&id=1SmdONnxM4Q7NXgknn180zfk868jdELzu',
       }
     ],
@@ -185,10 +173,8 @@ export const subjectMaterials: Record<string, SubjectMaterials> = {
       {
         id: 'ds_pyq1',
         name: 'PYQ 2024',
-        type: 'doc',
-        url: 'https://drive.google.com/file/d/1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4/preview',
-        uploadDate: '2025-01-15',
-        downloadUrl: 'https://drive.google.com/uc?export=download&id=1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4',
+        url: 'https://drive.google.com/file/d/1PYQ_UNIQUE_ID_PLACEHOLDER/preview',
+        downloadUrl: 'https://drive.google.com/uc?export=download&id=1PYQ_UNIQUE_ID_PLACEHOLDER',
       },
     ],
 
@@ -199,94 +185,7 @@ export const subjectMaterials: Record<string, SubjectMaterials> = {
 
 // Legacy resource files (for backward compatibility or fallback)
 export const resourceFiles: Record<string, FileResource[]> = {
-  // assignments: [
-  //   {
-  //     id: 'assignment1',
-  //     name: 'Assignment 1 - Introduction to Programming',
-  //     type: 'pdf',
-  //     url: 'https://drive.google.com/file/d/1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4/preview',
-  //     uploadDate: '2025-01-15',
-  //     downloadUrl: 'https://drive.google.com/uc?export=download&id=1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4',
-  //   },
-  //   {
-  //     id: 'assignment2',
-  //     name: 'Assignment 2 - Object-Oriented Concepts',
-  //     type: 'pdf',
-  //     url: 'https://drive.google.com/file/d/1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4/preview',
-  //     uploadDate: '2025-01-22',
-  //     downloadUrl: 'https://drive.google.com/uc?export=download&id=1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4',
-  //   },
-  //   {
-  //     id: 'assignment3',
-  //     name: 'Assignment 3 - Data Structures And Algorithms Implementation',
-  //     type: 'pdf',
-  //     url: 'https://drive.google.com/file/d/1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4/preview',
-  //     uploadDate: '2025-02-05',
-  //     downloadUrl: 'https://drive.google.com/uc?export=download&id=1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4',
-  //   },
-  // ],
-  // practicals: [
-  //   {
-  //     id: 'practical1',
-  //     name: 'Lab 1 - Setting Up Development Environment',
-  //     type: 'pdf',
-  //     url: 'https://drive.google.com/file/d/1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4/preview',
-  //     uploadDate: '2025-01-10',
-  //     downloadUrl: 'https://drive.google.com/uc?export=download&id=1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4',
-  //   },
-  //   {
-  //     id: 'practical2',
-  //     name: 'Lab 2 - Basic Programming Exercises',
-  //     type: 'pdf',
-  //     url: 'https://drive.google.com/file/d/1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4/preview',
-  //     uploadDate: '2025-01-17',
-  //     downloadUrl: 'https://drive.google.com/uc?export=download&id=1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4',
-  //   },
-  //   {
-  //     id: 'practical3',
-  //     name: 'Lab 3 - Advanced Programming Techniques',
-  //     type: 'pdf',
-  //     url: 'https://drive.google.com/file/d/1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4/preview',
-  //     uploadDate: '2025-01-24',
-  //     downloadUrl: 'https://drive.google.com/uc?export=download&id=1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4',
-  //   },
-  // ],
-  // labwork: [
-  //   {
-  //     id: 'labwork1',
-  //     name: 'Project 1 - Console Application',
-  //     type: 'zip',
-  //     url: 'https://drive.google.com/file/d/1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4/preview',
-  //     uploadDate: '2025-02-10',
-  //     downloadUrl: 'https://drive.google.com/uc?export=download&id=1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4',
-  //   },
-  //   {
-  //     id: 'labwork2',
-  //     name: 'Project 2 - GUI Application',
-  //     type: 'zip',
-  //     url: 'https://drive.google.com/file/d/1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4/preview',
-  //     uploadDate: '2025-02-20',
-  //     downloadUrl: 'https://drive.google.com/uc?export=download&id=1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4',
-  //   },
-  //   {
-  //     id: 'labwork3',
-  //     name: 'Project 3 - Web Application',
-  //     type: 'zip',
-  //     url: 'https://drive.google.com/file/d/1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4/preview',
-  //     uploadDate: '2025-03-05',
-  //     downloadUrl: 'https://drive.google.com/uc?export=download&id=1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4',
-  //   },
-  // ],
-  // Syllabus: [
-  //   {
-  //     id: 'syllabus',
-  //     name: 'Syllabus - Data Science And Algorithms',
-  //     type: 'pdf',
-  //     url: 'https://drive.google.com/file/d/1SmdONnxM4Q7NXgknn180zfk868jdELzu/preview',
-  //     uploadDate: '2025-01-15',
-  //     downloadUrl: 'https://drive.google.com/uc?export=download&id=1SmdONnxM4Q7NXgknn180zfk868jdELzu',
-  //   }
-  // ]
+  // Empty - all resources are now managed through subjectMaterials
 };
 
 // New structure - branch-specific subjects
@@ -346,7 +245,6 @@ export const branchSubjects: Record<
         { code: 'HUB 101', name: 'Communication Skills' },
         { code: 'ECB 101', name: 'Electrical Engineering' },
         { code: 'ECB 102', name: 'Electrical Machines' },
-        { code: 'MAC 101', name: 'Professional Ethics' },
         { code: 'MAC 101', name: 'Professional Ethics' },
       ],
       'ee': [
@@ -577,21 +475,21 @@ export const branchSubjects: Record<
         { code: 'IOC 302', name: 'Sensor Networks' },
         { code: 'IOC 303', name: 'Edge Computing' },
       ],
-      'AIADS': [
+      'aiads': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
         { code: 'CHB 101', name: 'Engineering Chemistry' },
         { code: 'CSA 101', name: 'Computer Fundamentals' },
         { code: 'HUB 101', name: 'Communication Skills' },
         { code: 'AIADS 101', name: 'Data Science' },
       ],
-      'Blockchain': [
+      'blockchain': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
         { code: 'CSA 102', name: 'Digital Electronics' },
         { code: 'CSA 101', name: 'Computer Fundamentals' },
         { code: 'HUB 101', name: 'Communication Skills' },
         { code: 'PYB 101', name: 'Engineering Physics' },
       ],
-      'IT': [
+      'it': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
         { code: 'CSA 101', name: 'Computer Fundamentals' },
         { code: 'HUB 101', name: 'Communication Skills' },
@@ -614,21 +512,21 @@ export const branchSubjects: Record<
         { code: 'CSC 308', name: 'Big Data Analytics' },
         { code: 'IOC 306', name: 'IoT Project' },
       ],
-      'AIADS': [
+      'aiads': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
         { code: 'CHB 101', name: 'Engineering Chemistry' },
         { code: 'CSA 101', name: 'Computer Fundamentals' },
         { code: 'HUB 101', name: 'Communication Skills' },
         { code: 'AIADS 101', name: 'Data Science' },
       ],
-      'Blockchain': [
+      'blockchain': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
         { code: 'CSA 102', name: 'Digital Electronics' },
         { code: 'CSA 101', name: 'Computer Fundamentals' },
         { code: 'HUB 101', name: 'Communication Skills' },
         { code: 'PYB 101', name: 'Engineering Physics' },
       ],
-      'IT': [
+      'it': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
         { code: 'CSA 101', name: 'Computer Fundamentals' },
         { code: 'HUB 101', name: 'Communication Skills' },
@@ -653,21 +551,21 @@ export const branchSubjects: Record<
         { code: 'CSC 404', name: 'AR/VR Technologies' },
         { code: 'CSC 405', name: 'Ethics in Computing' },
       ],
-      'AIADS': [
+      'aiads': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
         { code: 'CHB 101', name: 'Engineering Chemistry' },
         { code: 'CSA 101', name: 'Computer Fundamentals' },
         { code: 'HUB 101', name: 'Communication Skills' },
         { code: 'AIADS 101', name: 'Data Science' },
       ],
-      'Blockchain': [
+      'blockchain': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
         { code: 'CSA 102', name: 'Digital Electronics' },
         { code: 'CSA 101', name: 'Computer Fundamentals' },
         { code: 'HUB 101', name: 'Communication Skills' },
         { code: 'PYB 101', name: 'Engineering Physics' },
       ],
-      'IT': [
+      'it': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
         { code: 'CSA 101', name: 'Computer Fundamentals' },
         { code: 'HUB 101', name: 'Communication Skills' },
@@ -690,21 +588,21 @@ export const branchSubjects: Record<
         { code: 'CSC 409', name: 'Entrepreneurship' },
         { code: 'IOC 403', name: 'IoT Capstone Project' },
       ],
-      'AIADS': [
+      'aiads': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
         { code: 'CHB 101', name: 'Engineering Chemistry' },
         { code: 'CSA 101', name: 'Computer Fundamentals' },
         { code: 'HUB 101', name: 'Communication Skills' },
         { code: 'AIADS 101', name: 'Data Science' },
       ],
-      'Blockchain': [
+      'blockchain': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
         { code: 'CSA 102', name: 'Digital Electronics' },
         { code: 'CSA 101', name: 'Computer Fundamentals' },
         { code: 'HUB 101', name: 'Communication Skills' },
         { code: 'PYB 101', name: 'Engineering Physics' },
       ],
-      'IT': [
+      'it': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
         { code: 'CSA 101', name: 'Computer Fundamentals' },
         { code: 'HUB 101', name: 'Communication Skills' },

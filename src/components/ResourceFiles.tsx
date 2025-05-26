@@ -198,7 +198,7 @@ const ResourceFiles: React.FC = () => {
               >
                 <div className="flex flex-grow items-center min-w-0 space-x-3">
                   <div className="flex-shrink-0">
-                    {getFileIcon(file.type)}
+                    {getFileIcon(file.name)}
                   </div>
                   <span className="font-medium text-gray-800 dark:text-gray-200 truncate group-hover:text-learnflow-600 dark:group-hover:text-learnflow-400 transition-colors">{file.name}</span>
                 </div>

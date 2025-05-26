@@ -309,7 +309,7 @@ const Navbar: React.FC = () => {
                 <div className="space-y-2 text-gray-700 dark:text-gray-300">
                   <p>Email: safaltiwari602@gmail.com</p>
                   {/* <p>Phone: +91 6260584403</p> */}
-                  <p>Address: SATI Campus, IT Park, Vidisha - 464001</p>
+                  <p>Address: SATI Campus, IT Park, Vidisha</p>
                 </div>
               </section>
             </div>

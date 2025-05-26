@@ -107,8 +107,40 @@ export const getMaterialIcon = (type: string) => {
   }
 };
 
-// For the file type icon mapping
-export const getFileIcon = (type: string) => {
+// Utility function to detect file type from file name or URL
+export const detectFileType = (fileName: string): string => {
+  // Extract file extension from name
+  const extension = fileName.split('.').pop()?.toLowerCase() || '';
+
+  // Map extensions to file types
+  const extensionMap: Record<string, string> = {
+    'pdf': 'pdf',
+    'doc': 'doc',
+    'docx': 'doc',
+    'ppt': 'ppt',
+    'pptx': 'ppt',
+    'xls': 'xlsx',
+    'xlsx': 'xlsx',
+    'zip': 'zip',
+    'rar': 'zip',
+    '7z': 'zip',
+    'jpg': 'image',
+    'jpeg': 'image',
+    'png': 'image',
+    'gif': 'image',
+    'bmp': 'image',
+    'svg': 'image',
+    'txt': 'doc',
+    'md': 'doc',
+  };
+
+  return extensionMap[extension] || 'doc'; // Default to doc icon
+};
+
+// For the file type icon mapping - now uses detected type
+export const getFileIcon = (fileName: string) => {
+  const type = detectFileType(fileName);
+
   switch (type) {
     case 'pdf':
       return <PdfIcon className="text-red-500" />;
@@ -118,6 +150,10 @@ export const getFileIcon = (type: string) => {
       return <ZipIcon className="text-yellow-500" />;
     case 'image':
       return <ImageIcon className="text-green-500" />;
+    case 'ppt':
+      return <DocIcon className="text-orange-500" />;
+    case 'xlsx':
+      return <DocIcon className="text-green-600" />;
     default:
       return <DocIcon className="text-blue-500" />;
   }

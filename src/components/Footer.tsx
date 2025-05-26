@@ -182,7 +182,7 @@ const Footer: React.FC = () => {
                 <h3 className="text-xl font-semibold mb-2 text-learnflow-600 dark:text-learnflow-400">Contact Us</h3>
                 <div className="space-y-2 text-gray-700 dark:text-gray-300">
                   <p>Email: safaltiwari602@gmail.com</p>
-                  <p>Address: SATI Campus, IT Park, Vidisha - 464001</p>
+                  <p>Address: SATI Campus, IT Park, Vidisha</p>
                 </div>
               </section>
             </div>
