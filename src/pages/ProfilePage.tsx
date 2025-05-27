@@ -11,7 +11,6 @@ interface UserData {
   year?: string;
   semester?: string;
   branch?: string;
-  profile_picture?: string;
 }
 
 interface FileUpload {
@@ -33,25 +32,25 @@ const ProfilePage: React.FC = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   // Try to use Supabase auth first, then NextAuth as fallback
   const { user: supabaseUser } = useAuth();
   const { data: nextAuthSession, status } = useSafeSession();
-  
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         setLoading(true);
-        
+
         // Check which auth method we're using
         let userEmail = '';
         let userPicture = '';
-        
+
         if (supabaseUser) {
           // Using Supabase auth
           userEmail = supabaseUser.email || '';
-          userPicture = supabaseUser.user_metadata?.avatar_url || 
-                        supabaseUser.user_metadata?.picture || 
+          userPicture = supabaseUser.user_metadata?.avatar_url ||
+                        supabaseUser.user_metadata?.picture ||
                         supabaseUser.user_metadata?.profile_picture || '';
           console.log('Using Supabase auth:', supabaseUser);
         } else if (status === 'authenticated' && nextAuthSession) {
@@ -70,16 +69,16 @@ const ProfilePage: React.FC = () => {
           setLoading(false);
           return;
         }
-        
+
         console.log('User email:', userEmail);
         console.log('User picture:', userPicture);
-        
+
         if (!userEmail) {
           console.error('No user email found');
           setLoading(false);
           return;
         }
-        
+
         // Check if the 'users' table exists
         try {
           // First, try to fetch user data
@@ -88,10 +87,10 @@ const ProfilePage: React.FC = () => {
             .select('*')
             .eq('email', userEmail)
             .single();
-          
+
           if (error) {
             console.error('Error fetching user data:', error);
-            
+
             // If user doesn't exist, create a new user record
             if (error.code === 'PGRST116') {
               console.log('User not found, creating new user');
@@ -99,14 +98,13 @@ const ProfilePage: React.FC = () => {
                 const { data: newUser, error: createError } = await supabase
                   .from('users')
                   .insert([
-                    { 
+                    {
                       email: userEmail,
-                      name: userEmail.split('@')[0],
-                      profile_picture: userPicture
+                      name: userEmail.split('@')[0]
                     }
                   ])
                   .select();
-                  
+
                 if (createError) {
                   console.error('Error creating user:', createError);
                   // If table doesn't exist, we'll handle it below
@@ -115,15 +113,15 @@ const ProfilePage: React.FC = () => {
                   }
                   throw createError;
                 }
-                
+
                 if (newUser && newUser.length > 0) {
                   setUserData(newUser[0]);
                 }
               } catch (createError: any) {
                 console.error('Error in user creation:', createError);
-                
+
                 // If the table doesn't exist, create a mock user for display
-                if (createError.message === 'users_table_not_found' || 
+                if (createError.message === 'users_table_not_found' ||
                     createError.message.includes('does not exist')) {
                   console.log('Creating mock user data for display');
                   setUserData({
@@ -149,41 +147,24 @@ const ProfilePage: React.FC = () => {
               setUserData({
                 id: '1',
                 name: userEmail.split('@')[0],
-                email: userEmail,
-                profile_picture: userPicture
+                email: userEmail
               });
             }
           } else {
             // User exists
             console.log('User found:', data);
-            
-            // If user exists but doesn't have a profile picture and we have one from auth
-            if (!data.profile_picture && userPicture) {
-              try {
-                const { error: updateError } = await supabase
-                  .from('users')
-                  .update({ profile_picture: userPicture })
-                  .eq('id', data.id);
-                  
-                if (updateError) {
-                  console.error('Error updating profile picture:', updateError);
-                } else {
-                  data.profile_picture = userPicture;
-                }
-              } catch (updateError) {
-                console.error('Error updating profile picture:', updateError);
-              }
-            }
-            
+
+
+
             setUserData(data);
-            
+
             // Fetch user files if we have user data
             try {
               const { data: filesData, error: filesError } = await supabase
                 .from('user_files')
                 .select('*')
                 .eq('user_id', data.id);
-                
+
               if (filesError) {
                 console.error('Error fetching user files:', filesError);
                 // If table doesn't exist, just continue with empty files
@@ -223,23 +204,23 @@ const ProfilePage: React.FC = () => {
         setLoading(false);
       }
     };
-    
+
     if (status !== 'loading') {
       fetchUserData();
     }
   }, [supabaseUser, nextAuthSession, status]);
-  
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setUserData(prev => prev ? { ...prev, [name]: value } : null);
   };
-  
+
   const handleSaveProfile = async () => {
     if (!userData) return;
-    
+
     try {
       setSaving(true);
-      
+
       try {
         const { error } = await supabase
           .from('users')
@@ -250,10 +231,10 @@ const ProfilePage: React.FC = () => {
             branch: userData.branch,
           })
           .eq('id', userData.id);
-          
+
         if (error) {
           console.error('Error updating profile:', error);
-          
+
           // If the table doesn't exist or there's a permission issue, just show success
           // This is a fallback for when the database isn't properly set up
           if (error.code === '42P01' || error.message.includes('does not exist')) {
@@ -261,14 +242,14 @@ const ProfilePage: React.FC = () => {
             alert('Profile updated successfully!');
             return;
           }
-          
+
           throw error;
         }
-        
+
         alert('Profile updated successfully!');
       } catch (error) {
         console.error('Error in Supabase update:', error);
-        
+
         // For demo purposes, show success even if the database update fails
         // This allows the UI to work even if the backend is not fully set up
         alert('Profile updated successfully!');
@@ -280,114 +261,25 @@ const ProfilePage: React.FC = () => {
       setSaving(false);
     }
   };
-  
-  const handleProfilePictureChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || !e.target.files[0] || !userData) return;
-    
-    const file = e.target.files[0];
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${userData.id}-profile-picture.${fileExt}`;
-    
-    try {
-      setIsUploading(true);
-      
-      try {
-        // Upload the file to Supabase Storage
-        const { data, error } = await supabase.storage
-          .from('profile-pictures')
-          .upload(fileName, file, {
-            cacheControl: '3600',
-            upsert: true,
-            onUploadProgress: (progress) => {
-              setUploadProgress((progress.loaded / progress.total) * 100);
-            },
-          });
-          
-        if (error) {
-          console.error('Error uploading profile picture:', error);
-          
-          // For demo purposes, we'll create a local URL and continue
-          const localUrl = URL.createObjectURL(file);
-          
-          try {
-            // Try to update user profile with the new picture URL
-            const { error: updateError } = await supabase
-              .from('users')
-              .update({
-                profile_picture: localUrl,
-              })
-              .eq('id', userData.id);
-              
-            if (updateError) {
-              console.error('Error updating profile picture URL:', updateError);
-            }
-          } catch (updateError) {
-            console.error('Error in profile update:', updateError);
-          }
-          
-          // Update local state regardless of database success
-          setUserData(prev => prev ? { ...prev, profile_picture: localUrl } : null);
-          alert('Profile picture updated successfully!');
-          return;
-        }
-        
-        // Get the public URL
-        const { data: urlData } = supabase.storage
-          .from('profile-pictures')
-          .getPublicUrl(fileName);
-          
-        try {
-          // Update user profile with the new picture URL
-          const { error: updateError } = await supabase
-            .from('users')
-            .update({
-              profile_picture: urlData.publicUrl,
-            })
-            .eq('id', userData.id);
-            
-          if (updateError) {
-            console.error('Error updating profile picture URL:', updateError);
-          }
-        } catch (updateError) {
-          console.error('Error in profile update:', updateError);
-        }
-        
-        // Update local state
-        setUserData(prev => prev ? { ...prev, profile_picture: urlData.publicUrl } : null);
-        alert('Profile picture updated successfully!');
-      } catch (storageError) {
-        console.error('Error in storage operations:', storageError);
-        
-        // Create a local URL as fallback
-        const localUrl = URL.createObjectURL(file);
-        setUserData(prev => prev ? { ...prev, profile_picture: localUrl } : null);
-        alert('Profile picture updated successfully!');
-      }
-    } catch (error) {
-      console.error('Error changing profile picture:', error);
-      alert('Failed to update profile picture. Please try again.');
-    } finally {
-      setIsUploading(false);
-      setUploadProgress(0);
-    }
-  };
-  
+
+
+
   const handleFileUpload = async (files: FileList | null, category: string) => {
     if (!files || !userData) return;
-    
+
     try {
       setIsUploading(true);
-      
+
       const newFiles: FileUpload[] = [];
-      
+
       for (let i = 0; i < files.length; i++) {
         try {
           const file = files[i];
           const fileExt = file.name.split('.').pop();
           const fileName = `${userData.id}-${Date.now()}-${i}.${fileExt}`;
-          
+
           let fileUrl = '';
-          
+
           try {
             // Upload the file to Supabase Storage
             const { data, error } = await supabase.storage
@@ -399,7 +291,7 @@ const ProfilePage: React.FC = () => {
                   setUploadProgress((progress.loaded / progress.total) * 100);
                 },
               });
-              
+
             if (error) {
               console.error(`Error uploading file ${file.name}:`, error);
               // Create a local URL as fallback
@@ -409,7 +301,7 @@ const ProfilePage: React.FC = () => {
               const { data: urlData } = supabase.storage
                 .from('user-files')
                 .getPublicUrl(`${category}/${fileName}`);
-              
+
               fileUrl = urlData.publicUrl;
             }
           } catch (storageError) {
@@ -417,7 +309,7 @@ const ProfilePage: React.FC = () => {
             // Create a local URL as fallback
             fileUrl = URL.createObjectURL(file);
           }
-          
+
           try {
             // Save file metadata to the database
             const { error: insertError } = await supabase
@@ -429,14 +321,14 @@ const ProfilePage: React.FC = () => {
                 type: file.type,
                 category: category,
               });
-              
+
             if (insertError) {
               console.error('Error saving file metadata:', insertError);
             }
           } catch (dbError) {
             console.error('Database error:', dbError);
           }
-          
+
           // Add to local state regardless of database success
           newFiles.push({
             id: `local-${Date.now()}-${i}`,
@@ -450,14 +342,14 @@ const ProfilePage: React.FC = () => {
           console.error(`Error processing file at index ${i}:`, fileError);
         }
       }
-      
+
       try {
         // Refresh the file list from database
         const { data: filesData, error: filesError } = await supabase
           .from('user_files')
           .select('*')
           .eq('user_id', userData.id);
-          
+
         if (filesError) {
           console.error('Error fetching user files:', filesError);
           // Use the locally created files
@@ -470,7 +362,7 @@ const ProfilePage: React.FC = () => {
         // Use the locally created files
         setUserFiles(prev => [...prev, ...newFiles]);
       }
-      
+
       alert('Files uploaded successfully!');
     } catch (error) {
       console.error('Error uploading files:', error);
@@ -480,34 +372,34 @@ const ProfilePage: React.FC = () => {
       setUploadProgress(0);
     }
   };
-  
+
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(true);
   };
-  
+
   const handleDragLeave = () => {
     setIsDragging(false);
   };
-  
+
   const handleDrop = (e: React.DragEvent<HTMLDivElement>, category: string) => {
     e.preventDefault();
     setIsDragging(false);
     const files = e.dataTransfer.files;
     handleFileUpload(files, category);
   };
-  
+
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>, category: string) => {
     const files = e.target.files;
     handleFileUpload(files, category);
   };
-  
+
   const triggerFileInput = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
-  
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -515,12 +407,12 @@ const ProfilePage: React.FC = () => {
       </div>
     );
   }
-  
+
   if (!userData) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
         <div className="flex items-center mb-4 w-full max-w-md justify-between">
-          <button 
+          <button
             onClick={() => window.location.href = '/'}
             className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             aria-label="Go back to home page"
@@ -542,15 +434,14 @@ const ProfilePage: React.FC = () => {
       </div>
     );
   }
-  
-  // Get profile picture from various sources
-  const profilePicture = userData.profile_picture || 
-    supabaseUser?.user_metadata?.avatar_url ||
+
+  // Get profile picture from auth sources or generate default
+  const profilePicture = supabaseUser?.user_metadata?.avatar_url ||
     supabaseUser?.user_metadata?.picture ||
-    nextAuthSession?.user?.image || 
+    nextAuthSession?.user?.image ||
     (nextAuthSession?.user as any)?.picture ||
     'https://ui-avatars.com/api/?name=' + encodeURIComponent(userData.name || 'User');
-  
+
   // Wrap the render in a try-catch to prevent the entire app from crashing
   try {
     return (
@@ -558,7 +449,7 @@ const ProfilePage: React.FC = () => {
         <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
           <div className="p-6">
             <div className="flex items-center mb-6">
-            <button 
+            <button
               onClick={() => window.location.href = '/'}
               className="mr-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               aria-label="Go back to home page"
@@ -569,43 +460,19 @@ const ProfilePage: React.FC = () => {
             </button>
             <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Your Profile</h1>
           </div>
-          
+
           <div className="flex flex-col md:flex-row gap-8">
             {/* Profile Picture Section */}
             <div className="flex flex-col items-center">
-              <div className="relative group">
-                <img 
-                  src={profilePicture} 
-                  alt="Profile" 
-                  className="w-32 h-32 rounded-full object-cover border-4 border-gray-200 group-hover:border-learnflow-500 transition-all duration-300"
-                />
-                <div 
-                  className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                  onClick={() => document.getElementById('profile-picture-input')?.click()}
-                >
-                  <span className="text-white text-sm">Change Picture</span>
-                </div>
-                <input 
-                  type="file" 
-                  id="profile-picture-input" 
-                  className="hidden" 
-                  accept="image/*"
-                  onChange={handleProfilePictureChange}
+              <div className="relative">
+                <img
+                  src={profilePicture}
+                  alt="Profile"
+                  className="w-32 h-32 rounded-full object-cover border-4 border-gray-200"
                 />
               </div>
-              
-              {isUploading && (
-                <div className="mt-2 w-full">
-                  <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-learnflow-500 transition-all duration-300"
-                      style={{ width: `${uploadProgress}%` }}
-                    ></div>
-                  </div>
-                </div>
-              )}
             </div>
-            
+
             {/* Profile Information Section */}
             <div className="flex-1">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -621,7 +488,7 @@ const ProfilePage: React.FC = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-learnflow-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Email
@@ -633,7 +500,7 @@ const ProfilePage: React.FC = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 dark:bg-gray-600 dark:border-gray-600 dark:text-gray-300"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Year
@@ -651,7 +518,7 @@ const ProfilePage: React.FC = () => {
                     <option value="4">4th Year</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Semester
@@ -673,7 +540,7 @@ const ProfilePage: React.FC = () => {
                     <option value="8">8th Semester</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Branch
@@ -694,7 +561,7 @@ const ProfilePage: React.FC = () => {
                   </select>
                 </div>
               </div>
-              
+
               <div className="mt-6">
                 <button
                   onClick={handleSaveProfile}
@@ -707,19 +574,19 @@ const ProfilePage: React.FC = () => {
             </div>
           </div>
         </div>
-        
+
         {/* File Upload Section */}
         <div className="p-6 border-t border-gray-200 dark:border-gray-700">
           <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">Your Uploads</h2>
-          
+
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
             {['Syllabus', 'Assignments', 'Practicals', 'Lab Work', 'PYQs', 'Notes'].map((category) => (
               <button
                 key={category}
                 onClick={() => setUploadSection(category)}
                 className={`px-4 py-2 rounded-md transition-colors ${
-                  uploadSection === category 
-                    ? 'bg-learnflow-500 text-white' 
+                  uploadSection === category
+                    ? 'bg-learnflow-500 text-white'
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}
               >
@@ -727,16 +594,16 @@ const ProfilePage: React.FC = () => {
               </button>
             ))}
           </div>
-          
+
           {uploadSection && (
             <div className="mt-4">
               <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">{uploadSection} Files</h3>
-              
+
               {/* Drag and Drop Area */}
               <div
                 className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
-                  isDragging 
-                    ? 'border-learnflow-500 bg-learnflow-50 dark:bg-gray-700' 
+                  isDragging
+                    ? 'border-learnflow-500 bg-learnflow-50 dark:bg-gray-700'
                     : 'border-gray-300 hover:border-learnflow-400 dark:border-gray-600 dark:hover:border-gray-500'
                 }`}
                 onDragOver={handleDragOver}
@@ -757,7 +624,7 @@ const ProfilePage: React.FC = () => {
                 <p className="text-gray-600 dark:text-gray-400 mb-2">Drag and drop files here or click to upload</p>
                 <p className="text-sm text-gray-500 dark:text-gray-500">Upload any file related to {uploadSection}</p>
               </div>
-              
+
               {isUploading && (
                 <div className="mt-4">
                   <div className="flex items-center">
@@ -768,11 +635,11 @@ const ProfilePage: React.FC = () => {
                   </div>
                 </div>
               )}
-              
+
               {/* File List */}
               <div className="mt-6">
                 <h4 className="text-md font-medium mb-2 text-gray-700 dark:text-gray-300">Your {uploadSection} Files</h4>
-                
+
                 {userFiles.filter(file => file.category === uploadSection.toLowerCase()).length === 0 ? (
                   <p className="text-gray-500 dark:text-gray-400 text-sm italic">No files uploaded yet</p>
                 ) : (
@@ -792,9 +659,9 @@ const ProfilePage: React.FC = () => {
                               {new Date(file.created_at).toLocaleDateString()}
                             </p>
                           </div>
-                          <a 
-                            href={file.url} 
-                            target="_blank" 
+                          <a
+                            href={file.url}
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="ml-2 text-learnflow-500 hover:text-learnflow-600"
                           >
@@ -819,7 +686,7 @@ const ProfilePage: React.FC = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden p-6">
           <div className="flex items-center mb-4">
-            <button 
+            <button
               onClick={() => window.location.href = '/'}
               className="mr-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               aria-label="Go back to home page"

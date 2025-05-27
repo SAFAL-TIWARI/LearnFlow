@@ -10,7 +10,6 @@ interface UserData {
   year?: string;
   semester?: string;
   branch?: string;
-  profile_picture?: string;
 }
 
 export default function UserProfile() {
@@ -104,9 +103,7 @@ export default function UserProfile() {
     return null;
   }
 
-  const profilePicture = userData?.profile_picture ||
-    user.user_metadata?.avatar_url ||
-    user.identities?.[0]?.identity_data?.avatar_url ||
+  const profilePicture = user.user_metadata?.avatar_url ||
     'https://ui-avatars.com/api/?name=' + encodeURIComponent(userData?.name || 'User');
 
   return (
@@ -207,7 +204,7 @@ export default function UserProfile() {
 
           <div className="px-4 py-2">
             <button
-              className="w-full flex items-center justify-center px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors font-roboto"
+              className="w-full flex items-center justify-center px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors font-ogg"
               onClick={async () => {
                 setIsOpen(false);
                 try {
