@@ -44,25 +44,19 @@ const ProfilePage: React.FC = () => {
 
         // Check which auth method we're using
         let userEmail = '';
-        let userPicture = '';
 
         if (supabaseUser) {
           // Using Supabase auth
           userEmail = supabaseUser.email || '';
-          userPicture = supabaseUser.user_metadata?.avatar_url ||
-                        supabaseUser.user_metadata?.picture ||
-                        supabaseUser.user_metadata?.profile_picture || '';
           console.log('Using Supabase auth:', supabaseUser);
         } else if (status === 'authenticated' && nextAuthSession) {
           // Using NextAuth
           userEmail = nextAuthSession.user?.email || '';
-          userPicture = nextAuthSession.user?.image || (nextAuthSession.user as any)?.picture || '';
           console.log('Using NextAuth:', nextAuthSession);
         } else if (isAuthenticated()) {
           // Using fallback auth
           const fallbackSession = getSession();
           userEmail = fallbackSession?.user.email || '';
-          userPicture = fallbackSession?.user.image || '';
           console.log('Using fallback auth:', fallbackSession);
         } else {
           // Not authenticated
@@ -71,7 +65,6 @@ const ProfilePage: React.FC = () => {
         }
 
         console.log('User email:', userEmail);
-        console.log('User picture:', userPicture);
 
         if (!userEmail) {
           console.error('No user email found');
@@ -127,8 +120,7 @@ const ProfilePage: React.FC = () => {
                   setUserData({
                     id: '1',
                     name: userEmail.split('@')[0],
-                    email: userEmail,
-                    profile_picture: userPicture
+                    email: userEmail
                   });
                 }
               }
@@ -138,8 +130,7 @@ const ProfilePage: React.FC = () => {
               setUserData({
                 id: '1',
                 name: userEmail.split('@')[0],
-                email: userEmail,
-                profile_picture: userPicture
+                email: userEmail
               });
             } else {
               // Some other error
@@ -185,8 +176,7 @@ const ProfilePage: React.FC = () => {
           setUserData({
             id: '1',
             name: userEmail.split('@')[0],
-            email: userEmail,
-            profile_picture: userPicture
+            email: userEmail
           });
         }
       } catch (error) {
@@ -196,8 +186,7 @@ const ProfilePage: React.FC = () => {
           setUserData({
             id: '1',
             name: nextAuthSession.user.email.split('@')[0],
-            email: nextAuthSession.user.email,
-            profile_picture: nextAuthSession.user.image || (nextAuthSession.user as any)?.picture
+            email: nextAuthSession.user.email
           });
         }
       } finally {
@@ -286,11 +275,11 @@ const ProfilePage: React.FC = () => {
               .from('user-files')
               .upload(`${category}/${fileName}`, file, {
                 cacheControl: '3600',
-                upsert: true,
-                onUploadProgress: (progress) => {
-                  setUploadProgress((progress.loaded / progress.total) * 100);
-                },
+                upsert: true
               });
+
+            // Set upload progress to 100% after successful upload
+            setUploadProgress(100);
 
             if (error) {
               console.error(`Error uploading file ${file.name}:`, error);
@@ -553,6 +542,9 @@ const ProfilePage: React.FC = () => {
                   >
                     <option value="">Select Branch</option>
                     <option value="CSE">Computer Science Engineering</option>
+                    <option value="Blockchain">Blockchain Technology</option>
+                    <option value="AIADS">Artificial Intelligence & Data Science</option>
+                    <option value="DS">Internet of Things</option>
                     <option value="IT">Information Technology</option>
                     <option value="ECE">Electronics & Communication</option>
                     <option value="EE">Electrical Engineering</option>

@@ -12,11 +12,13 @@ import Footer from '../components/Footer';
 import PageFadeSection from '../components/PageFadeSection';
 import LiveAnalyticsBadge from '../components/LiveAnalyticsBadge';
 import AnalyticsStatus from '../components/AnalyticsStatus';
+import SEOStructuredData from '../components/SEOStructuredData';
 import { ThemeProvider } from '../hooks/useTheme';
 
 const Index = () => {
   return (
     <ThemeProvider>
+      <SEOStructuredData page="home" />
       <div className="min-h-screen flex flex-col">
         <Navbar />
 
