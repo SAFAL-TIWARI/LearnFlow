@@ -35,6 +35,8 @@ import HelpPage from "./pages/HelpPage";
 import FeedbackPage from "./pages/FeedbackPage";
 import NoticesPage from "./pages/NoticesPage";
 import ReleaseNotesPage from "./pages/ReleaseNotesPage";
+import Search from "./pages/Search";
+import UserFiles from "./pages/UserFiles";
 import ChatbotWidget from "./components/Chatbot/ChatbotWidget";
 import GoToTopButton from "./components/GoToTopButton";
 import NotificationManager from "./components/NotificationManager";
@@ -126,6 +128,8 @@ const App = () => {
                       <Route path="/feedback" element={<FeedbackPage />} />
                       <Route path="/notices" element={<NoticesPage />} />
                       <Route path="/release-notes" element={<ReleaseNotesPage />} />
+                      <Route path="/search" element={<Search />} />
+                      <Route path="/user-files/:userId" element={<UserFiles />} />
 
                       {/* Auth Pages */}
                       <Route path="/auth-error" element={<AuthError />} />

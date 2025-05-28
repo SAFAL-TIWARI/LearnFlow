@@ -131,6 +131,17 @@ const CallToActionSection: React.FC = () => {
                   </span>
                 </Link>
                 <Link
+                  to="/search"
+                  className="group bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 border-2 border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700 px-8 py-4 rounded-xl font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 font-poppins text-lg"
+                >
+                  <span className="flex items-center justify-center">
+                    Search People
+                    <svg xmlns="http://www.w3.org/2000/svg" className="ml-2 w-5 h-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </span>
+                </Link>
+                <Link
                   to="/tools"
                   className="group bg-white dark:bg-gray-700 text-learnflow-600 dark:text-learnflow-400 border-2 border-learnflow-600 dark:border-learnflow-400 hover:bg-learnflow-50 dark:hover:bg-gray-600 px-8 py-4 rounded-xl font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 font-poppins text-lg"
                 >

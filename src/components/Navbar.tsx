@@ -131,6 +131,16 @@ const Navbar: React.FC = () => {
             >
               Resources
             </Link>
+            
+            {/* Search Button */}
+            <Link
+              to="/search"
+              className="text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"
+              title="Search for people"
+              aria-label="Search for people on LearnFlow"
+            >
+              Search
+            </Link>
 
             {/* <NotificationButton /> */}
             <button
@@ -230,6 +240,19 @@ const Navbar: React.FC = () => {
               aria-label="Navigate to academic resources and materials"
             >
               Resources
+            </Link>
+            
+            <Link
+              to="/search"
+              onClick={() => setIsMenuOpen(false)}
+              className={`text-left text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-all duration-300 ease-in-out transform hover:translate-x-2 hover:scale-105 font-alegreya ${
+                isMenuOpen ? 'animate-fade-in-up' : ''
+              }`}
+              style={{ animationDelay: '250ms' }}
+              title="Search for people"
+              aria-label="Search for people on LearnFlow"
+            >
+              Search
             </Link>
 
             <button
