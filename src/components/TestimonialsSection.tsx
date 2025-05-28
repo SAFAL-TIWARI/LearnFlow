@@ -82,7 +82,7 @@ const TestimonialsSection: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
           {/* Section Header */}
-          <FadeInElement delay={100} direction="up" distance={30} duration={800}>
+          <FadeInElement delay={100} direction="up" distance={30} duration={500}>
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4 font-bodoni">
                 What Students Say About LearnFlow
@@ -95,7 +95,7 @@ const TestimonialsSection: React.FC = () => {
           </FadeInElement>
 
           {/* Main Testimonial */}
-          <FadeInElement delay={300} direction="up" distance={30} duration={800}>
+          <FadeInElement delay={300} direction="up" distance={30} duration={500}>
             <div className="relative bg-white dark:bg-gray-800 rounded-2xl p-8 md:p-12 shadow-xl mb-8">
               {/* Quote Icon */}
               <div className="absolute top-6 left-6 text-learnflow-200 dark:text-learnflow-800">
@@ -172,7 +172,7 @@ const TestimonialsSection: React.FC = () => {
           </FadeInElement>
 
           {/* Additional Testimonials Grid */}
-          <FadeInElement delay={500} direction="up" distance={30} duration={800}>
+          <FadeInElement delay={500} direction="up" distance={30} duration={500}>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {testimonials.slice(0, 3).map((testimonial, index) => (
                 <div
@@ -206,7 +206,7 @@ const TestimonialsSection: React.FC = () => {
           </FadeInElement>
 
           {/* CTA Section */}
-          <FadeInElement delay={700} direction="up" distance={30} duration={800}>
+          <FadeInElement delay={500} direction="up" distance={30} duration={500}>
             <div className="text-center mt-12">
               <div className="bg-gradient-to-r from-green-500 to-teal-600 rounded-xl p-8 text-white">
                 <h3 className="text-2xl font-bold mb-4 font-bodoni">

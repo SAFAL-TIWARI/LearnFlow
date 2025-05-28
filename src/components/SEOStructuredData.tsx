@@ -18,7 +18,8 @@ const SEOStructuredData: React.FC<SEOStructuredDataProps> = ({ page = 'home' }) 
     "sameAs": [
       "https://www.instagram.com/learnflow",
       "https://www.linkedin.com/company/learnflow",
-      "https://github.com/learnflow"
+      "https://github.com/learnflow",
+      "https://x.com/learnflow",
     ],
     "contactPoint": {
       "@type": "ContactPoint",

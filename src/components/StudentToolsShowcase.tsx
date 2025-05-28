@@ -86,7 +86,7 @@ const StudentToolsShowcase: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
           {/* Section Header with Image */}
-          <FadeInElement delay={100} direction="up" distance={30} duration={800}>
+          <FadeInElement delay={100} direction="up" distance={30} duration={500}>
             <div className="text-center mb-12">
               <div className="flex justify-center mb-8">
                 <img
@@ -113,7 +113,7 @@ const StudentToolsShowcase: React.FC = () => {
                 delay={200 + index * 100}
                 direction="up"
                 distance={30}
-                duration={800}
+                duration={500}
               >
                 <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-200 dark:border-gray-700 relative">
                   {/* Popular Badge */}
@@ -162,7 +162,7 @@ const StudentToolsShowcase: React.FC = () => {
           </div>
 
           {/* Stats Section */}
-          <FadeInElement delay={800} direction="up" distance={30} duration={800}>
+          <FadeInElement delay={500} direction="up" distance={30} duration={500}>
             <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-lg">
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center font-bodoni">
                 Trusted by Students Everywhere
@@ -186,7 +186,7 @@ const StudentToolsShowcase: React.FC = () => {
           </FadeInElement>
 
           {/* CTA Section */}
-          <FadeInElement delay={1000} direction="up" distance={30} duration={800}>
+          <FadeInElement delay={500} direction="up" distance={30} duration={500}>
             <div className="text-center mt-12">
               <div className="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl p-8 text-white">
                 <h3 className="text-2xl font-bold mb-4 font-bodoni">

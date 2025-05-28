@@ -109,7 +109,7 @@ const StatisticsSection: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
           {/* Section Header */}
-          <FadeInElement delay={100} direction="up" distance={30} duration={800}>
+          <FadeInElement delay={100} direction="up" distance={30} duration={500}>
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4 font-bodoni">
                 LearnFlow by the Numbers
@@ -129,7 +129,7 @@ const StatisticsSection: React.FC = () => {
                 delay={200 + index * 100}
                 direction="up"
                 distance={30}
-                duration={800}
+                duration={500}
               >
                 <div className={`p-6 rounded-xl border-2 ${stat.color} text-center hover:shadow-lg transition-all duration-300 hover:-translate-y-1`}>
                   <div className="flex justify-center mb-4">
@@ -150,7 +150,7 @@ const StatisticsSection: React.FC = () => {
           </div>
 
           {/* Achievements Section */}
-          <FadeInElement delay={600} direction="up" distance={30} duration={800}>
+          <FadeInElement delay={500} direction="up" distance={30} duration={500}>
             <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-8">
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center font-bodoni">
                 What Makes Us Special
@@ -174,7 +174,7 @@ const StatisticsSection: React.FC = () => {
           </FadeInElement>
 
           {/* Impact Statement */}
-          <FadeInElement delay={800} direction="up" distance={30} duration={800}>
+          <FadeInElement delay={500} direction="up" distance={30} duration={500}>
             <div className="text-center mt-12">
               <div className="bg-gradient-to-r from-learnflow-500 to-blue-600 rounded-xl p-8 text-white">
                 <h3 className="text-2xl font-bold mb-4 font-bodoni">

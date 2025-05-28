@@ -79,7 +79,7 @@ const Index = () => {
         <PageFadeSection
           animationType="fade-up"
           threshold={0.1}
-          delay={100}
+          delay={50}
         >
           <Footer />
         </PageFadeSection>

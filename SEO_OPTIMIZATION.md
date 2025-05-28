@@ -41,6 +41,7 @@ The enhanced home page now contains:
   "sameAs": [
     "https://instagram.com/learnflow",
     "https://linkedin.com/company/learnflow"
+    "https://twitter.com/learnflow"
   ]
 }
 ```

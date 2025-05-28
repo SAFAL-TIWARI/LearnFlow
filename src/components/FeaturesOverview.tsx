@@ -74,7 +74,7 @@ const FeaturesOverview: React.FC = () => {
                 delay={200 + index * 100} 
                 direction="up" 
                 distance={30} 
-                duration={800}
+                duration={500}
               >
                 <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-200 dark:border-gray-700">
                   {/* Icon */}
@@ -108,7 +108,7 @@ const FeaturesOverview: React.FC = () => {
           </div>
 
           {/* Bottom CTA */}
-          <FadeInElement delay={800} direction="up" distance={30} duration={800}>
+          <FadeInElement delay={500} direction="up" distance={30} duration={500}>
             <div className="text-center mt-12">
               <p className="text-gray-600 dark:text-gray-300 mb-6 text-lg">
                 Ready to transform your learning experience?

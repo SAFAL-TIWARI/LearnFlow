@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { InstagramIcon, LinkedInIcon, GitHubIcon, YouTubeIcon } from './Icons';
+import { InstagramIcon, LinkedInIcon, GitHubIcon, YouTubeIcon, TwitterIcon } from './Icons';
 import { scrollToTop } from '../utils/scrollUtils';
 import ExternalLink from './ExternalLink';
 import { Dialog } from '@/components/ui/dialog';
@@ -93,6 +93,16 @@ const Footer: React.FC = () => {
                 aria-label="View LearnFlow projects on GitHub"
               >
                 <GitHubIcon />
+              </a>
+               <a
+                href="https://x.com/SAFAL_TIWARI_/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                title="Connect with us on X"
+                aria-label="Connect with LearnFlow on X (Twitter)"
+              >
+                <TwitterIcon />
               </a>
               {/* <a
                 href="https://www.youtube.com/@safal_editz"
