@@ -12,6 +12,7 @@ interface UserData {
   year?: string;
   semester?: string;
   branch?: string;
+  isCurrentUser?: boolean;
 }
 
 interface FileUpload {
@@ -35,6 +36,8 @@ const ProfilePage: React.FC = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [viewingUserId, setViewingUserId] = useState<string | null>(null);
+  const [isCurrentUserProfile, setIsCurrentUserProfile] = useState(true);
   
   // State for dropdown menus
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -50,13 +53,48 @@ const ProfilePage: React.FC = () => {
     const fetchUserData = async () => {
       try {
         setLoading(true);
+        
+        // Check if we're viewing another user's profile from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('userId');
+        
+        if (userId) {
+          setViewingUserId(userId);
+          setIsCurrentUserProfile(false);
+          console.log('Viewing user profile with ID:', userId);
+          
+          // Fetch the user data for the specified user ID
+          const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', userId)
+            .single();
+            
+          if (error) {
+            console.error('Error fetching user data by ID:', error);
+            setLoading(false);
+            return;
+          }
+          
+          if (data) {
+            console.log('User found by ID:', data);
+            setUserData({...data, isCurrentUser: false});
+            
+            // Fetch files for this user
+            await fetchUserFiles(userId);
+            setLoading(false);
+            return;
+          }
+        }
 
-        // Check which auth method we're using
+        // If not viewing another user, proceed with current user authentication
         let userEmail = '';
+        let currentUserId = '';
 
         if (supabaseUser) {
           // Using Supabase auth
           userEmail = supabaseUser.email || '';
+          currentUserId = supabaseUser.id;
           console.log('Using Supabase auth:', supabaseUser);
         } else if (status === 'authenticated' && nextAuthSession) {
           // Using NextAuth
@@ -80,6 +118,8 @@ const ProfilePage: React.FC = () => {
           setLoading(false);
           return;
         }
+        
+        setIsCurrentUserProfile(true);
 
         // Check if the 'users' table exists
         try {
@@ -160,22 +200,35 @@ const ProfilePage: React.FC = () => {
 
             // Fetch user files if we have user data
             try {
+              // Get the current authenticated user ID
+              const { data: { user: authUser } } = await supabase.auth.getUser();
+              console.log('Current authenticated user for initial file fetch:', authUser);
+              
+              // Use the authenticated user ID if available, otherwise fall back to data.id
+              const userId = authUser?.id || data.id;
+              console.log('Fetching user files for user ID:', userId);
+              
               const { data: filesData, error: filesError } = await supabase
                 .from('user_files')
                 .select('*')
-                .eq('user_id', data.id);
+                .eq('user_id', userId);
 
+              console.log('User files fetch response:', { filesData, filesError });
+              
               if (filesError) {
                 console.error('Error fetching user files:', filesError);
                 // If table doesn't exist, just continue with empty files
                 if (filesError.code === '42P01' || filesError.message.includes('does not exist')) {
+                  console.log('user_files table does not exist, using empty array');
                   setUserFiles([]);
                 }
               } else {
+                console.log('Setting user files from database:', filesData);
                 setUserFiles(filesData || []);
               }
             } catch (filesError) {
               console.error('Error fetching user files:', filesError);
+              console.log('Using empty array due to error');
               setUserFiles([]);
             }
           }
@@ -207,6 +260,35 @@ const ProfilePage: React.FC = () => {
       fetchUserData();
     }
   }, [supabaseUser, nextAuthSession, status]);
+  
+  // Function to fetch files for a specific user
+  const fetchUserFiles = async (userId: string) => {
+    try {
+      console.log('Fetching files for user ID:', userId);
+      
+      const { data: filesData, error: filesError } = await supabase
+        .from('user_files')
+        .select('*')
+        .eq('user_id', userId);
+      
+      console.log('User files fetch response:', { filesData, filesError });
+      
+      if (filesError) {
+        console.error('Error fetching user files:', filesError);
+        // If table doesn't exist, just continue with empty files
+        if (filesError.code === '42P01' || filesError.message.includes('does not exist')) {
+          console.log('user_files table does not exist, using empty array');
+          setUserFiles([]);
+        }
+      } else {
+        console.log('Setting user files from database:', filesData);
+        setUserFiles(filesData || []);
+      }
+    } catch (error) {
+      console.error('Error fetching user files:', error);
+      setUserFiles([]);
+    }
+  };
   
   // Handle dropdown hover with delay
   const handleDropdownMouseEnter = (category: string) => {
@@ -388,16 +470,27 @@ const ProfilePage: React.FC = () => {
 
 
   const handleFileUpload = async (files: FileList | null, category: string) => {
-    if (!files || !userData) return;
+    console.log('Starting file upload process...');
+    console.log('Files:', files);
+    console.log('User data:', userData);
+    console.log('Selected subject:', selectedSubject);
+    console.log('Category:', category);
+    
+    if (!files || !userData) {
+      console.error('Missing files or user data');
+      return;
+    }
     
     // If no subject is selected, alert the user
     if (!selectedSubject) {
       alert('Please select a subject first by clicking on one of the subjects in the dropdown menu.');
+      console.error('No subject selected');
       return;
     }
 
     try {
       setIsUploading(true);
+      console.log('Upload started, files count:', files.length);
 
       const newFiles: FileUpload[] = [];
 
@@ -410,14 +503,26 @@ const ProfilePage: React.FC = () => {
           let fileUrl = '';
 
           try {
+            console.log(`Uploading file ${i+1}/${files.length}: ${file.name}`);
+            console.log('Storage path:', `${category}/${selectedSubject.code}/${fileName}`);
+            
+            // Check if the bucket exists and create it if needed
+            const { data: buckets } = await supabase.storage.listBuckets();
+            console.log('Available buckets:', buckets);
+            
+            // Use 'user-files' bucket (with hyphen) as in your code, or try 'user_files' (with underscore)
+            const bucketName = 'user-files';
+            
             // Upload the file to Supabase Storage with subject code in the path
             const { data, error } = await supabase.storage
-              .from('user-files')
+              .from(bucketName)
               .upload(`${category}/${selectedSubject.code}/${fileName}`, file, {
                 cacheControl: '3600',
                 upsert: true
               });
 
+            console.log('Storage upload response:', { data, error });
+            
             // Set upload progress to 100% after successful upload
             setUploadProgress(100);
 
@@ -425,13 +530,19 @@ const ProfilePage: React.FC = () => {
               console.error(`Error uploading file ${file.name}:`, error);
               // Create a local URL as fallback
               fileUrl = URL.createObjectURL(file);
+              console.log('Using local URL fallback:', fileUrl);
             } else {
               // Get the public URL with subject code in the path
+              const storagePath = `${category}/${selectedSubject.code}/${fileName}`;
+              console.log('Getting public URL for:', storagePath);
+              
               const { data: urlData } = supabase.storage
-                .from('user-files')
-                .getPublicUrl(`${category}/${selectedSubject.code}/${fileName}`);
+                .from(bucketName)
+                .getPublicUrl(storagePath);
 
+              console.log('Public URL data:', urlData);
               fileUrl = urlData.publicUrl;
+              console.log('File URL:', fileUrl);
             }
           } catch (storageError) {
             console.error('Storage error:', storageError);
@@ -440,21 +551,38 @@ const ProfilePage: React.FC = () => {
           }
 
           try {
+            console.log('Saving file metadata to database...');
+            // Get the current authenticated user ID
+            const { data: { user } } = await supabase.auth.getUser();
+            console.log('Current authenticated user:', user);
+            
+            // Use the authenticated user ID if available, otherwise fall back to userData.id
+            const userId = user?.id || userData.id;
+            console.log('Using user ID for database insert:', userId);
+            
+            const fileMetadata = {
+              user_id: userId,
+              name: file.name,
+              url: fileUrl,
+              type: file.type,
+              category: category,
+              subject_code: selectedSubject.code,
+              subject_name: selectedSubject.name,
+            };
+            console.log('File metadata:', fileMetadata);
+            
             // Save file metadata to the database with subject information
-            const { error: insertError } = await supabase
+            const { data: insertData, error: insertError } = await supabase
               .from('user_files')
-              .insert({
-                user_id: userData.id,
-                name: file.name,
-                url: fileUrl,
-                type: file.type,
-                category: category,
-                subject_code: selectedSubject.code,
-                subject_name: selectedSubject.name,
-              });
+              .insert(fileMetadata)
+              .select();
 
+            console.log('Database insert response:', { insertData, insertError });
+            
             if (insertError) {
               console.error('Error saving file metadata:', insertError);
+            } else {
+              console.log('File metadata saved successfully:', insertData);
             }
           } catch (dbError) {
             console.error('Database error:', dbError);
@@ -477,22 +605,37 @@ const ProfilePage: React.FC = () => {
       }
 
       try {
+        console.log('Refreshing file list from database...');
+        
+        // Get the current authenticated user ID
+        const { data: { user } } = await supabase.auth.getUser();
+        console.log('Current authenticated user for file refresh:', user);
+        
+        // Use the authenticated user ID if available, otherwise fall back to userData.id
+        const userId = user?.id || userData.id;
+        console.log('Using user ID for file list query:', userId);
+        
         // Refresh the file list from database
         const { data: filesData, error: filesError } = await supabase
           .from('user_files')
           .select('*')
-          .eq('user_id', userData.id);
+          .eq('user_id', userId);
 
+        console.log('File list refresh response:', { filesData, filesError });
+        
         if (filesError) {
           console.error('Error fetching user files:', filesError);
           // Use the locally created files
+          console.log('Using locally created files:', newFiles);
           setUserFiles(prev => [...prev, ...newFiles]);
         } else {
+          console.log('Setting user files from database:', filesData);
           setUserFiles(filesData || []);
         }
       } catch (refreshError) {
         console.error('Error refreshing files:', refreshError);
         // Use the locally created files
+        console.log('Using locally created files due to error:', newFiles);
         setUserFiles(prev => [...prev, ...newFiles]);
       }
 
@@ -916,10 +1059,19 @@ const ProfilePage: React.FC = () => {
                   )}
                 </h4>
 
-                {userFiles.filter(file => 
-                  file.category === uploadSection.toLowerCase() && 
-                  (!selectedSubject || file.subject_code === selectedSubject.code)
-                ).length === 0 ? (
+                {/* Log file list info */}
+                {(() => {
+                  console.log('Rendering file list:', { userFiles, uploadSection, selectedSubject });
+                  return null;
+                })()}
+                {userFiles.filter(file => {
+                  // Log filtering process
+                  console.log('Filtering file:', file);
+                  const normalizedCategory = uploadSection.toLowerCase();
+                  console.log('Comparing file category:', file.category, 'with normalized category:', normalizedCategory);
+                  return file.category === normalizedCategory && 
+                    (!selectedSubject || file.subject_code === selectedSubject.code);
+                }).length === 0 ? (
                   <p className="text-gray-500 dark:text-gray-400 text-sm italic">
                     {selectedSubject 
                       ? `No ${uploadSection} files uploaded yet for ${selectedSubject.code}`
@@ -927,6 +1079,13 @@ const ProfilePage: React.FC = () => {
                   </p>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {(() => {
+                      console.log('Filtered files for display:', userFiles.filter(file => 
+                        file.category === uploadSection.toLowerCase() && 
+                        (!selectedSubject || file.subject_code === selectedSubject.code)
+                      ));
+                      return null;
+                    })()}
                     {userFiles
                       .filter(file => 
                         file.category === uploadSection.toLowerCase() && 
