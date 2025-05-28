@@ -702,10 +702,21 @@ const ProfilePage: React.FC = () => {
         </div>
         <p className="text-gray-600 dark:text-gray-400 mb-6">You need to be signed in to view your profile.</p>
         <button
-          onClick={() => window.location.href = '/'}
-          className="px-4 py-2 bg-learnflow-500 text-white rounded-lg hover:bg-learnflow-600 transition-colors"
+          onClick={() => {
+            // Open login page in a new window with signup mode
+            const signupWindow = window.open('/login?mode=signup', '_blank', 'width=500,height=600');
+            
+            // Focus the new window
+            if (signupWindow) {
+              signupWindow.focus();
+            }
+          }}
+          className="w-full max-w-xs flex items-center justify-center px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium transition-all duration-300 hover:bg-indigo-700 hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
         >
-          Go to Home
+          Sign Up
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
         </button>
       </div>
     );
