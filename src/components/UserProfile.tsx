@@ -92,19 +92,57 @@ export default function UserProfile() {
       }
     };
 
+    // Listen for profile update events
+    const handleProfileUpdate = (event: Event) => {
+      if (user) {
+        // Refetch user data when profile is updated
+        const fetchUserData = async () => {
+          try {
+            const userEmail = user.email || '';
+            
+            // Fetch updated user data from Supabase
+            const { data, error } = await supabase
+              .from('users')
+              .select('*')
+              .eq('email', userEmail)
+              .single();
+
+            if (error) {
+              console.error('Error fetching updated user data:', error);
+              return;
+            }
+
+            if (data) {
+              setUserData(data);
+            }
+          } catch (error) {
+            console.error('Error refreshing user profile:', error);
+          }
+        };
+
+        fetchUserData();
+      }
+    };
+
     document.addEventListener('mousedown', handleClickOutside);
+    window.addEventListener('profile-updated', handleProfileUpdate);
+    
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('profile-updated', handleProfileUpdate);
     };
-  }, []);
+  }, [user]);
 
   // If not authenticated or still loading, return null
   if (!user || loading) {
     return null;
   }
 
+  // Use the name from Supabase database if available, otherwise fallback to auth metadata
+  const userName = userData?.name || user.user_metadata?.full_name || user.identities?.[0]?.identity_data?.full_name || user.email?.split('@')[0] || 'User';
+  
   const profilePicture = user.user_metadata?.avatar_url ||
-    'https://ui-avatars.com/api/?name=' + encodeURIComponent(userData?.name || 'User');
+    'https://ui-avatars.com/api/?name=' + encodeURIComponent(userName);
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -129,7 +167,7 @@ export default function UserProfile() {
                 className="w-12 h-12 rounded-full mr-3 object-cover"
               />
               <div>
-                <p className="font-semibold text-gray-800 dark:text-gray-200">{userData?.name || 'User'}</p>
+                <p className="font-semibold text-gray-800 dark:text-gray-200">{userName}</p>
                 <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{userData?.email || ''}</p>
               </div>
             </div>

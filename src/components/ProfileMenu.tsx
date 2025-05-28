@@ -2,10 +2,15 @@ import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/SupabaseAuthContext';
+import { supabase } from '../lib/supabase';
 
 export default function ProfileMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
+  const [userData, setUserData] = useState<{
+    name?: string;
+    email?: string;
+  } | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const { user, logout } = useAuth();
@@ -89,12 +94,53 @@ export default function ProfileMenu() {
 
 
 
-  // Log user data for debugging
+  // Fetch user data from Supabase
   useEffect(() => {
+    const fetchUserData = async () => {
+      if (!user) return;
+      
+      try {
+        // Get user email from Supabase auth
+        const userEmail = user.email || '';
+        
+        // Check if user exists in Supabase
+        const { data, error } = await supabase
+          .from('users')
+          .select('name, email')
+          .eq('email', userEmail)
+          .single();
+          
+        if (error && error.code !== 'PGRST116') {
+          console.error('Error fetching user data:', error);
+          return;
+        }
+        
+        if (data) {
+          // User exists, use their data
+          setUserData(data);
+          console.log('Fetched user data from Supabase:', data);
+        }
+      } catch (error) {
+        console.error('Error in fetching user profile:', error);
+      }
+    };
+    
     if (user) {
-      console.log('User in ProfileMenu:', user);
-      console.log('User metadata:', user.user_metadata);
+      fetchUserData();
     }
+    
+    // Listen for profile update events
+    const handleProfileUpdate = () => {
+      if (user) {
+        fetchUserData();
+      }
+    };
+    
+    window.addEventListener('profile-updated', handleProfileUpdate);
+    
+    return () => {
+      window.removeEventListener('profile-updated', handleProfileUpdate);
+    };
   }, [user]);
 
 
@@ -103,6 +149,12 @@ export default function ProfileMenu() {
   const getUserName = () => {
     if (!user) return 'G';
 
+    // First try to get name from Supabase database
+    if (userData?.name) {
+      return userData.name.charAt(0).toUpperCase();
+    }
+
+    // Fallback to auth metadata
     const name = user.user_metadata?.full_name ||
       user.user_metadata?.name ||
       user.user_metadata?.given_name ||
@@ -119,7 +171,9 @@ export default function ProfileMenu() {
   const getAvatarColor = () => {
     if (!user) return 'bg-gray-500';
 
-    const name = user.user_metadata?.full_name ||
+    // First try to get name from Supabase database
+    const name = userData?.name || 
+      user.user_metadata?.full_name ||
       user.user_metadata?.name ||
       user.user_metadata?.given_name ||
       user.identities?.[0]?.identity_data?.full_name ||
@@ -230,7 +284,8 @@ export default function ProfileMenu() {
                 )}
                 <div>
                   <p className="font-semibold text-gray-800 dark:text-gray-200">
-                    {user.user_metadata?.full_name ||
+                    {userData?.name || 
+                      user.user_metadata?.full_name ||
                       user.user_metadata?.name ||
                       user.user_metadata?.given_name ||
                       user.identities?.[0]?.identity_data?.full_name ||

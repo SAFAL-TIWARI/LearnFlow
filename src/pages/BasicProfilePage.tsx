@@ -73,13 +73,46 @@ const BasicProfilePage: React.FC = () => {
     setUserData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSaveProfile = () => {
-    // Save to localStorage for now
-    localStorage.setItem(`profile_year_${userData.email}`, userData.year);
-    localStorage.setItem(`profile_semester_${userData.email}`, userData.semester);
-    localStorage.setItem(`profile_branch_${userData.email}`, userData.branch);
-
-    alert('Profile updated successfully!');
+  const handleSaveProfile = async () => {
+    try {
+      // Save to localStorage
+      localStorage.setItem(`profile_year_${userData.email}`, userData.year);
+      localStorage.setItem(`profile_semester_${userData.email}`, userData.semester);
+      localStorage.setItem(`profile_branch_${userData.email}`, userData.branch);
+      
+      // Save to Supabase if user is authenticated
+      if (user) {
+        const { supabase } = await import('../lib/supabase');
+        
+        // Update user in the users table
+        const { error } = await supabase
+          .from('users')
+          .update({
+            name: userData.name,
+            year: userData.year,
+            semester: userData.semester,
+            branch: userData.branch,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', user.id);
+          
+        if (error) {
+          console.error('Error updating user profile:', error);
+          throw error;
+        }
+      }
+      
+      // Dispatch a custom event to notify other components that the profile has been updated
+      const profileUpdateEvent = new CustomEvent('profile-updated', {
+        detail: { email: userData.email }
+      });
+      window.dispatchEvent(profileUpdateEvent);
+      
+      alert('Profile updated successfully!');
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      alert('Failed to update profile. Please try again.');
+    }
   };
 
   if (loading) {
