@@ -45,6 +45,43 @@ export default function UserProfile() {
           throw error;
         }
 
+
+        // Check if user profile exists in profiles table
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .single();
+
+        if (profileError && profileError.code !== 'PGRST116') {
+          console.error('Error fetching user profile:', profileError);
+        }
+
+        // If profile doesn't exist, create one
+        if (!profileData) {
+          console.log('Creating user profile in profiles table');
+          const username = userName.toLowerCase().replace(/\s+/g, '_') + '_' + Math.floor(Math.random() * 1000);
+          
+          const newProfile = {
+            id: userId,
+            username: username,
+            full_name: userName,
+            is_public: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          };
+
+          const { error: createProfileError } = await supabase
+            .from('profiles')
+            .insert([newProfile]);
+
+          if (createProfileError) {
+            console.error('Error creating user profile:', createProfileError);
+          } else {
+            console.log('Successfully created user profile in profiles table');
+          }
+        }
+
         if (data) {
           // User exists, use their data
           setUserData(data);

@@ -233,12 +233,72 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Authentication methods
   const handleSignIn = async (email: string, password: string) => {
-    const { error } = await signInWithEmail(email, password)
+    const { data, error } = await signInWithEmail(email, password)
+    
+    // If signup was successful, create a profile in the profiles table
+    if (!error && data?.user) {
+      try {
+        const userId = data.user.id;
+        const userName = email.split('@')[0];
+        const username = userName.toLowerCase().replace(/\s+/g, '_') + '_' + Math.floor(Math.random() * 1000);
+        
+        // Create a profile in the profiles table
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert([{
+            id: userId,
+            username: username,
+            full_name: userName,
+            is_public: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }]);
+          
+        if (profileError) {
+          console.error('Error creating user profile during signup:', profileError);
+        } else {
+          console.log('Successfully created user profile during signup');
+        }
+      } catch (profileError) {
+        console.error('Error in profile creation during signup:', profileError);
+      }
+    }
+    
     return { error }
   }
 
   const handleSignUp = async (email: string, password: string) => {
-    const { error } = await signUpWithEmail(email, password)
+    const { data, error } = await signUpWithEmail(email, password)
+    
+    // If signup was successful, create a profile in the profiles table
+    if (!error && data?.user) {
+      try {
+        const userId = data.user.id;
+        const userName = email.split('@')[0];
+        const username = userName.toLowerCase().replace(/\s+/g, '_') + '_' + Math.floor(Math.random() * 1000);
+        
+        // Create a profile in the profiles table
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert([{
+            id: userId,
+            username: username,
+            full_name: userName,
+            is_public: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }]);
+          
+        if (profileError) {
+          console.error('Error creating user profile during signup:', profileError);
+        } else {
+          console.log('Successfully created user profile during signup');
+        }
+      } catch (profileError) {
+        console.error('Error in profile creation during signup:', profileError);
+      }
+    }
+    
     return { error }
   }
 

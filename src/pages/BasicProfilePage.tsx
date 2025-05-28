@@ -97,8 +97,63 @@ const BasicProfilePage: React.FC = () => {
           .eq('id', user.id);
           
         if (error) {
-          console.error('Error updating user profile:', error);
+          console.error('Error updating user profile in users table in users table:', error);
           throw error;
+        }
+        
+        
+        // Check if user profile exists in profiles table
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+          
+        if (profileError && profileError.code !== 'PGRST116') {
+          console.error('Error checking user profile in profiles table:', profileError);
+        }
+        
+        if (profileData) {
+          // Update existing profile in profiles table
+          const { error: updateProfileError } = await supabase
+            .from('profiles')
+            .update({
+              full_name: userData.name,
+              branch: userData.branch,
+              year: userData.year,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', user.id);
+            
+          if (updateProfileError) {
+            console.error('Error updating user profile in profiles table:', updateProfileError);
+          } else {
+            console.log('Successfully updated user profile in profiles table');
+          }
+        } else {
+          // Create new profile in profiles table
+          const username = userData.name.toLowerCase().replace(/\s+/g, '_') + '_' + Math.floor(Math.random() * 1000);
+          
+          const newProfile = {
+            id: user.id,
+            username: username,
+            full_name: userData.name,
+            branch: userData.branch,
+            year: userData.year,
+            is_public: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          };
+          
+          const { error: createProfileError } = await supabase
+            .from('profiles')
+            .insert([newProfile]);
+            
+          if (createProfileError) {
+            console.error('Error creating user profile in profiles table:', createProfileError);
+          } else {
+            console.log('Successfully created user profile in profiles table');
+          }
         }
       }
       
