@@ -66,12 +66,27 @@ const Search: React.FC = () => {
         return;
       }
 
+      console.log('Starting search for query:', query);
+
       // Search users using Supabase function
       const supabaseProfiles = await searchUsers(query);
       
-      // Convert Supabase profiles to our component format
-      const profiles = supabaseProfiles.map(convertSupabaseProfile);
+      console.log('Raw search results:', supabaseProfiles);
       
+      if (!supabaseProfiles || supabaseProfiles.length === 0) {
+        console.log('No profiles found for query:', query);
+        setSearchResults([]);
+        setIsSearching(false);
+        return;
+      }
+      
+      // Convert Supabase profiles to our component format
+      const profiles = supabaseProfiles.map(profile => {
+        console.log('Converting profile:', profile);
+        return convertSupabaseProfile(profile);
+      });
+      
+      console.log('Converted profiles:', profiles);
       setSearchResults(profiles);
     } catch (error) {
       console.error('Error searching users:', error);

@@ -39,10 +39,43 @@ export interface UserFile {
 // Search for users
 export async function searchUsers(query: string) {
   try {
+    console.log('Searching for users with query:', query);
+    
+    // First, check if the search_users function exists
+    const { data: functionExists, error: functionCheckError } = await supabase
+      .rpc('search_users', { search_query: 'test' })
+      .limit(1);
+      
+    if (functionCheckError) {
+      console.error('Error checking search_users function:', functionCheckError);
+      
+      // If the RPC function doesn't exist, try a direct query as fallback
+      console.log('Trying direct query as fallback...');
+      const { data: directData, error: directError } = await supabase
+        .from('profiles')
+        .select('*')
+        .or(`username.ilike.%${query}%,full_name.ilike.%${query}%,branch.ilike.%${query}%,college.ilike.%${query}%`)
+        .eq('is_public', true);
+        
+      if (directError) {
+        console.error('Error with direct query fallback:', directError);
+        throw directError;
+      }
+      
+      console.log('Direct query results:', directData);
+      return directData as UserProfile[];
+    }
+    
+    // If the function check passed, use the RPC function
     const { data, error } = await supabase
       .rpc('search_users', { search_query: query });
     
-    if (error) throw error;
+    if (error) {
+      console.error('Error using search_users RPC:', error);
+      throw error;
+    }
+    
+    console.log('Search results:', data);
     return data as UserProfile[];
   } catch (error) {
     console.error('Error searching users:', error);
