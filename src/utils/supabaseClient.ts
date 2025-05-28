@@ -138,9 +138,9 @@ export async function uploadFile(
 ) {
   try {
     // Upload to storage
-    const filePath = `user_files/${userId}/${Date.now()}_${file.name}`;
+    const filePath = `${userId}/${Date.now()}_${file.name}`;
     const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('files')
+      .from('user-files')
       .upload(filePath, file);
     
     if (uploadError) throw uploadError;
@@ -196,7 +196,7 @@ export async function shareFile(fileId: string, ownerId: string, sharedWithId: s
 export async function downloadFile(filePath: string) {
   try {
     const { data, error } = await supabase.storage
-      .from('files')
+      .from('user-files')
       .download(filePath);
     
     if (error) throw error;
