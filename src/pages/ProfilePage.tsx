@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import { getSession, isAuthenticated } from '../lib/auth-fallback';
 import { useAuth } from '../context/SupabaseAuthContext';
 import { useSafeSession } from '../hooks/useSafeSession';
+import { branchSubjects, Subject } from '../data/academicData';
 
 interface UserData {
   id: string;
@@ -20,6 +21,8 @@ interface FileUpload {
   type: string;
   created_at: string;
   category: string;
+  subject_code?: string;
+  subject_name?: string;
 }
 
 const ProfilePage: React.FC = () => {
@@ -32,6 +35,12 @@ const ProfilePage: React.FC = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // State for dropdown menus
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [dropdownTimeouts, setDropdownTimeouts] = useState<Record<string, NodeJS.Timeout>>({});
+  const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Try to use Supabase auth first, then NextAuth as fallback
   const { user: supabaseUser } = useAuth();
@@ -198,6 +207,131 @@ const ProfilePage: React.FC = () => {
       fetchUserData();
     }
   }, [supabaseUser, nextAuthSession, status]);
+  
+  // Handle dropdown hover with delay
+  const handleDropdownMouseEnter = (category: string) => {
+    // Clear any existing timeout for this category
+    if (dropdownTimeouts[category]) {
+      clearTimeout(dropdownTimeouts[category]);
+      const newTimeouts = { ...dropdownTimeouts };
+      delete newTimeouts[category];
+      setDropdownTimeouts(newTimeouts);
+    }
+    setActiveDropdown(category);
+  };
+
+  const handleDropdownMouseLeave = (category: string) => {
+    // Only use hover behavior for non-mobile
+    if (!isMobile) {
+      const timeout = setTimeout(() => {
+        setActiveDropdown(null);
+      }, 150); // 150ms delay before closing
+      
+      setDropdownTimeouts(prev => ({
+        ...prev,
+        [category]: timeout
+      }));
+    }
+  };
+  
+  // Handle click for mobile devices
+  const handleCategoryClick = (category: string) => {
+    if (isMobile) {
+      // If the dropdown is already open, close it and set upload section
+      if (activeDropdown === category) {
+        setActiveDropdown(null);
+        setUploadSection(category);
+      } else {
+        // Otherwise, open the dropdown
+        setActiveDropdown(category);
+      }
+    } else {
+      // For desktop, just set the upload section
+      setUploadSection(category);
+    }
+  };
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(dropdownTimeouts).forEach(timeout => {
+        clearTimeout(timeout);
+      });
+    };
+  }, [dropdownTimeouts]);
+  
+  // Detect mobile devices
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    // Initial check
+    checkIfMobile();
+    
+    // Add event listener for window resize
+    window.addEventListener('resize', checkIfMobile);
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener('resize', checkIfMobile);
+    };
+  }, []);
+  
+  // Handle clicks outside of dropdown on mobile
+  useEffect(() => {
+    if (!isMobile || !activeDropdown) return;
+    
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      // Check if the click is outside of any dropdown
+      if (!target.closest('.category-dropdown')) {
+        setActiveDropdown(null);
+      }
+    };
+    
+    document.addEventListener('click', handleClickOutside);
+    
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [isMobile, activeDropdown]);
+  
+  // Get subjects based on user's year, semester, and branch
+  const getUserSubjects = (): Subject[] => {
+    if (!userData?.year || !userData?.semester || !userData?.branch) {
+      return [];
+    }
+    
+    const year = parseInt(userData.year);
+    const semester = parseInt(userData.semester);
+    
+    // Map the branch value from the form to the branch ID in academicData
+    const branchMap: Record<string, string> = {
+      'CSE': 'cse',
+      'Blockchain': 'blockchain',
+      'AIADS': 'aiads',
+      'DS': 'cse-iot',
+      'IT': 'it',
+      'ECE': 'ec',
+      'EE': 'ee'
+    };
+    
+    const branchId = branchMap[userData.branch] || '';
+    
+    // Get subjects for the user's year, semester, and branch
+    try {
+      if (branchSubjects[year] && 
+          branchSubjects[year][semester] && 
+          branchSubjects[year][semester][branchId]) {
+        return branchSubjects[year][semester][branchId];
+      }
+    } catch (error) {
+      console.error('Error getting subjects:', error);
+    }
+    
+    return [];
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -255,6 +389,12 @@ const ProfilePage: React.FC = () => {
 
   const handleFileUpload = async (files: FileList | null, category: string) => {
     if (!files || !userData) return;
+    
+    // If no subject is selected, alert the user
+    if (!selectedSubject) {
+      alert('Please select a subject first by clicking on one of the subjects in the dropdown menu.');
+      return;
+    }
 
     try {
       setIsUploading(true);
@@ -270,10 +410,10 @@ const ProfilePage: React.FC = () => {
           let fileUrl = '';
 
           try {
-            // Upload the file to Supabase Storage
+            // Upload the file to Supabase Storage with subject code in the path
             const { data, error } = await supabase.storage
               .from('user-files')
-              .upload(`${category}/${fileName}`, file, {
+              .upload(`${category}/${selectedSubject.code}/${fileName}`, file, {
                 cacheControl: '3600',
                 upsert: true
               });
@@ -286,10 +426,10 @@ const ProfilePage: React.FC = () => {
               // Create a local URL as fallback
               fileUrl = URL.createObjectURL(file);
             } else {
-              // Get the public URL
+              // Get the public URL with subject code in the path
               const { data: urlData } = supabase.storage
                 .from('user-files')
-                .getPublicUrl(`${category}/${fileName}`);
+                .getPublicUrl(`${category}/${selectedSubject.code}/${fileName}`);
 
               fileUrl = urlData.publicUrl;
             }
@@ -300,7 +440,7 @@ const ProfilePage: React.FC = () => {
           }
 
           try {
-            // Save file metadata to the database
+            // Save file metadata to the database with subject information
             const { error: insertError } = await supabase
               .from('user_files')
               .insert({
@@ -309,6 +449,8 @@ const ProfilePage: React.FC = () => {
                 url: fileUrl,
                 type: file.type,
                 category: category,
+                subject_code: selectedSubject.code,
+                subject_name: selectedSubject.name,
               });
 
             if (insertError) {
@@ -318,14 +460,16 @@ const ProfilePage: React.FC = () => {
             console.error('Database error:', dbError);
           }
 
-          // Add to local state regardless of database success
+          // Add to local state regardless of database success with subject information
           newFiles.push({
             id: `local-${Date.now()}-${i}`,
             name: file.name,
             url: fileUrl,
             type: file.type,
             created_at: new Date().toISOString(),
-            category: category
+            category: category,
+            subject_code: selectedSubject.code,
+            subject_name: selectedSubject.name
           });
         } catch (fileError) {
           console.error(`Error processing file at index ${i}:`, fileError);
@@ -463,7 +607,7 @@ const ProfilePage: React.FC = () => {
             </div>
 
             {/* Profile Information Section */}
-            <div className="flex-1">
+            <div id="profile-section" className="flex-1">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -573,23 +717,151 @@ const ProfilePage: React.FC = () => {
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
             {['Syllabus', 'Assignments', 'Practicals', 'Lab Work', 'PYQs', 'Notes'].map((category) => (
-              <button
+              <div 
                 key={category}
-                onClick={() => setUploadSection(category)}
-                className={`px-4 py-2 rounded-md transition-colors ${
-                  uploadSection === category
-                    ? 'bg-learnflow-500 text-white'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                }`}
+                className="relative category-dropdown"
+                onMouseEnter={() => !isMobile && handleDropdownMouseEnter(category)}
+                onMouseLeave={() => !isMobile && handleDropdownMouseLeave(category)}
               >
-                {category}
-              </button>
+                <button
+                  onClick={() => handleCategoryClick(category)}
+                  className={`w-full px-4 py-2 rounded-md transition-colors ${
+                    uploadSection === category
+                      ? 'bg-learnflow-500 text-white'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
+                >
+                  <div className="flex items-center justify-center">
+                    <span>{category}</span>
+                    {isMobile && (
+                      <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        className={`ml-1 h-4 w-4 transition-transform duration-200 ${activeDropdown === category ? 'rotate-180' : ''}`} 
+                        fill="none" 
+                        viewBox="0 0 24 24" 
+                        stroke="currentColor"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    )}
+                  </div>
+                </button>
+                
+                {/* Mobile Backdrop */}
+                {isMobile && activeDropdown === category && (
+                  <div 
+                    className="fixed inset-0 bg-black bg-opacity-50 z-40"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveDropdown(null);
+                    }}
+                  />
+                )}
+                
+                {/* Dropdown Menu */}
+                {activeDropdown === category && (
+                  <div className={`absolute ${
+                    isMobile 
+                      ? 'top-full left-0 right-0 w-full' 
+                      : 'top-full left-0 w-56'
+                    } mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 ${
+                    isMobile 
+                      ? 'transition-all duration-300 ease-in-out max-h-80 overflow-y-auto animate-in slide-in-from-top-5' 
+                      : 'animate-in fade-in-0 zoom-in-95 duration-200'
+                  }`}>
+                    <div className="py-2">
+                      {isMobile && (
+                        <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Select Subject
+                          </span>
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveDropdown(null);
+                            }}
+                            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
+                      )}
+                      {getUserSubjects().length > 0 ? (
+                        getUserSubjects().map((subject, index) => (
+                          <button
+                            key={index}
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevent event bubbling on mobile
+                              setUploadSection(category);
+                              setSelectedSubject(subject);
+                              setActiveDropdown(null);
+                              console.log(`Selected ${category} for ${subject.code}: ${subject.name}`);
+                            }}
+                            className={`block w-full text-left px-4 ${
+                              isMobile ? 'py-3 text-base' : 'py-2 text-sm'
+                            } text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors`}
+                            title={`${subject.name} (${subject.code})`}
+                          >
+                            {subject.code}
+                          </button>
+                        ))
+                      ) : (
+                        <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                          {isMobile ? (
+                            <div className="flex flex-col space-y-2">
+                              <p>No subjects found</p>
+                              <p className="text-xs">Please update your profile with year, semester, and branch</p>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveDropdown(null);
+                                  // Scroll to profile section
+                                  document.getElementById('profile-section')?.scrollIntoView({ behavior: 'smooth' });
+                                }}
+                                className="mt-2 text-learnflow-500 hover:text-learnflow-600 text-xs font-medium"
+                              >
+                                Go to Profile Settings
+                              </button>
+                            </div>
+                          ) : (
+                            "Please set your year, semester, and branch in profile settings"
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             ))}
           </div>
 
           {uploadSection && (
             <div className="mt-4">
-              <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">{uploadSection} Files</h3>
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+                  {uploadSection} Files 
+                  {selectedSubject && (
+                    <span className="ml-2 text-learnflow-500 dark:text-learnflow-400">
+                      for {selectedSubject.code}: {selectedSubject.name}
+                    </span>
+                  )}
+                </h3>
+                {selectedSubject && (
+                  <button
+                    onClick={() => setSelectedSubject(null)}
+                    className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                  >
+                    <span className="flex items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Clear subject
+                    </span>
+                  </button>
+                )}
+              </div>
 
               {/* Drag and Drop Area */}
               <div
@@ -614,7 +886,12 @@ const ProfilePage: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
                 <p className="text-gray-600 dark:text-gray-400 mb-2">Drag and drop files here or click to upload</p>
-                <p className="text-sm text-gray-500 dark:text-gray-500">Upload any file related to {uploadSection}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-500">
+                  Upload {uploadSection} files for {selectedSubject ? `${selectedSubject.code}: ${selectedSubject.name}` : 'your selected subject'}
+                </p>
+                {!selectedSubject && (
+                  <p className="text-xs text-red-500 mt-1">Please select a subject from the dropdown menu first</p>
+                )}
               </div>
 
               {isUploading && (
@@ -630,14 +907,31 @@ const ProfilePage: React.FC = () => {
 
               {/* File List */}
               <div className="mt-6">
-                <h4 className="text-md font-medium mb-2 text-gray-700 dark:text-gray-300">Your {uploadSection} Files</h4>
+                <h4 className="text-md font-medium mb-2 text-gray-700 dark:text-gray-300">
+                  Your {uploadSection} Files
+                  {selectedSubject && (
+                    <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">
+                      for {selectedSubject.code}
+                    </span>
+                  )}
+                </h4>
 
-                {userFiles.filter(file => file.category === uploadSection.toLowerCase()).length === 0 ? (
-                  <p className="text-gray-500 dark:text-gray-400 text-sm italic">No files uploaded yet</p>
+                {userFiles.filter(file => 
+                  file.category === uploadSection.toLowerCase() && 
+                  (!selectedSubject || file.subject_code === selectedSubject.code)
+                ).length === 0 ? (
+                  <p className="text-gray-500 dark:text-gray-400 text-sm italic">
+                    {selectedSubject 
+                      ? `No ${uploadSection} files uploaded yet for ${selectedSubject.code}`
+                      : `No ${uploadSection} files uploaded yet`}
+                  </p>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {userFiles
-                      .filter(file => file.category === uploadSection.toLowerCase())
+                      .filter(file => 
+                        file.category === uploadSection.toLowerCase() && 
+                        (!selectedSubject || file.subject_code === selectedSubject.code)
+                      )
                       .map(file => (
                         <div key={file.id} className="border border-gray-200 dark:border-gray-700 rounded-md p-3 flex items-center">
                           <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded-md mr-3">
@@ -647,9 +941,16 @@ const ProfilePage: React.FC = () => {
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-gray-800 dark:text-white truncate">{file.name}</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              {new Date(file.created_at).toLocaleDateString()}
-                            </p>
+                            <div className="flex items-center">
+                              {file.subject_code && (
+                                <span className="text-xs bg-learnflow-100 text-learnflow-800 dark:bg-learnflow-900 dark:text-learnflow-200 px-2 py-0.5 rounded mr-2">
+                                  {file.subject_code}
+                                </span>
+                              )}
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
+                                {new Date(file.created_at).toLocaleDateString()}
+                              </p>
+                            </div>
                           </div>
                           <a
                             href={file.url}
