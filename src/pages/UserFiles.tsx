@@ -341,3 +341,8 @@ const DownloadIcon = ({ className = "" }) => (
 );
 
 export default UserFiles;
+
+// SEO Structured Data Props Interface
+interface SEOStructuredDataProps {
+  page?: 'home' | 'tools' | 'resources' | 'help' | 'user-files';
+}

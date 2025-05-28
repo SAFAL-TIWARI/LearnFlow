@@ -96,7 +96,7 @@ const Search: React.FC = () => {
 
   return (
     <ThemeProvider>
-      <SEOStructuredData page="search" />
+      <SEOStructuredData page="home" />
       <div className="min-h-screen flex flex-col">
         <Navbar />
 

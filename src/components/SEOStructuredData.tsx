@@ -2,7 +2,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
 interface SEOStructuredDataProps {
-  page?: 'home' | 'tools' | 'resources' | 'help';
+  page?: 'home' | 'tools' | 'resources' | 'help' | 'user-files';
 }
 
 const SEOStructuredData: React.FC<SEOStructuredDataProps> = ({ page = 'home' }) => {
