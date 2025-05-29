@@ -394,18 +394,10 @@ const ProfilePage: React.FC = () => {
     try {
       console.log('Fetching files for user ID:', userId);
 
-      // First, try to get files from localStorage as a fallback
-      const localStorageKey = `userFiles_${userId}`;
-      let cachedFiles: FileUpload[] = [];
-      
-      try {
-        const cachedFilesJson = localStorage.getItem(localStorageKey);
-        if (cachedFilesJson) {
-          cachedFiles = JSON.parse(cachedFilesJson);
-          console.log('Retrieved cached files from localStorage:', cachedFiles);
-        }
-      } catch (localStorageError) {
-        console.error('Error retrieving files from localStorage:', localStorageError);
+      // Make sure we have a valid user ID before querying
+      if (!userId) {
+        console.error('No valid user ID for file query');
+        return; // Don't clear existing files if we don't have a valid ID
       }
 
       // Get the current authenticated user ID if available
@@ -414,12 +406,6 @@ const ProfilePage: React.FC = () => {
 
       console.log('Current user ID for file fetch:', currentUserId);
       const isOwnProfile = currentUserId === userId;
-
-      // Make sure we have a valid user ID before querying
-      if (!userId) {
-        console.error('No valid user ID for file query');
-        return; // Don't clear existing files if we don't have a valid ID
-      }
       
       // Direct query to get files from the database
       console.log('Querying user_files table for files');
@@ -427,7 +413,8 @@ const ProfilePage: React.FC = () => {
       const query = supabase
         .from('user_files')
         .select('*')
-        .eq('user_id', userId);
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false }); // Get newest files first
 
       // If not viewing own profile, only get public files
       if (!isOwnProfile) {
@@ -441,25 +428,40 @@ const ProfilePage: React.FC = () => {
 
       console.log('User files fetch response:', { filesData, filesError });
 
+      // If there's a database error, try to use localStorage as fallback
       if (filesError) {
         console.error('Error fetching user files:', filesError);
-        // If table doesn't exist, use cached files from localStorage
-        if (filesError.code === '42P01' || filesError.message.includes('does not exist')) {
-          console.log('user_files table does not exist, using cached files');
-          if (cachedFiles.length > 0) {
-            console.log('Setting user files from localStorage cache');
+        
+        // Try to get files from localStorage as a fallback
+        const localStorageKey = `userFiles_${userId}`;
+        try {
+          const cachedFilesJson = localStorage.getItem(localStorageKey);
+          if (cachedFilesJson) {
+            const cachedFiles = JSON.parse(cachedFilesJson);
+            console.log('Using cached files from localStorage due to DB error:', cachedFiles);
             setUserFiles(cachedFiles);
           }
-          return;
+        } catch (localStorageError) {
+          console.error('Error retrieving files from localStorage:', localStorageError);
         }
-        throw filesError; // Throw error for other database issues
+        return;
       } 
       
+      // If we have files from the database, process them
       if (filesData && filesData.length > 0) {
         console.log('Processing files from database:', filesData);
 
+        // Create a map to track files by path to avoid duplicates
+        const filesByPath = new Map();
+
         // Process the files to ensure they have all required fields
         const processedFiles = await Promise.all(filesData.map(async file => {
+          // Skip if we already have this file path (prevents duplicates)
+          if (file.file_path && filesByPath.has(file.file_path)) {
+            console.log(`Skipping duplicate file path: ${file.file_path}`);
+            return null;
+          }
+          
           // Ensure category is lowercase for consistent filtering
           const category = (file.category || 'notes').toLowerCase();
 
@@ -516,11 +518,17 @@ const ProfilePage: React.FC = () => {
               }
             } catch (urlError) {
               console.error(`Error generating URL for file ${file.id}:`, urlError);
+              
+              // Create a fallback URL
+              if (filePath) {
+                publicUrl = `${supabaseUrl}/storage/v1/object/public/user-files/${filePath}`;
+                console.log(`Created fallback URL for file ${file.id}:`, publicUrl);
+              }
             }
           }
           
           // Convert database fields to our FileUpload interface format
-          return {
+          const processedFile = {
             id: file.id,
             name: file.file_name || '',
             url: filePath, // Store the file path, not the full URL
@@ -529,47 +537,53 @@ const ProfilePage: React.FC = () => {
             category: category,
             subject_code: subjectCode,
             subject_name: subjectName,
-            is_public: file.is_public,
+            is_public: file.is_public === true, // Ensure boolean
             publicUrl: publicUrl, // Store pre-generated URL
             description: file.description || '',
             file_path: filePath
           };
-        }));
-
-        console.log('Processed files with subject info:', processedFiles);
-        
-        // Update the state with the processed files
-        // Use a function to ensure we're working with the latest state
-        setUserFiles(prevFiles => {
-          // Create a map of existing file IDs
-          const existingFileMap = new Map(prevFiles.map(file => [file.id, file]));
           
-          // Update existing files and add new ones
-          processedFiles.forEach(file => {
-            existingFileMap.set(file.id, file);
-          });
-          
-          // Convert map back to array
-          const updatedFiles = Array.from(existingFileMap.values());
-          console.log('Updated files state:', updatedFiles);
-          
-          // Save to localStorage for persistence
-          try {
-            localStorage.setItem(localStorageKey, JSON.stringify(updatedFiles));
-            console.log('Saved files to localStorage');
-          } catch (saveError) {
-            console.error('Error saving files to localStorage:', saveError);
+          // Add to map to track duplicates
+          if (filePath) {
+            filesByPath.set(filePath, processedFile);
           }
           
-          return updatedFiles;
-        });
+          return processedFile;
+        }));
+
+        // Filter out null values (duplicates we skipped)
+        const uniqueFiles = processedFiles.filter(file => file !== null);
+        console.log('Processed unique files:', uniqueFiles);
+        
+        // Update the state with the processed files
+        setUserFiles(uniqueFiles);
+        
+        // Save to localStorage for persistence
+        const localStorageKey = `userFiles_${userId}`;
+        try {
+          localStorage.setItem(localStorageKey, JSON.stringify(uniqueFiles));
+          console.log('Saved files to localStorage for persistence');
+        } catch (saveError) {
+          console.error('Error saving files to localStorage:', saveError);
+        }
       } else {
         console.log('No files found for user in database');
         
-        // If no files in database but we have cached files, use those
-        if (cachedFiles.length > 0) {
-          console.log('Using cached files from localStorage:', cachedFiles);
-          setUserFiles(cachedFiles);
+        // Try to get files from localStorage as a fallback
+        const localStorageKey = `userFiles_${userId}`;
+        try {
+          const cachedFilesJson = localStorage.getItem(localStorageKey);
+          if (cachedFilesJson) {
+            const cachedFiles = JSON.parse(cachedFilesJson);
+            console.log('Using cached files from localStorage:', cachedFiles);
+            setUserFiles(cachedFiles);
+          } else {
+            // If no files in database and no cached files, set empty array
+            setUserFiles([]);
+          }
+        } catch (localStorageError) {
+          console.error('Error retrieving files from localStorage:', localStorageError);
+          setUserFiles([]);
         }
       }
     } catch (error) {
@@ -876,37 +890,12 @@ const ProfilePage: React.FC = () => {
       setIsUploading(true);
       console.log('Upload started, files count:', files.length);
 
+      // Track successfully uploaded files
       const newFiles: FileUpload[] = [];
 
       // IMPORTANT: Use the correct bucket name - must match exactly what's in Supabase
       const bucketName = 'user-files'; // This is the correct bucket name with hyphen
       
-      // Skip bucket creation and verification - use the existing bucket
-      // This avoids RLS policy issues when creating buckets
-      try {
-        console.log(`Using existing bucket '${bucketName}'`);
-        
-        // Try to list files in the bucket to verify access
-        // Use a specific path to avoid listing all files
-        const { data: bucketFiles, error: listError } = await supabase.storage
-          .from(bucketName)
-          .list(userData.id); // List only files in the user's folder
-          
-        if (listError) {
-          // If we can't list files, it might be because the user folder doesn't exist yet
-          // This is normal for first-time uploads, so we'll just log it and continue
-          console.log(`Note: Could not list files in '${bucketName}/${userData.id}':`, listError);
-          console.log('This is normal for first-time uploads');
-        } else {
-          console.log(`Successfully accessed bucket '${bucketName}', existing files:`, bucketFiles);
-        }
-      } catch (bucketError) {
-        // Log the error but continue with the upload
-        // The bucket likely exists but the user might not have permission to list all files
-        console.log('Note: Error checking bucket access:', bucketError);
-        console.log('Continuing with upload anyway...');
-      }
-
       // Get the current authenticated user ID
       const { data: { user } } = await supabase.auth.getUser();
       console.log('Current authenticated user:', user);
@@ -914,6 +903,25 @@ const ProfilePage: React.FC = () => {
       // Use the authenticated user ID if available, otherwise fall back to userData.id
       const userId = user?.id || userData.id;
       console.log('Using user ID for uploads:', userId);
+
+      // Get existing files to check for duplicates
+      const { data: existingFiles, error: existingFilesError } = await supabase
+        .from('user_files')
+        .select('file_name, file_path')
+        .eq('user_id', userId);
+        
+      console.log('Existing files check:', { existingFiles, existingFilesError });
+      
+      // Create a set of existing file paths for quick lookup
+      const existingFilePaths = new Set();
+      if (existingFiles && !existingFilesError) {
+        existingFiles.forEach(file => {
+          if (file.file_path) {
+            existingFilePaths.add(file.file_path);
+          }
+        });
+      }
+      console.log('Existing file paths:', existingFilePaths);
 
       for (let i = 0; i < files.length; i++) {
         try {
@@ -941,6 +949,12 @@ const ProfilePage: React.FC = () => {
           let storagePath = `${userId}/${sanitizedCategory}/${sanitizedSubjectCode}/${uniqueFileName}`;
           console.log('Storage path for upload:', storagePath);
 
+          // Check if this file path already exists
+          if (existingFilePaths.has(storagePath)) {
+            console.log(`File with path ${storagePath} already exists, skipping upload`);
+            continue;
+          }
+
           let fileUrl = '';
           let publicUrl = '';
 
@@ -951,24 +965,28 @@ const ProfilePage: React.FC = () => {
             setUploadProgress(Math.round((i / files.length) * 50)); // First 50% for upload
             
             // Upload the file to Supabase Storage
-            // No need to check bucket access first - just try to upload directly
             const { data, error } = await supabase.storage
               .from(bucketName)
               .upload(storagePath, file, {
                 cacheControl: '3600',
-                upsert: true, // Overwrite if exists
+                upsert: false, // Don't overwrite if exists to prevent duplicates
                 contentType: file.type // Set the correct content type
               });
 
             console.log('Storage upload response:', { data, error });
 
             if (error) {
-              // Handle specific error cases
+              // If the error is because the file already exists, skip this file
+              if (error.message.includes('already exists')) {
+                console.log(`File ${file.name} already exists in storage, skipping`);
+                continue;
+              }
+              
+              // Handle other error cases
               if (error.message.includes('security policy') || error.message.includes('permission denied')) {
                 console.error(`Permission error uploading file ${file.name}:`, error);
                 
                 // Try a different path without the user ID prefix
-                // This might work if the RLS policies are set differently
                 const simplePath = `${sanitizedCategory}/${sanitizedSubjectCode}/${uniqueFileName}`;
                 console.log('Trying alternative upload path:', simplePath);
                 
@@ -976,7 +994,7 @@ const ProfilePage: React.FC = () => {
                   .from(bucketName)
                   .upload(simplePath, file, {
                     cacheControl: '3600',
-                    upsert: true,
+                    upsert: false,
                     contentType: file.type
                   });
                   
@@ -1018,27 +1036,11 @@ const ProfilePage: React.FC = () => {
               console.error('Error generating public URL:', urlError);
               
               // Create a fallback URL using the Supabase project URL and storage path
-              // This is a best-effort approach when getPublicUrl fails due to permissions
-              try {
-                // Use the imported supabaseUrl or fallback to a default
-                // Format: https://{project-ref}.supabase.co/storage/v1/object/public/{bucket}/{path}
-                const fallbackUrl = `${supabaseUrl}/storage/v1/object/public/${bucketName}/${storagePath}`;
-                
-                console.log('Created fallback public URL:', fallbackUrl);
-                
-                fileUrl = storagePath; // Store the storage path for database
-                publicUrl = fallbackUrl; // Use the fallback URL
-              } catch (fallbackError) {
-                console.error('Error creating fallback URL:', fallbackError);
-                
-                // Last resort: create a temporary object URL
-                // Note: This will only work until the page is refreshed
-                const objectUrl = URL.createObjectURL(file);
-                console.log('Created temporary object URL as last resort:', objectUrl);
-                
-                fileUrl = storagePath; // Still store the path for future reference
-                publicUrl = objectUrl; // Use the object URL as a temporary measure
-              }
+              const fallbackUrl = `${supabaseUrl}/storage/v1/object/public/${bucketName}/${storagePath}`;
+              console.log('Created fallback public URL:', fallbackUrl);
+              
+              fileUrl = storagePath; // Store the storage path for database
+              publicUrl = fallbackUrl; // Use the fallback URL
             }
 
             // Update progress for UI feedback
@@ -1102,11 +1104,12 @@ const ProfilePage: React.FC = () => {
                 // Try a simplified insert with minimal fields
                 try {
                   const simplifiedMetadata = {
+                    user_id: userId, // Make sure user_id is included
                     file_name: file.name,
                     file_path: fileUrl,
                     file_type: file.type,
-                    category: category.toLowerCase(),
-                    public_url: publicUrl
+                    public_url: publicUrl,
+                    is_public: true
                   };
                   
                   const result = await supabase
@@ -1148,8 +1151,8 @@ const ProfilePage: React.FC = () => {
               console.log('Adding file to local state:', newFile);
               newFiles.push(newFile);
               
-              // Also update the userFiles state immediately to show the file
-              setUserFiles(prev => [...prev, newFile]);
+              // Add to existingFilePaths to prevent duplicates
+              existingFilePaths.add(fileUrl);
               
             } else if (insertData && insertData.length > 0) {
               console.log('File metadata saved successfully to database:', insertData);
@@ -1165,8 +1168,8 @@ const ProfilePage: React.FC = () => {
               console.log('Adding database file to local state:', newFile);
               newFiles.push(newFile);
               
-              // Also update the userFiles state immediately to show the file
-              setUserFiles(prev => [...prev, newFile]);
+              // Add to existingFilePaths to prevent duplicates
+              existingFilePaths.add(fileUrl);
             }
           } catch (dbError) {
             console.error('Database error:', dbError);
@@ -1191,8 +1194,8 @@ const ProfilePage: React.FC = () => {
             console.log('Adding file to local state after error:', newFile);
             newFiles.push(newFile);
             
-            // Also update the userFiles state immediately to show the file
-            setUserFiles(prev => [...prev, newFile]);
+            // Add to existingFilePaths to prevent duplicates
+            existingFilePaths.add(fileUrl);
           }
         } catch (fileError) {
           console.error(`Error processing file at index ${i}:`, fileError);
@@ -1202,97 +1205,85 @@ const ProfilePage: React.FC = () => {
       // Set upload progress to 100% after all files are processed
       setUploadProgress(100);
 
-      try {
-        console.log('Refreshing file list from database...');
-
-        // Refresh the file list by calling fetchUserFiles
-        await fetchUserFiles(userId);
-        
-        // Double-check that all newly uploaded files are in the state
-        // This is a safety measure to ensure files appear even if the database fetch fails
-        if (newFiles.length > 0) {
-          console.log('Verifying all uploaded files are in state:', newFiles);
+      // Only update the state once with all new files to prevent duplicates
+      if (newFiles.length > 0) {
+        setUserFiles(prev => {
+          // Create a map of existing files by ID to avoid duplicates
+          const existingFilesMap = new Map(prev.map(file => [file.id, file]));
           
-          // Get the current state
-          const currentFiles = [...userFiles];
-          const currentFileIds = new Set(currentFiles.map(file => file.id));
+          // Add new files to the map, overwriting any with the same ID
+          newFiles.forEach(file => {
+            existingFilesMap.set(file.id, file);
+          });
           
-          // Find any files that might be missing
-          const missingFiles = newFiles.filter(file => !currentFileIds.has(file.id));
+          // Convert map back to array
+          const updatedFiles = Array.from(existingFilesMap.values());
           
-          if (missingFiles.length > 0) {
-            console.log('Adding missing files to state:', missingFiles);
-            setUserFiles(prev => {
-              const updatedFiles = [...prev, ...missingFiles];
-              
-              // Save to localStorage for persistence
-              try {
-                const localStorageKey = `userFiles_${userId}`;
-                localStorage.setItem(localStorageKey, JSON.stringify(updatedFiles));
-                console.log('Saved updated files to localStorage after adding missing files');
-              } catch (saveError) {
-                console.error('Error saving files to localStorage:', saveError);
-              }
-              
-              return updatedFiles;
-            });
-          } else {
-            console.log('All files are already in state');
-            
-            // Still save current state to localStorage for persistence
-            try {
-              const localStorageKey = `userFiles_${userId}`;
-              localStorage.setItem(localStorageKey, JSON.stringify(currentFiles));
-              console.log('Saved current files to localStorage');
-            } catch (saveError) {
-              console.error('Error saving files to localStorage:', saveError);
-            }
+          // Save to localStorage for persistence
+          try {
+            const localStorageKey = `userFiles_${userId}`;
+            localStorage.setItem(localStorageKey, JSON.stringify(updatedFiles));
+            console.log('Saved updated files to localStorage');
+          } catch (saveError) {
+            console.error('Error saving files to localStorage:', saveError);
           }
-        }
-        
-        console.log('File list refreshed successfully');
-        
-        // Force a UI update by setting a state variable
-        // This ensures the component re-renders with the new files
-        setUploadSection(prev => {
-          // Set to the same value to trigger a re-render
-          console.log('Forcing UI update for section:', prev);
-          return prev;
+          
+          return updatedFiles;
         });
         
-      } catch (refreshError) {
-        console.error('Error refreshing files:', refreshError);
-        
-        // Use the locally created files as fallback
-        if (newFiles.length > 0) {
-          console.log('Using locally created files due to error:', newFiles);
-          
-          // Update the state with the new files, avoiding duplicates
-          setUserFiles(prev => {
-            const existingIds = new Set(prev.map(file => file.id));
-            const filesToAdd = newFiles.filter(file => !existingIds.has(file.id));
-            const updatedFiles = [...prev, ...filesToAdd];
-            
-            // Save to localStorage for persistence
-            try {
-              const localStorageKey = `userFiles_${userId}`;
-              localStorage.setItem(localStorageKey, JSON.stringify(updatedFiles));
-              console.log('Saved files to localStorage after error recovery');
-            } catch (saveError) {
-              console.error('Error saving files to localStorage:', saveError);
-            }
-            
-            return updatedFiles;
-          });
-        }
-      }
-
-      // Check if any files were successfully uploaded
-      if (newFiles.length > 0) {
+        // Alert the user about successful uploads
         alert(`${newFiles.length} file(s) uploaded successfully! They should now appear in the list below.`);
       } else {
-        alert('No files were uploaded. Please try again with different files.');
+        alert('No new files were uploaded. Files may already exist or there was an error.');
       }
+      
+      // Refresh the file list from the database to ensure consistency
+      // This will replace the fetchUserFiles call that was causing duplicates
+      try {
+        console.log('Refreshing file list from database...');
+        
+        const { data: refreshedFiles, error: refreshError } = await supabase
+          .from('user_files')
+          .select('*')
+          .eq('user_id', userId);
+          
+        if (refreshError) {
+          console.error('Error refreshing files from database:', refreshError);
+        } else if (refreshedFiles) {
+          console.log('Successfully refreshed files from database:', refreshedFiles);
+          
+          // Process the files to ensure they have all required fields
+          const processedFiles = refreshedFiles.map(file => ({
+            id: file.id,
+            name: file.file_name || '',
+            url: file.file_path || '',
+            type: file.file_type || '',
+            created_at: file.created_at,
+            category: (file.category || 'notes').toLowerCase(),
+            subject_code: file.subject_code || '',
+            subject_name: file.subject_name || '',
+            is_public: file.is_public,
+            publicUrl: file.public_url || '',
+            description: file.description || '',
+            file_path: file.file_path || ''
+          }));
+          
+          // Update the state with the refreshed files
+          setUserFiles(processedFiles);
+          
+          // Save to localStorage for persistence
+          try {
+            const localStorageKey = `userFiles_${userId}`;
+            localStorage.setItem(localStorageKey, JSON.stringify(processedFiles));
+            console.log('Saved refreshed files to localStorage');
+          } catch (saveError) {
+            console.error('Error saving refreshed files to localStorage:', saveError);
+          }
+        }
+      } catch (refreshError) {
+        console.error('Error during file refresh:', refreshError);
+      }
+      
     } catch (error) {
       console.error('Error uploading files:', error);
       alert(`Upload error: ${error.message}. Please try again or contact support if the issue persists.`);
