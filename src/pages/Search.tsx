@@ -79,8 +79,24 @@ const Search: React.FC = () => {
         return;
       }
       
+      // Filter out profiles that are not public
+      const publicProfiles = supabaseProfiles.filter(profile => {
+        const isPublic = profile.is_public === true;
+        if (!isPublic) {
+          console.log('Filtering out non-public profile:', profile.id);
+        }
+        return isPublic;
+      });
+      
+      if (publicProfiles.length === 0) {
+        console.log('No public profiles found for query:', query);
+        setSearchResults([]);
+        setIsSearching(false);
+        return;
+      }
+      
       // Convert Supabase profiles to our component format
-      const profiles = supabaseProfiles.map(profile => {
+      const profiles = publicProfiles.map(profile => {
         console.log('Converting profile:', profile);
         return convertSupabaseProfile(profile);
       });

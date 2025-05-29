@@ -34,6 +34,8 @@ export interface UserFile {
   owner_name?: string;
   is_public: boolean;
   created_at: string;
+  subject_code?: string;
+  subject_name?: string;
 }
 
 // Search for users
@@ -86,13 +88,31 @@ export async function searchUsers(query: string) {
 // Get user profile by ID
 export async function getUserProfile(userId: string) {
   try {
+    console.log('Fetching profile for user ID:', userId);
+    
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', userId)
       .single();
     
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching user profile:', error);
+      throw error;
+    }
+    
+    console.log('Profile data retrieved:', data);
+    
+    // Check if profile is public or if the current user is the owner
+    const { data: { user } } = await supabase.auth.getUser();
+    const isPublic = data.is_public === true;
+    const isOwner = user && user.id === data.id;
+    
+    if (!isPublic && !isOwner) {
+      console.log('Profile is not public and user is not the owner');
+      throw new Error('Profile is not accessible');
+    }
+    
     return data as UserProfile;
   } catch (error) {
     console.error('Error fetching user profile:', error);
