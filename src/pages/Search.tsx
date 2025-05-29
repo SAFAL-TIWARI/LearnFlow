@@ -20,21 +20,22 @@ interface UserProfile {
   college: string;
   bio: string;
   profilePicture: string;
-  interests: string[];
+  interests?: string[]; // Made optional since we're not displaying interests
 }
 
 // Function to convert Supabase profile to our component format
 const convertSupabaseProfile = (profile: SupabaseUserProfile): UserProfile => {
+  // Ensure all fields have default values if they're missing
   return {
     id: profile.id,
-    name: profile.full_name,
-    username: profile.username,
-    branch: profile.branch || '',
-    year: profile.year || '',
-    college: profile.college || '',
-    bio: profile.bio || '',
-    profilePicture: profile.profile_picture_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.full_name)}&background=random`,
-    interests: profile.interests || []
+    name: profile.full_name || 'Unknown User',
+    username: profile.username || 'user',
+    branch: profile.branch || 'Not specified',
+    year: profile.year || 'Not specified',
+    college: profile.college || 'Not specified',
+    bio: '', // Bio is not needed in search results
+    profilePicture: profile.profile_picture_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.full_name || 'User')}&background=random`,
+    interests: [] // Interests are not needed in search results
   };
 };
 
@@ -180,28 +181,28 @@ const Search: React.FC = () => {
                           
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-1 mb-3">
                             <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                              <span className="font-medium mr-1">Branch:</span> {profile.branch}
-                            </div>
-                            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                              <span className="font-medium mr-1">Year:</span> {profile.year}
-                            </div>
-                            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                              <span className="font-medium mr-1">College:</span> {profile.college}
-                            </div>
-                          </div>
-                          
-                          <p className="text-gray-700 dark:text-gray-300 mb-3">{profile.bio}</p>
-                          
-                          <div className="flex flex-wrap gap-2">
-                            {profile.interests.map((interest, index) => (
-                              <span 
-                                key={index}
-                                className="inline-block bg-learnflow-100 dark:bg-learnflow-900/30 text-learnflow-800 dark:text-learnflow-300 text-xs px-2 py-1 rounded-full"
-                              >
-                                {interest}
+                              <span className="font-medium mr-1">Branch:</span> 
+                              <span className={profile.branch === 'Not specified' ? 'text-gray-400 italic' : ''}>
+                                {profile.branch}
                               </span>
-                            ))}
+                            </div>
+                            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                              <span className="font-medium mr-1">Year:</span> 
+                              <span className={profile.year === 'Not specified' ? 'text-gray-400 italic' : ''}>
+                                {profile.year}
+                              </span>
+                            </div>
+                            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                              <span className="font-medium mr-1">College:</span> 
+                              <span className={profile.college === 'Not specified' ? 'text-gray-400 italic' : ''}>
+                                {profile.college}
+                              </span>
+                            </div>
                           </div>
+                          
+                          {/* Bio removed from search results as requested */}
+                          
+                          {/* Interests section removed as requested */}
                         </div>
                         <div className="flex-shrink-0 flex flex-col justify-center">
                           <Link 

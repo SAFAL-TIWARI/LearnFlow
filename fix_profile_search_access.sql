@@ -129,11 +129,32 @@ USING (auth.uid() = owner_id);
 
 -- 10. Create or replace the search_users function
 CREATE OR REPLACE FUNCTION search_users(search_query TEXT)
-RETURNS SETOF profiles
+RETURNS TABLE (
+  id UUID,
+  username TEXT,
+  full_name TEXT,
+  branch TEXT,
+  year TEXT,
+  college TEXT,
+  profile_picture_url TEXT,
+  is_public BOOLEAN,
+  created_at TIMESTAMP WITH TIME ZONE,
+  updated_at TIMESTAMP WITH TIME ZONE
+)
 LANGUAGE sql
 SECURITY DEFINER
 AS $$
-  SELECT *
+  SELECT 
+    id,
+    username,
+    full_name,
+    COALESCE(branch, '') as branch,
+    COALESCE(year, '') as year,
+    COALESCE(college, '') as college,
+    COALESCE(profile_picture_url, '') as profile_picture_url,
+    is_public,
+    created_at,
+    updated_at
   FROM profiles
   WHERE 
     is_public = true AND
@@ -141,13 +162,7 @@ AS $$
       username ILIKE '%' || search_query || '%' OR
       full_name ILIKE '%' || search_query || '%' OR
       branch ILIKE '%' || search_query || '%' OR
-      college ILIKE '%' || search_query || '%' OR
-      bio ILIKE '%' || search_query || '%' OR
-      EXISTS (
-        SELECT 1
-        FROM unnest(interests) interest
-        WHERE interest ILIKE '%' || search_query || '%'
-      )
+      college ILIKE '%' || search_query || '%'
     )
   ORDER BY 
     CASE 
@@ -238,11 +253,22 @@ $$;
 CREATE OR REPLACE FUNCTION public.handle_new_user() 
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, username, full_name, is_public)
+  INSERT INTO public.profiles (
+    id, 
+    username, 
+    full_name, 
+    branch,
+    year,
+    college,
+    is_public
+  )
   VALUES (
     NEW.id, 
     COALESCE(NEW.raw_user_meta_data->>'username', split_part(NEW.email, '@', 1)), 
     COALESCE(NEW.raw_user_meta_data->>'full_name', split_part(NEW.email, '@', 1)),
+    COALESCE(NEW.raw_user_meta_data->>'branch', ''),
+    COALESCE(NEW.raw_user_meta_data->>'year', ''),
+    COALESCE(NEW.raw_user_meta_data->>'college', ''),
     true
   );
   RETURN NEW;

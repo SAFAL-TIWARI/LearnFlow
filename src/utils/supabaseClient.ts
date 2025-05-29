@@ -53,7 +53,7 @@ export async function searchUsers(query: string) {
       console.log('Trying direct query as fallback...');
       const { data: directData, error: directError } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id, username, full_name, branch, year, college, profile_picture_url, is_public')
         .or(`username.ilike.%${query}%,full_name.ilike.%${query}%,branch.ilike.%${query}%,college.ilike.%${query}%`)
         .eq('is_public', true);
         
@@ -255,5 +255,64 @@ export async function updateUserProfile(profile: Partial<UserProfile>) {
   } catch (error) {
     console.error('Error updating profile:', error);
     return null;
+  }
+}
+
+// Sync user data from users table to profiles table
+export async function syncUserDataToProfile(userId: string) {
+  try {
+    // First get the user's email from auth
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.error('No authenticated user found');
+      return false;
+    }
+    
+    const email = user.email;
+    if (!email) {
+      console.error('User has no email');
+      return false;
+    }
+    
+    // Get user data from users table
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('branch, year, college')
+      .eq('email', email)
+      .single();
+      
+    if (userError) {
+      console.error('Error fetching user data:', userError);
+      return false;
+    }
+    
+    if (!userData) {
+      console.log('No user data found in users table');
+      return false;
+    }
+    
+    // Update profile with user data
+    const { data: updatedProfile, error: updateError } = await supabase
+      .from('profiles')
+      .update({
+        branch: userData.branch,
+        year: userData.year,
+        college: userData.college,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', userId)
+      .select()
+      .single();
+      
+    if (updateError) {
+      console.error('Error updating profile with user data:', updateError);
+      return false;
+    }
+    
+    console.log('Successfully synced user data to profile:', updatedProfile);
+    return true;
+  } catch (error) {
+    console.error('Error syncing user data to profile:', error);
+    return false;
   }
 }

@@ -62,10 +62,24 @@ export default function UserProfile() {
           console.log('Creating user profile in profiles table');
           const username = userName.toLowerCase().replace(/\s+/g, '_') + '_' + Math.floor(Math.random() * 1000);
           
+          // Get user data from users table if it exists
+          let branch = '';
+          let year = '';
+          let college = '';
+          
+          if (data) {
+            branch = data.branch || '';
+            year = data.year || '';
+            college = data.college || '';
+          }
+          
           const newProfile = {
             id: userId,
             username: username,
             full_name: userName,
+            branch: branch,
+            year: year,
+            college: college,
             is_public: true,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()

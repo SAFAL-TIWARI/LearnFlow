@@ -24,11 +24,32 @@ export async function checkAndFixSearchFunctionality() {
         // 3. Try to create the function directly
         const createFunctionSQL = `
           CREATE OR REPLACE FUNCTION search_users(search_query TEXT)
-          RETURNS SETOF profiles
+          RETURNS TABLE (
+            id UUID,
+            username TEXT,
+            full_name TEXT,
+            branch TEXT,
+            year TEXT,
+            college TEXT,
+            profile_picture_url TEXT,
+            is_public BOOLEAN,
+            created_at TIMESTAMP WITH TIME ZONE,
+            updated_at TIMESTAMP WITH TIME ZONE
+          )
           LANGUAGE sql
           SECURITY DEFINER
           AS $$
-            SELECT *
+            SELECT 
+              id,
+              username,
+              full_name,
+              COALESCE(branch, '') as branch,
+              COALESCE(year, '') as year,
+              COALESCE(college, '') as college,
+              COALESCE(profile_picture_url, '') as profile_picture_url,
+              is_public,
+              created_at,
+              updated_at
             FROM profiles
             WHERE 
               is_public = true AND
@@ -36,13 +57,7 @@ export async function checkAndFixSearchFunctionality() {
                 username ILIKE '%' || search_query || '%' OR
                 full_name ILIKE '%' || search_query || '%' OR
                 branch ILIKE '%' || search_query || '%' OR
-                college ILIKE '%' || search_query || '%' OR
-                bio ILIKE '%' || search_query || '%' OR
-                EXISTS (
-                  SELECT 1
-                  FROM unnest(interests) interest
-                  WHERE interest ILIKE '%' || search_query || '%'
-                )
+                college ILIKE '%' || search_query || '%'
               )
             ORDER BY 
               CASE 
@@ -184,13 +199,37 @@ export async function createProfileForCurrentUser() {
     const userName = email.split('@')[0] || 'user';
     const username = userName.toLowerCase().replace(/\s+/g, '_') + '_' + Math.floor(Math.random() * 1000);
     
-    // Create profile
+    // Try to get user data from users table first
+    let branch = '';
+    let year = '';
+    let college = '';
+    
+    try {
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('branch, year, college')
+        .eq('email', email)
+        .single();
+        
+      if (!userError && userData) {
+        branch = userData.branch || '';
+        year = userData.year || '';
+        college = userData.college || '';
+      }
+    } catch (e) {
+      console.log('No user data found in users table, using empty values');
+    }
+    
+    // Create profile with all necessary fields
     const { data: profile, error: createError } = await supabase
       .from('profiles')
       .insert([{
         id: user.id,
         username: username,
         full_name: user.user_metadata?.full_name || userName,
+        branch: user.user_metadata?.branch || branch,
+        year: user.user_metadata?.year || year,
+        college: user.user_metadata?.college || college,
         is_public: true,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()

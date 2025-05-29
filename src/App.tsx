@@ -5,6 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import ErrorBoundaryComponent from "./components/ErrorBoundary";
 import { HelmetProvider } from 'react-helmet-async';
 // import Navbar from "./components/Navbar";
 // import Footer from "./components/Footer";
@@ -90,10 +91,34 @@ const App = () => {
       window.history.replaceState({}, document.title, initialPath);
     }
   }, []);
+  
+  // Check and fix search functionality and sync user profiles
+  React.useEffect(() => {
+    const initializeApp = async () => {
+      try {
+        // Import the necessary functions
+        const { checkAndFixSearchFunctionality } = await import('./utils/checkAndFixSearch');
+        const { syncUserDataToProfile, supabase } = await import('./utils/supabaseClient');
+        
+        // Check if search functionality is working
+        await checkAndFixSearchFunctionality();
+        
+        // Check if user is logged in and sync their profile
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await syncUserDataToProfile(user.id);
+        }
+      } catch (error) {
+        console.error('Error initializing app:', error);
+      }
+    };
+    
+    initializeApp();
+  }, []);
 
   return (
     <React.StrictMode>
-      <ErrorBoundary>
+      <ErrorBoundaryComponent>
         <HelmetProvider>
           <ThemeProvider>
             <AuthProvider>
@@ -167,7 +192,7 @@ const App = () => {
           </AuthProvider>
         </ThemeProvider>
       </HelmetProvider>
-      </ErrorBoundary>
+      </ErrorBoundaryComponent>
       <SpeedInsights />
       <Analytics />
     </React.StrictMode>
