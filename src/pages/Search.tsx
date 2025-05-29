@@ -149,70 +149,51 @@ const Search: React.FC = () => {
               </form>
 
               {/* Search Results */}
-              <div className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {isSearching ? (
-                  <div className="flex justify-center items-center py-12">
+                  <div className="col-span-full flex justify-center items-center py-12">
                     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-learnflow-600"></div>
                   </div>
                 ) : searchQuery && searchResults.length === 0 ? (
-                  <div className="text-center py-12">
+                  <div className="col-span-full text-center py-12">
                     <p className="text-xl text-gray-600 dark:text-gray-400">No results found for "{searchQuery}"</p>
                     <p className="mt-2 text-gray-500 dark:text-gray-500">Try a different search term or check your spelling</p>
                   </div>
                 ) : (
                   searchResults.map((profile) => (
-                    <div 
+                    <Link 
                       key={profile.id}
-                      className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow duration-300"
+                      to={`/profile?userId=${profile.id}`}
+                      className="block bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-105"
                     >
-                      <div className="p-6 flex flex-col md:flex-row gap-6">
-                        <div className="flex-shrink-0">
+                      <div className="p-6 flex flex-col items-center">
+                        <div className="mb-4">
                           <img 
                             src={profile.profilePicture} 
                             alt={profile.name} 
-                            className="w-15 h-15 rounded-full object-cover border-2 border-learnflow-200 dark:border-learnflow-800"
+                            className="w-24 h-24 rounded-full object-cover border-2 border-learnflow-200 dark:border-learnflow-800"
                           />
                         </div>
-                        <div className="flex-grow">
-                          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-1">{profile.name}</h2>
-                          {/* <p className="text-gray-600 dark:text-gray-400 mb-2">@{profile.username}</p> */}
+                        <div className="text-center">
+                          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">{profile.name}</h2>
                           
-                          <div className="flex flex-wrap gap-x-4 gap-y-1 mb-3">
-                            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                          <div className="flex flex-col gap-y-2 mb-3">
+                            <div className="flex items-center justify-center text-sm text-gray-600 dark:text-gray-400">
                               <span className="font-medium mr-1">Branch:</span> 
                               <span className={profile.branch === 'Not specified' ? 'text-gray-400 italic' : ''}>
                                 {profile.branch}
                               </span>
                             </div>
-                            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                            <div className="flex items-center justify-center text-sm text-gray-600 dark:text-gray-400">
                               <span className="font-medium mr-1">Year:</span> 
                               <span className={profile.year === 'Not specified' ? 'text-gray-400 italic' : ''}>
                                 {profile.year}
                               </span>
                             </div>
-                            {/* College section removed as requested */}
                           </div>
-                          
-                          {/* Bio removed from search results as requested */}
-                          
-                          {/* Interests section removed as requested */}
-                        </div>
-                        <div className="flex-shrink-0 flex flex-col justify-center">
-                          <Link 
-                            to={`/profile/${profile.id}`}
-                            className="bg-learnflow-600 hover:bg-learnflow-700 text-white px-0 py-0 rounded-lg transition-colors duration-300 mb-2 text-center"
-                          >
-                            View Profile
-                          </Link>
-                          <Link 
-                            to={`/user-files/${profile.id}`}
-                            className="bg-white dark:bg-gray-700 text-learnflow-600 dark:text-learnflow-400 border border-learnflow-600 dark:border-learnflow-400 hover:bg-learnflow-50 dark:hover:bg-gray-600 px-0 py-0 rounded-lg transition-colors duration-300 text-center"
-                          >
-                            View Files
-                          </Link>
                         </div>
                       </div>
-                    </div>
+                    </Link>
                   ))
                 )}
               </div>

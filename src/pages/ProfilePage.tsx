@@ -108,7 +108,8 @@ const ProfilePage: React.FC = () => {
           userEmail = fallbackSession?.user.email || '';
           console.log('Using fallback auth:', fallbackSession);
         } else {
-          // Not authenticated
+          // Not authenticated and not viewing another user's profile
+          console.log('User not authenticated and not viewing another profile');
           setLoading(false);
           return;
         }
@@ -719,42 +720,79 @@ const ProfilePage: React.FC = () => {
     );
   }
 
+  // Check if we're trying to view another user's profile
+  const urlParams = new URLSearchParams(window.location.search);
+  const isViewingOtherProfile = urlParams.get('userId') !== null;
+
   if (!userData) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-4">
-        <div className="flex items-center mb-4 w-full max-w-md justify-between">
+    // If we're trying to view another user's profile but userData is not available,
+    // show a "User not found" message instead of the sign-in prompt
+    if (isViewingOtherProfile) {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-screen p-4">
+          <div className="flex items-center mb-4 w-full max-w-md justify-between">
+            <button
+              onClick={() => window.location.href = '/'}
+              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              aria-label="Go back to home page"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+            </button>
+            <h1 className="text-2xl font-bold">User Not Found</h1>
+            <div className="w-8"></div> {/* Empty div for balance */}
+          </div>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">The user profile you're looking for could not be found.</p>
           <button
-            onClick={() => window.location.href = '/'}
-            className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            aria-label="Go back to home page"
+            onClick={() => window.location.href = '/search'}
+            className="w-full max-w-xs flex items-center justify-center px-4 py-2 bg-learnflow-600 text-white rounded-lg font-medium transition-all duration-300 hover:bg-learnflow-700 hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-learnflow-500 focus:ring-offset-2"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            Back to Search
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </button>
-          <h1 className="text-2xl font-bold">Please Sign In</h1>
-          <div className="w-8"></div> {/* Empty div for balance */}
         </div>
-        <p className="text-gray-600 dark:text-gray-400 mb-6">You need to be signed in to view your profile.</p>
-        <button
-          onClick={() => {
-            // Open login page in a new window with signup mode
-            const signupWindow = window.open('/login?mode=signup', '_blank', 'width=500,height=600');
-            
-            // Focus the new window
-            if (signupWindow) {
-              signupWindow.focus();
-            }
-          }}
-          className="w-full max-w-xs flex items-center justify-center px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium transition-all duration-300 hover:bg-indigo-700 hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-        >
-          Sign Up
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </button>
-      </div>
-    );
+      );
+    } else {
+      // If we're trying to view our own profile but not signed in, show the sign-in prompt
+      return (
+        <div className="flex flex-col items-center justify-center min-h-screen p-4">
+          <div className="flex items-center mb-4 w-full max-w-md justify-between">
+            <button
+              onClick={() => window.location.href = '/'}
+              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              aria-label="Go back to home page"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+            </button>
+            <h1 className="text-2xl font-bold">Please Sign In</h1>
+            <div className="w-8"></div> {/* Empty div for balance */}
+          </div>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">You need to be signed in to view your profile.</p>
+          <button
+            onClick={() => {
+              // Open login page in a new window with signup mode
+              const signupWindow = window.open('/login?mode=signup', '_blank', 'width=500,height=600');
+              
+              // Focus the new window
+              if (signupWindow) {
+                signupWindow.focus();
+              }
+            }}
+            className="w-full max-w-xs flex items-center justify-center px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium transition-all duration-300 hover:bg-indigo-700 hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+          >
+            Sign Up
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </button>
+        </div>
+      );
+    }
   }
 
   // Get profile picture from auth sources or generate default
@@ -780,7 +818,9 @@ const ProfilePage: React.FC = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
             </button>
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Your Profile</h1>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
+              {isCurrentUserProfile ? 'Your Profile' : `${userData?.name}'s Profile`}
+            </h1>
             
             {isCurrentUserProfile && (
               <button
@@ -1054,7 +1094,7 @@ const ProfilePage: React.FC = () => {
                     </span>
                   )}
                 </h3>
-                {selectedSubject && (
+                {isCurrentUserProfile && selectedSubject && (
                   <button
                     onClick={() => setSelectedSubject(null)}
                     className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
@@ -1069,52 +1109,60 @@ const ProfilePage: React.FC = () => {
                 )}
               </div>
 
-              {/* Drag and Drop Area */}
-              <div
-                className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
-                  isDragging
-                    ? 'border-learnflow-500 bg-learnflow-50 dark:bg-gray-700'
-                    : 'border-gray-300 hover:border-learnflow-400 dark:border-gray-600 dark:hover:border-gray-500'
-                }`}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={(e) => handleDrop(e, uploadSection.toLowerCase())}
-                onClick={triggerFileInput}
-              >
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  className="hidden"
-                  multiple
-                  onChange={(e) => handleFileInputChange(e, uploadSection.toLowerCase())}
-                />
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                </svg>
-                <p className="text-gray-600 dark:text-gray-400 mb-2">Drag and drop files here or click to upload</p>
-                <p className="text-sm text-gray-500 dark:text-gray-500">
-                  Upload {uploadSection} files for {selectedSubject ? `${selectedSubject.code}: ${selectedSubject.name}` : 'your selected subject'}
-                </p>
-                {!selectedSubject && (
-                  <p className="text-xs text-red-500 mt-1">Please select a subject from the dropdown menu first</p>
-                )}
-              </div>
-
-              {isUploading && (
-                <div className="mt-4">
-                  <div className="flex items-center">
-                    <div className="w-full bg-gray-200 rounded-full h-2.5 mr-4 dark:bg-gray-700">
-                      <div className="bg-learnflow-500 h-2.5 rounded-full" style={{ width: `${uploadProgress}%` }}></div>
-                    </div>
-                    <span className="text-sm text-gray-500 dark:text-gray-400 w-10">{Math.round(uploadProgress)}%</span>
+              {/* Drag and Drop Area - Only show for current user's profile */}
+              {isCurrentUserProfile ? (
+                <>
+                  <div
+                    className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
+                      isDragging
+                        ? 'border-learnflow-500 bg-learnflow-50 dark:bg-gray-700'
+                        : 'border-gray-300 hover:border-learnflow-400 dark:border-gray-600 dark:hover:border-gray-500'
+                    }`}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={(e) => handleDrop(e, uploadSection.toLowerCase())}
+                    onClick={triggerFileInput}
+                  >
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      className="hidden"
+                      multiple
+                      onChange={(e) => handleFileInputChange(e, uploadSection.toLowerCase())}
+                    />
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    <p className="text-gray-600 dark:text-gray-400 mb-2">Drag and drop files here or click to upload</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-500">
+                      Upload {uploadSection} files for {selectedSubject ? `${selectedSubject.code}: ${selectedSubject.name}` : 'your selected subject'}
+                    </p>
+                    {!selectedSubject && (
+                      <p className="text-xs text-red-500 mt-1">Please select a subject from the dropdown menu first</p>
+                    )}
                   </div>
+
+                  {isUploading && (
+                    <div className="mt-4">
+                      <div className="flex items-center">
+                        <div className="w-full bg-gray-200 rounded-full h-2.5 mr-4 dark:bg-gray-700">
+                          <div className="bg-learnflow-500 h-2.5 rounded-full" style={{ width: `${uploadProgress}%` }}></div>
+                        </div>
+                        <span className="text-sm text-gray-500 dark:text-gray-400 w-10">{Math.round(uploadProgress)}%</span>
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="text-center py-4 text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700">
+                  <p>You are viewing {userData?.name}'s profile. You can see their files but cannot upload new ones.</p>
                 </div>
               )}
 
               {/* File List */}
               <div className="mt-6">
                 <h4 className="text-md font-medium mb-2 text-gray-700 dark:text-gray-300">
-                  Your {uploadSection} Files
+                  {isCurrentUserProfile ? 'Your' : `${userData?.name}'s`} {uploadSection} Files
                   {selectedSubject && (
                     <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">
                       for {selectedSubject.code}
@@ -1137,8 +1185,8 @@ const ProfilePage: React.FC = () => {
                 }).length === 0 ? (
                   <p className="text-gray-500 dark:text-gray-400 text-sm italic">
                     {selectedSubject 
-                      ? `No ${uploadSection} files uploaded yet for ${selectedSubject.code}`
-                      : `No ${uploadSection} files uploaded yet`}
+                      ? `No ${uploadSection} files ${isCurrentUserProfile ? 'uploaded' : 'shared'} yet for ${selectedSubject.code}`
+                      : `No ${uploadSection} files ${isCurrentUserProfile ? 'uploaded' : 'shared'} yet`}
                   </p>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
