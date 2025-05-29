@@ -12,6 +12,7 @@ import {
   getUserProfile,
   updateUserProfile
 } from '../lib/supabase'
+import { syncUserDataToProfile } from '../utils/supabaseClient'
 import type { User } from '@supabase/supabase-js'
 
 interface AuthContextType {
@@ -69,6 +70,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           
           // Update the stored user
           localStorage.setItem('supabase_user', JSON.stringify(currentUser));
+          
+          // Sync user profile data to ensure branch and year are up to date
+          try {
+            await syncUserDataToProfile(currentUser.id);
+          } catch (error) {
+            console.error('Error syncing user profile data:', error);
+          }
         } else {
           console.log('No current user found in Supabase');
           // If no user is found, clear the stored user

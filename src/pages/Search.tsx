@@ -17,7 +17,6 @@ interface UserProfile {
   username: string;
   branch: string;
   year: string;
-  college: string;
   bio: string;
   profilePicture: string;
   interests?: string[]; // Made optional since we're not displaying interests
@@ -32,7 +31,6 @@ const convertSupabaseProfile = (profile: SupabaseUserProfile): UserProfile => {
     username: profile.username || 'user',
     branch: profile.branch || 'Not specified',
     year: profile.year || 'Not specified',
-    college: profile.college || 'Not specified',
     bio: '', // Bio is not needed in search results
     profilePicture: profile.profile_picture_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.full_name || 'User')}&background=random`,
     interests: [] // Interests are not needed in search results
@@ -172,14 +170,14 @@ const Search: React.FC = () => {
                           <img 
                             src={profile.profilePicture} 
                             alt={profile.name} 
-                            className="w-24 h-24 rounded-full object-cover border-2 border-learnflow-200 dark:border-learnflow-800"
+                            className="w-15 h-15 rounded-full object-cover border-2 border-learnflow-200 dark:border-learnflow-800"
                           />
                         </div>
                         <div className="flex-grow">
                           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-1">{profile.name}</h2>
-                          <p className="text-gray-600 dark:text-gray-400 mb-2">@{profile.username}</p>
+                          {/* <p className="text-gray-600 dark:text-gray-400 mb-2">@{profile.username}</p> */}
                           
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-1 mb-3">
+                          <div className="flex flex-wrap gap-x-4 gap-y-1 mb-3">
                             <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                               <span className="font-medium mr-1">Branch:</span> 
                               <span className={profile.branch === 'Not specified' ? 'text-gray-400 italic' : ''}>
@@ -192,12 +190,7 @@ const Search: React.FC = () => {
                                 {profile.year}
                               </span>
                             </div>
-                            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                              <span className="font-medium mr-1">College:</span> 
-                              <span className={profile.college === 'Not specified' ? 'text-gray-400 italic' : ''}>
-                                {profile.college}
-                              </span>
-                            </div>
+                            {/* College section removed as requested */}
                           </div>
                           
                           {/* Bio removed from search results as requested */}
@@ -207,13 +200,13 @@ const Search: React.FC = () => {
                         <div className="flex-shrink-0 flex flex-col justify-center">
                           <Link 
                             to={`/profile/${profile.id}`}
-                            className="bg-learnflow-600 hover:bg-learnflow-700 text-white px-4 py-2 rounded-lg transition-colors duration-300 mb-2 text-center"
+                            className="bg-learnflow-600 hover:bg-learnflow-700 text-white px-0 py-0 rounded-lg transition-colors duration-300 mb-2 text-center"
                           >
                             View Profile
                           </Link>
                           <Link 
                             to={`/user-files/${profile.id}`}
-                            className="bg-white dark:bg-gray-700 text-learnflow-600 dark:text-learnflow-400 border border-learnflow-600 dark:border-learnflow-400 hover:bg-learnflow-50 dark:hover:bg-gray-600 px-4 py-2 rounded-lg transition-colors duration-300 text-center"
+                            className="bg-white dark:bg-gray-700 text-learnflow-600 dark:text-learnflow-400 border border-learnflow-600 dark:border-learnflow-400 hover:bg-learnflow-50 dark:hover:bg-gray-600 px-0 py-0 rounded-lg transition-colors duration-300 text-center"
                           >
                             View Files
                           </Link>

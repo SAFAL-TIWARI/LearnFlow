@@ -30,7 +30,6 @@ export async function checkAndFixSearchFunctionality() {
             full_name TEXT,
             branch TEXT,
             year TEXT,
-            college TEXT,
             profile_picture_url TEXT,
             is_public BOOLEAN,
             created_at TIMESTAMP WITH TIME ZONE,
@@ -45,7 +44,6 @@ export async function checkAndFixSearchFunctionality() {
               full_name,
               COALESCE(branch, '') as branch,
               COALESCE(year, '') as year,
-              COALESCE(college, '') as college,
               COALESCE(profile_picture_url, '') as profile_picture_url,
               is_public,
               created_at,
@@ -56,8 +54,7 @@ export async function checkAndFixSearchFunctionality() {
               (
                 username ILIKE '%' || search_query || '%' OR
                 full_name ILIKE '%' || search_query || '%' OR
-                branch ILIKE '%' || search_query || '%' OR
-                college ILIKE '%' || search_query || '%'
+                branch ILIKE '%' || search_query || '%'
               )
             ORDER BY 
               CASE 
