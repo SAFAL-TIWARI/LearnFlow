@@ -191,13 +191,16 @@ export async function uploadFile(
   isPublic: boolean = false
 ) {
   try {
-    // Upload to storage
+    // Upload to storage - ensure path starts with userId to comply with storage policies
     const filePath = `${userId}/${Date.now()}_${file.name}`;
     const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('user-files')
+      .from('user-files') // Use hyphen to match the existing bucket name
       .upload(filePath, file);
     
-    if (uploadError) throw uploadError;
+    if (uploadError) {
+      console.error('Storage upload error:', uploadError);
+      throw uploadError;
+    }
     
     // Create file record in database
     const { data: fileData, error: fileError } = await supabase
@@ -216,7 +219,10 @@ export async function uploadFile(
       .select()
       .single();
     
-    if (fileError) throw fileError;
+    if (fileError) {
+      console.error('Database insert error:', fileError);
+      throw fileError;
+    }
     
     return fileData;
   } catch (error) {
@@ -250,10 +256,13 @@ export async function shareFile(fileId: string, ownerId: string, sharedWithId: s
 export async function downloadFile(filePath: string) {
   try {
     const { data, error } = await supabase.storage
-      .from('user-files')
+      .from('user-files') // Use hyphen to match the existing bucket name
       .download(filePath);
     
-    if (error) throw error;
+    if (error) {
+      console.error('Error downloading file:', error);
+      throw error;
+    }
     return data;
   } catch (error) {
     console.error('Error downloading file:', error);

@@ -25,6 +25,7 @@ interface FileUpload {
   category: string;
   subject_code?: string;
   subject_name?: string;
+  is_public?: boolean;
 }
 
 // Error fallback component
@@ -88,7 +89,7 @@ const ProfilePage: React.FC = () => {
     const initializeStorage = async () => {
       try {
         // Check if the bucket exists and create it if needed
-        const bucketName = 'user-files';
+        const bucketName = 'user-files'; // Use hyphen to match the existing bucket name
         const { data: buckets, error } = await supabase.storage.listBuckets();
 
         if (error) {
@@ -439,7 +440,8 @@ const ProfilePage: React.FC = () => {
                     created_at: file.created_at || new Date().toISOString(),
                     category: category,
                     subject_code: file.subject_code || subjectCode,
-                    subject_name: file.subject_name || subjectName
+                    subject_name: file.subject_name || subjectName,
+                    is_public: file.is_public
                   };
                 });
 
@@ -464,7 +466,10 @@ const ProfilePage: React.FC = () => {
 
       // If not viewing own profile, only get public files
       if (!isOwnProfile) {
+        console.log('Viewing another user profile, filtering for public files only');
         query.eq('is_public', true);
+      } else {
+        console.log('Viewing own profile, showing all files');
       }
 
       const { data: filesData, error: filesError } = await query;
@@ -499,16 +504,20 @@ const ProfilePage: React.FC = () => {
             }
           }
 
+          // Get the file path
+          const filePath = file.file_path || '';
+          
           // Convert database fields to our FileUpload interface format
           return {
             id: file.id,
             name: file.file_name || '',
-            url: file.file_path || '',
+            url: filePath, // Store the file path, not the full URL
             type: file.file_type || '',
             created_at: file.created_at,
             category: category,
             subject_code: subjectCode,
-            subject_name: subjectName
+            subject_name: subjectName,
+            is_public: file.is_public
           };
         });
 
@@ -801,7 +810,7 @@ const ProfilePage: React.FC = () => {
       const newFiles: FileUpload[] = [];
 
       // Create the bucket if it doesn't exist
-      const bucketName = 'user-files';
+      const bucketName = 'user-files'; // Use hyphen to match the existing bucket name
       try {
         const { data: buckets } = await supabase.storage.listBuckets();
         console.log('Available buckets:', buckets);
@@ -837,8 +846,9 @@ const ProfilePage: React.FC = () => {
         try {
           const file = files[i];
           const fileExt = file.name.split('.').pop();
-          const fileName = `${userId}-${Date.now()}-${i}.${fileExt}`;
-          const storagePath = `${category}/${selectedSubject.code}/${fileName}`;
+          const fileName = `${Date.now()}-${i}.${fileExt}`;
+          // Ensure the path starts with the user ID as required by storage policies
+          const storagePath = `${userId}/${category}/${selectedSubject.code}/${fileName}`;
 
           let fileUrl = '';
 
@@ -890,9 +900,9 @@ const ProfilePage: React.FC = () => {
 
             const fileMetadata = {
               user_id: userId,
-              name: file.name,
-              url: fileUrl,
-              type: file.type,
+              file_name: file.name,
+              file_path: storagePath, // Store the storage path, not the full URL
+              file_type: file.type,
               category: category.toLowerCase(), // Ensure consistent casing
               subject_code: selectedSubject.code,
               subject_name: selectedSubject.name,
@@ -916,12 +926,13 @@ const ProfilePage: React.FC = () => {
               newFiles.push({
                 id: `local-${Date.now()}-${i}`,
                 name: file.name,
-                url: fileUrl,
+                url: storagePath, // Store the storage path, not the full URL
                 type: file.type,
                 created_at: new Date().toISOString(),
                 category: category.toLowerCase(),
                 subject_code: selectedSubject.code,
-                subject_name: selectedSubject.name
+                subject_name: selectedSubject.name,
+                is_public: true
               });
             } else if (insertData && insertData.length > 0) {
               console.log('File metadata saved successfully:', insertData);
@@ -936,12 +947,13 @@ const ProfilePage: React.FC = () => {
             newFiles.push({
               id: `local-${Date.now()}-${i}`,
               name: file.name,
-              url: fileUrl,
+              url: storagePath, // Store the storage path, not the full URL
               type: file.type,
               created_at: new Date().toISOString(),
               category: category.toLowerCase(),
               subject_code: selectedSubject.code,
-              subject_name: selectedSubject.name
+              subject_name: selectedSubject.name,
+              is_public: true
             });
           }
         } catch (fileError) {
@@ -1012,6 +1024,38 @@ const ProfilePage: React.FC = () => {
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>, category: string) => {
     const files = e.target.files;
     handleFileUpload(files, category);
+  };
+
+  const handleFileDownload = async (file: FileUpload, event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    
+    try {
+      console.log('Downloading file:', file);
+      
+      // Get the file path from the file object
+      const filePath = file.url;
+      console.log('File path for download:', filePath);
+      
+      // Get a public URL for the file
+      const { data: publicUrlData } = supabase.storage
+        .from('user-files')
+        .getPublicUrl(filePath);
+      
+      if (!publicUrlData || !publicUrlData.publicUrl) {
+        console.error('Could not generate public URL for file');
+        alert('Failed to download file. Please try again.');
+        return;
+      }
+      
+      console.log('Generated public URL:', publicUrlData.publicUrl);
+      
+      // Open the file in a new tab
+      window.open(publicUrlData.publicUrl, '_blank');
+      
+    } catch (error) {
+      console.error('Error in file download:', error);
+      alert('An error occurred while downloading the file.');
+    }
   };
 
   const handleDeleteFile = async (file: FileUpload) => {
@@ -1587,16 +1631,15 @@ const ProfilePage: React.FC = () => {
                                   </div>
                                 </div>
                                 <div className="flex items-center">
-                                  <a
-                                    href={file.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                                  <button
+                                    onClick={(e) => handleFileDownload(file, e as any)}
                                     className="ml-2 text-learnflow-500 hover:text-learnflow-600"
+                                    title="Download file"
                                   >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                     </svg>
-                                  </a>
+                                  </button>
                                   {isCurrentUserProfile && (
                                     <button
                                       onClick={() => handleDeleteFile(file)}
