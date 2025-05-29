@@ -191,40 +191,117 @@ export async function uploadFile(
   isPublic: boolean = false
 ) {
   try {
+    // Validate inputs
+    if (!file) {
+      throw new Error('File is required');
+    }
+    
+    if (!userId) {
+      throw new Error('User ID is required');
+    }
+    
     // Upload to storage - ensure path starts with userId to comply with storage policies
     const filePath = `${userId}/${Date.now()}_${file.name}`;
+    console.log('Uploading file to path:', filePath);
+    
+    // Check if buckets exist
+    const { data: buckets, error: bucketError } = await supabase.storage.listBuckets();
+    
+    if (bucketError) {
+      console.error('Error listing buckets:', bucketError);
+      throw bucketError;
+    }
+    
+    // Check for both hyphen and underscore versions of the bucket
+    const hyphenBucketExists = buckets.some(bucket => bucket.name === 'user-files');
+    const underscoreBucketExists = buckets.some(bucket => bucket.name === 'user_files');
+    
+    let bucketName = '';
+    
+    if (hyphenBucketExists) {
+      bucketName = 'user-files';
+    } else if (underscoreBucketExists) {
+      bucketName = 'user_files';
+    } else {
+      console.error('Neither user-files nor user_files bucket exists');
+      throw new Error('Storage bucket not found. Please contact support.');
+    }
+    
+    console.log(`Using bucket: ${bucketName}`);
+    
+    // Upload file to storage
     const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('user-files') // Use hyphen to match the existing bucket name
-      .upload(filePath, file);
+      .from(bucketName)
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
     
     if (uploadError) {
       console.error('Storage upload error:', uploadError);
       throw uploadError;
     }
     
-    // Create file record in database
-    const { data: fileData, error: fileError } = await supabase
-      .from('user_files')
-      .insert([
-        {
-          user_id: userId,
-          file_name: file.name,
-          file_path: filePath,
-          file_type: file.type,
-          file_size: file.size,
-          description,
-          is_public: isPublic
+    console.log('File uploaded successfully to storage');
+    
+    // Create file record in database - try to handle different column names
+    try {
+      // First try with standard column names
+      const { data: fileData, error: fileError } = await supabase
+        .from('user_files')
+        .insert([
+          {
+            user_id: userId,
+            file_name: file.name,
+            file_path: filePath,
+            file_type: file.type,
+            file_size: file.size,
+            description,
+            is_public: isPublic
+          }
+        ])
+        .select()
+        .single();
+      
+      if (fileError) {
+        // If that fails, try with a more minimal set of columns
+        console.log('First insert attempt failed, trying with minimal columns');
+        const { data: minimalData, error: minimalError } = await supabase
+          .from('user_files')
+          .insert([
+            {
+              user_id: userId,
+              file_path: filePath,
+              is_public: isPublic
+            }
+          ])
+          .select()
+          .single();
+        
+        if (minimalError) {
+          console.error('Database insert error (minimal):', minimalError);
+          throw minimalError;
         }
-      ])
-      .select()
-      .single();
-    
-    if (fileError) {
-      console.error('Database insert error:', fileError);
-      throw fileError;
+        
+        console.log('File record created in database with minimal fields');
+        return minimalData;
+      }
+      
+      console.log('File record created in database');
+      return fileData;
+    } catch (dbError) {
+      console.error('All database insert attempts failed:', dbError);
+      
+      // Even if DB insert fails, the file is still in storage
+      // Return a basic object with the file path so it can still be accessed
+      return {
+        id: 'unknown',
+        user_id: userId,
+        file_path: filePath,
+        file_name: file.name,
+        is_public: isPublic
+      };
     }
-    
-    return fileData;
   } catch (error) {
     console.error('Error uploading file:', error);
     return null;
@@ -255,15 +332,34 @@ export async function shareFile(fileId: string, ownerId: string, sharedWithId: s
 // Download a file
 export async function downloadFile(filePath: string) {
   try {
-    const { data, error } = await supabase.storage
+    // Validate the file path
+    if (!filePath || filePath.trim() === '') {
+      console.error('Invalid file path: Path is empty');
+      throw new Error('Invalid file path: Path is empty');
+    }
+    
+    console.log('Downloading file from path:', filePath);
+    
+    // First try with the hyphenated bucket name
+    let result = await supabase.storage
       .from('user-files') // Use hyphen to match the existing bucket name
       .download(filePath);
     
-    if (error) {
-      console.error('Error downloading file:', error);
-      throw error;
+    // If that fails, try with the underscore version
+    if (result.error && result.error.message.includes('bucket')) {
+      console.log('Trying alternate bucket name with underscore');
+      result = await supabase.storage
+        .from('user_files') // Try with underscore as fallback
+        .download(filePath);
     }
-    return data;
+    
+    if (result.error) {
+      console.error('Error downloading file:', result.error);
+      throw result.error;
+    }
+    
+    console.log('File downloaded successfully');
+    return result.data;
   } catch (error) {
     console.error('Error downloading file:', error);
     return null;

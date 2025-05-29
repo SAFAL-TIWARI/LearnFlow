@@ -36,11 +36,45 @@ export const deleteFile = async (bucket: string, filePath: string) => {
 };
 
 export const listFiles = async (bucket: string, path?: string) => {
-  const { data, error } = await supabase.storage
-    .from(bucket)
-    .list(path || '');
+  // Validate bucket name
+  if (!bucket || bucket.trim() === '') {
+    console.error('Bucket name is required');
+    return { data: null, error: new Error('Bucket name is required') };
+  }
   
-  return { data, error };
+  // Normalize bucket name to use hyphen
+  const normalizedBucket = bucket === 'user_files' ? 'user-files' : bucket;
+  
+  try {
+    // Check if bucket exists first
+    const { data: buckets, error: bucketError } = await supabase.storage.listBuckets();
+    
+    if (bucketError) {
+      console.error('Error listing buckets:', bucketError);
+      return { data: null, error: bucketError };
+    }
+    
+    const bucketExists = buckets.some(b => b.name === normalizedBucket);
+    
+    if (!bucketExists) {
+      console.error(`Bucket "${normalizedBucket}" does not exist`);
+      return { data: null, error: new Error(`Bucket "${normalizedBucket}" does not exist`) };
+    }
+    
+    // List files in the bucket
+    const { data, error } = await supabase.storage
+      .from(normalizedBucket)
+      .list(path || '');
+    
+    if (error) {
+      console.error('Error listing files:', error);
+    }
+    
+    return { data, error };
+  } catch (error) {
+    console.error('Unexpected error listing files:', error);
+    return { data: null, error: error instanceof Error ? error : new Error('Unknown error') };
+  }
 };
 
 export const uploadStudyMaterial = async (

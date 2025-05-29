@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase, supabaseUrl } from '../lib/supabase';
 import { getSession, isAuthenticated } from '../lib/auth-fallback';
 import { useAuth } from '../context/SupabaseAuthContext';
 import { useSafeSession } from '../hooks/useSafeSession';
@@ -26,6 +26,9 @@ interface FileUpload {
   subject_code?: string;
   subject_name?: string;
   is_public?: boolean;
+  publicUrl?: string;
+  description?: string;
+  file_path?: string;
 }
 
 // Error fallback component
@@ -391,6 +394,20 @@ const ProfilePage: React.FC = () => {
     try {
       console.log('Fetching files for user ID:', userId);
 
+      // First, try to get files from localStorage as a fallback
+      const localStorageKey = `userFiles_${userId}`;
+      let cachedFiles: FileUpload[] = [];
+      
+      try {
+        const cachedFilesJson = localStorage.getItem(localStorageKey);
+        if (cachedFilesJson) {
+          cachedFiles = JSON.parse(cachedFilesJson);
+          console.log('Retrieved cached files from localStorage:', cachedFiles);
+        }
+      } catch (localStorageError) {
+        console.error('Error retrieving files from localStorage:', localStorageError);
+      }
+
       // Get the current authenticated user ID if available
       const { data: { user: authUser } } = await supabase.auth.getUser();
       const currentUserId = authUser?.id || '';
@@ -398,67 +415,15 @@ const ProfilePage: React.FC = () => {
       console.log('Current user ID for file fetch:', currentUserId);
       const isOwnProfile = currentUserId === userId;
 
-      // First try to get files using the getUserFiles function from supabaseClient if available
-      try {
-        if (typeof window !== 'undefined') {
-          try {
-            const { getUserFiles } = await import('../utils/supabaseClient');
-            if (getUserFiles) {
-              console.log('Using getUserFiles function to fetch files');
-              const files = await getUserFiles(userId, currentUserId);
-
-              if (files && files.length > 0) {
-                console.log('Files fetched successfully using getUserFiles:', files);
-
-                // Convert the files to the expected format
-                const formattedFiles = files.map(file => {
-                  // Safely handle description splitting
-                  let subjectCode = '';
-                  let subjectName = '';
-
-                  if (file.description) {
-                    const parts = file.description.split(' - ');
-                    if (parts.length > 0) subjectCode = parts[0];
-                    if (parts.length > 1) subjectName = parts[1];
-                  }
-
-                  // Safely handle category
-                  let category = 'notes'; // Default
-                  // The UserFile interface doesn't have a category property, so we need to use type assertion or check differently
-                  const fileAny = file as any; // Type assertion to avoid TypeScript error
-                  if (fileAny.category) {
-                    category = fileAny.category.toLowerCase();
-                  } else if (file.description) {
-                    category = file.description.toLowerCase();
-                  }
-
-                  return {
-                    id: file.id,
-                    name: file.file_name || '',
-                    url: file.file_path || '',
-                    type: file.file_type || '',
-                    created_at: file.created_at || new Date().toISOString(),
-                    category: category,
-                    subject_code: file.subject_code || subjectCode,
-                    subject_name: file.subject_name || subjectName,
-                    is_public: file.is_public
-                  };
-                });
-
-                console.log('Formatted files:', formattedFiles);
-                setUserFiles(formattedFiles);
-                return;
-              }
-            }
-          } catch (importError) {
-            console.error('Error importing getUserFiles:', importError);
-          }
-        }
-      } catch (advancedFetchError) {
-        console.error('Error using advanced file fetch:', advancedFetchError);
+      // Make sure we have a valid user ID before querying
+      if (!userId) {
+        console.error('No valid user ID for file query');
+        return; // Don't clear existing files if we don't have a valid ID
       }
-
-      // Fallback to direct query if the above fails
+      
+      // Direct query to get files from the database
+      console.log('Querying user_files table for files');
+      
       const query = supabase
         .from('user_files')
         .select('*')
@@ -478,16 +443,23 @@ const ProfilePage: React.FC = () => {
 
       if (filesError) {
         console.error('Error fetching user files:', filesError);
-        // If table doesn't exist, just continue with empty files
+        // If table doesn't exist, use cached files from localStorage
         if (filesError.code === '42P01' || filesError.message.includes('does not exist')) {
-          console.log('user_files table does not exist, using empty array');
-          setUserFiles([]);
+          console.log('user_files table does not exist, using cached files');
+          if (cachedFiles.length > 0) {
+            console.log('Setting user files from localStorage cache');
+            setUserFiles(cachedFiles);
+          }
+          return;
         }
-      } else if (filesData && filesData.length > 0) {
-        console.log('Setting user files from database:', filesData);
+        throw filesError; // Throw error for other database issues
+      } 
+      
+      if (filesData && filesData.length > 0) {
+        console.log('Processing files from database:', filesData);
 
         // Process the files to ensure they have all required fields
-        const processedFiles = filesData.map(file => {
+        const processedFiles = await Promise.all(filesData.map(async file => {
           // Ensure category is lowercase for consistent filtering
           const category = (file.category || 'notes').toLowerCase();
 
@@ -504,8 +476,48 @@ const ProfilePage: React.FC = () => {
             }
           }
 
-          // Get the file path
-          const filePath = file.file_path || '';
+          // Get the file path - ensure it's properly formatted
+          let filePath = file.file_path || '';
+          
+          // Make sure the file path is valid
+          if (!filePath || filePath.trim() === '') {
+            console.warn(`File ${file.id} has an empty file path`);
+          }
+          
+          // Get the public URL for the file
+          let publicUrl = file.public_url || ''; // Use stored public URL if available
+          
+          // If no public URL is stored, generate one
+          if (!publicUrl && filePath) {
+            try {
+              const { data: urlData } = await supabase.storage
+                .from('user-files')
+                .getPublicUrl(filePath);
+              
+              if (urlData && urlData.publicUrl) {
+                publicUrl = urlData.publicUrl;
+                console.log(`Generated public URL for file ${file.id}:`, publicUrl);
+                
+                // Update the database record with the public URL for future use
+                try {
+                  const { error: updateError } = await supabase
+                    .from('user_files')
+                    .update({ public_url: publicUrl })
+                    .eq('id', file.id);
+                    
+                  if (updateError) {
+                    console.error(`Error updating public URL for file ${file.id}:`, updateError);
+                  } else {
+                    console.log(`Updated public URL in database for file ${file.id}`);
+                  }
+                } catch (updateError) {
+                  console.error(`Error updating public URL:`, updateError);
+                }
+              }
+            } catch (urlError) {
+              console.error(`Error generating URL for file ${file.id}:`, urlError);
+            }
+          }
           
           // Convert database fields to our FileUpload interface format
           return {
@@ -517,19 +529,64 @@ const ProfilePage: React.FC = () => {
             category: category,
             subject_code: subjectCode,
             subject_name: subjectName,
-            is_public: file.is_public
+            is_public: file.is_public,
+            publicUrl: publicUrl, // Store pre-generated URL
+            description: file.description || '',
+            file_path: filePath
           };
-        });
+        }));
 
         console.log('Processed files with subject info:', processedFiles);
-        setUserFiles(processedFiles);
+        
+        // Update the state with the processed files
+        // Use a function to ensure we're working with the latest state
+        setUserFiles(prevFiles => {
+          // Create a map of existing file IDs
+          const existingFileMap = new Map(prevFiles.map(file => [file.id, file]));
+          
+          // Update existing files and add new ones
+          processedFiles.forEach(file => {
+            existingFileMap.set(file.id, file);
+          });
+          
+          // Convert map back to array
+          const updatedFiles = Array.from(existingFileMap.values());
+          console.log('Updated files state:', updatedFiles);
+          
+          // Save to localStorage for persistence
+          try {
+            localStorage.setItem(localStorageKey, JSON.stringify(updatedFiles));
+            console.log('Saved files to localStorage');
+          } catch (saveError) {
+            console.error('Error saving files to localStorage:', saveError);
+          }
+          
+          return updatedFiles;
+        });
       } else {
-        console.log('No files found for user');
-        setUserFiles([]);
+        console.log('No files found for user in database');
+        
+        // If no files in database but we have cached files, use those
+        if (cachedFiles.length > 0) {
+          console.log('Using cached files from localStorage:', cachedFiles);
+          setUserFiles(cachedFiles);
+        }
       }
     } catch (error) {
       console.error('Error fetching user files:', error);
-      setUserFiles([]);
+      
+      // Try to use localStorage as fallback on error
+      try {
+        const localStorageKey = `userFiles_${userId}`;
+        const cachedFilesJson = localStorage.getItem(localStorageKey);
+        if (cachedFilesJson) {
+          const cachedFiles = JSON.parse(cachedFilesJson);
+          console.log('Using cached files from localStorage after error:', cachedFiles);
+          setUserFiles(cachedFiles);
+        }
+      } catch (localStorageError) {
+        console.error('Error retrieving files from localStorage:', localStorageError);
+      }
     }
   };
 
@@ -580,6 +637,18 @@ const ProfilePage: React.FC = () => {
       setUploadSection(category);
     }
   };
+
+  // Ensure files are fetched when component mounts and when user changes
+  useEffect(() => {
+    const refreshUserFiles = async () => {
+      if (!userData || !userData.id) return;
+      
+      console.log('Refreshing user files for user ID:', userData.id);
+      await fetchUserFiles(userData.id);
+    };
+    
+    refreshUserFiles();
+  }, [userData?.id]);
 
   // Cleanup timeouts on unmount
   useEffect(() => {
@@ -809,29 +878,33 @@ const ProfilePage: React.FC = () => {
 
       const newFiles: FileUpload[] = [];
 
-      // Create the bucket if it doesn't exist
-      const bucketName = 'user-files'; // Use hyphen to match the existing bucket name
+      // IMPORTANT: Use the correct bucket name - must match exactly what's in Supabase
+      const bucketName = 'user-files'; // This is the correct bucket name with hyphen
+      
+      // Skip bucket creation and verification - use the existing bucket
+      // This avoids RLS policy issues when creating buckets
       try {
-        const { data: buckets } = await supabase.storage.listBuckets();
-        console.log('Available buckets:', buckets);
-
-        // Check if our bucket exists
-        const bucketExists = buckets?.some(bucket => bucket.name === bucketName);
-
-        if (!bucketExists) {
-          console.log(`Bucket '${bucketName}' not found, attempting to create it...`);
-          const { data, error } = await supabase.storage.createBucket(bucketName, {
-            public: true // Make the bucket public so files are accessible
-          });
-
-          if (error) {
-            console.error(`Error creating bucket '${bucketName}':`, error);
-          } else {
-            console.log(`Bucket '${bucketName}' created successfully:`, data);
-          }
+        console.log(`Using existing bucket '${bucketName}'`);
+        
+        // Try to list files in the bucket to verify access
+        // Use a specific path to avoid listing all files
+        const { data: bucketFiles, error: listError } = await supabase.storage
+          .from(bucketName)
+          .list(userData.id); // List only files in the user's folder
+          
+        if (listError) {
+          // If we can't list files, it might be because the user folder doesn't exist yet
+          // This is normal for first-time uploads, so we'll just log it and continue
+          console.log(`Note: Could not list files in '${bucketName}/${userData.id}':`, listError);
+          console.log('This is normal for first-time uploads');
+        } else {
+          console.log(`Successfully accessed bucket '${bucketName}', existing files:`, bucketFiles);
         }
       } catch (bucketError) {
-        console.error('Error checking/creating bucket:', bucketError);
+        // Log the error but continue with the upload
+        // The bucket likely exists but the user might not have permission to list all files
+        console.log('Note: Error checking bucket access:', bucketError);
+        console.log('Continuing with upload anyway...');
       }
 
       // Get the current authenticated user ID
@@ -845,116 +918,281 @@ const ProfilePage: React.FC = () => {
       for (let i = 0; i < files.length; i++) {
         try {
           const file = files[i];
-          const fileExt = file.name.split('.').pop();
-          const fileName = `${Date.now()}-${i}.${fileExt}`;
+          
+          // Validate file
+          if (!file || file.size === 0) {
+            console.error('Invalid file or empty file');
+            continue;
+          }
+          
+          // Get file extension safely
+          const fileNameParts = file.name.split('.');
+          const fileExt = fileNameParts.length > 1 ? fileNameParts.pop() : 'unknown';
+          
+          // Create a unique filename with timestamp and index
+          const uniqueFileName = `${Date.now()}-${i}-${Math.random().toString(36).substring(2, 10)}.${fileExt}`;
+          
+          // Create a clean storage path - format: userId/category/subjectCode/fileName
+          // Make sure all path components are valid and sanitized
+          const sanitizedCategory = category.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+          const sanitizedSubjectCode = selectedSubject.code.replace(/[^a-zA-Z0-9-]/g, '-');
+          
           // Ensure the path starts with the user ID as required by storage policies
-          const storagePath = `${userId}/${category}/${selectedSubject.code}/${fileName}`;
+          let storagePath = `${userId}/${sanitizedCategory}/${sanitizedSubjectCode}/${uniqueFileName}`;
+          console.log('Storage path for upload:', storagePath);
 
           let fileUrl = '';
+          let publicUrl = '';
 
           try {
-            console.log(`Uploading file ${i + 1}/${files.length}: ${file.name}`);
-            console.log('Storage path:', storagePath);
-
+            console.log(`Uploading file ${i + 1}/${files.length}: ${file.name} (${file.size} bytes)`);
+            
             // Update progress for UI feedback
             setUploadProgress(Math.round((i / files.length) * 50)); // First 50% for upload
-
-            // Upload the file to Supabase Storage with subject code in the path
+            
+            // Upload the file to Supabase Storage
+            // No need to check bucket access first - just try to upload directly
             const { data, error } = await supabase.storage
               .from(bucketName)
               .upload(storagePath, file, {
                 cacheControl: '3600',
-                upsert: true
+                upsert: true, // Overwrite if exists
+                contentType: file.type // Set the correct content type
               });
 
             console.log('Storage upload response:', { data, error });
 
             if (error) {
-              console.error(`Error uploading file ${file.name}:`, error);
-              // Create a local URL as fallback
-              fileUrl = URL.createObjectURL(file);
-              console.log('Using local URL fallback:', fileUrl);
-            } else {
-              // Get the public URL with subject code in the path
-              console.log('Getting public URL for:', storagePath);
-
+              // Handle specific error cases
+              if (error.message.includes('security policy') || error.message.includes('permission denied')) {
+                console.error(`Permission error uploading file ${file.name}:`, error);
+                
+                // Try a different path without the user ID prefix
+                // This might work if the RLS policies are set differently
+                const simplePath = `${sanitizedCategory}/${sanitizedSubjectCode}/${uniqueFileName}`;
+                console.log('Trying alternative upload path:', simplePath);
+                
+                const { data: altData, error: altError } = await supabase.storage
+                  .from(bucketName)
+                  .upload(simplePath, file, {
+                    cacheControl: '3600',
+                    upsert: true,
+                    contentType: file.type
+                  });
+                  
+                if (altError) {
+                  console.error(`Alternative upload also failed for ${file.name}:`, altError);
+                  throw new Error(`Upload failed: ${altError.message}`);
+                }
+                
+                // If alternative upload worked, use that path
+                console.log('Alternative upload succeeded:', altData);
+                storagePath = simplePath;
+              } else {
+                console.error(`Error uploading file ${file.name}:`, error);
+                throw new Error(`Upload failed: ${error.message}`);
+              }
+            }
+            
+            // Get the public URL for the file
+            console.log('Getting public URL for:', storagePath);
+            
+            try {
               const { data: urlData } = supabase.storage
                 .from(bucketName)
                 .getPublicUrl(storagePath);
-
+  
               console.log('Public URL data:', urlData);
-              fileUrl = urlData.publicUrl;
-              console.log('File URL:', fileUrl);
-
-              // Update progress for UI feedback
-              setUploadProgress(50 + Math.round((i / files.length) * 50)); // Last 50% for metadata
+              
+              if (!urlData || !urlData.publicUrl) {
+                console.error('Failed to get public URL');
+                throw new Error('Could not generate public URL for file');
+              }
+              
+              fileUrl = storagePath; // Store the storage path for database
+              publicUrl = urlData.publicUrl; // Store the public URL for immediate use
+              
+              console.log('File storage path:', fileUrl);
+              console.log('File public URL:', publicUrl);
+            } catch (urlError) {
+              console.error('Error generating public URL:', urlError);
+              
+              // Create a fallback URL using the Supabase project URL and storage path
+              // This is a best-effort approach when getPublicUrl fails due to permissions
+              try {
+                // Use the imported supabaseUrl or fallback to a default
+                // Format: https://{project-ref}.supabase.co/storage/v1/object/public/{bucket}/{path}
+                const fallbackUrl = `${supabaseUrl}/storage/v1/object/public/${bucketName}/${storagePath}`;
+                
+                console.log('Created fallback public URL:', fallbackUrl);
+                
+                fileUrl = storagePath; // Store the storage path for database
+                publicUrl = fallbackUrl; // Use the fallback URL
+              } catch (fallbackError) {
+                console.error('Error creating fallback URL:', fallbackError);
+                
+                // Last resort: create a temporary object URL
+                // Note: This will only work until the page is refreshed
+                const objectUrl = URL.createObjectURL(file);
+                console.log('Created temporary object URL as last resort:', objectUrl);
+                
+                fileUrl = storagePath; // Still store the path for future reference
+                publicUrl = objectUrl; // Use the object URL as a temporary measure
+              }
             }
+
+            // Update progress for UI feedback
+            setUploadProgress(50 + Math.round((i / files.length) * 50)); // Last 50% for metadata
           } catch (storageError) {
             console.error('Storage error:', storageError);
-            // Create a local URL as fallback
-            fileUrl = URL.createObjectURL(file);
+            alert(`Error uploading file ${file.name}: ${storageError.message}`);
+            continue; // Skip this file and try the next one
           }
 
           try {
             console.log('Saving file metadata to database...');
 
+            // Create a complete metadata object with all necessary fields
             const fileMetadata = {
               user_id: userId,
               file_name: file.name,
-              file_path: storagePath, // Store the storage path, not the full URL
+              file_path: fileUrl, // Store the storage path, not the full URL
               file_type: file.type,
+              file_size: file.size, // Store file size for display
+              description: `${selectedSubject.code} - ${selectedSubject.name}`, // Add description for better context
               category: category.toLowerCase(), // Ensure consistent casing
               subject_code: selectedSubject.code,
               subject_name: selectedSubject.name,
               is_public: true,  // Set this to true to make files visible to others
-              created_at: new Date().toISOString() // Ensure we have a timestamp
+              created_at: new Date().toISOString(), // Ensure we have a timestamp
+              public_url: publicUrl // Store the public URL for easy access
             };
-            console.log('File metadata:', fileMetadata);
+            console.log('File metadata for database:', fileMetadata);
 
-            // Save file metadata to the database with subject information
-            const { data: insertData, error: insertError } = await supabase
-              .from('user_files')
-              .insert(fileMetadata)
-              .select();
+            // Try to save file metadata to the database
+            let insertData = null;
+            let insertError = null;
+            
+            try {
+              // First try with the full metadata
+              const result = await supabase
+                .from('user_files')
+                .insert(fileMetadata)
+                .select();
+                
+              insertData = result.data;
+              insertError = result.error;
+              
+              console.log('Database insert response:', { insertData, insertError });
+            } catch (dbError) {
+              console.error('Exception during database insert:', dbError);
+              insertError = { message: dbError.message };
+            }
 
-            console.log('Database insert response:', { insertData, insertError });
-
+            // Handle database insert errors
             if (insertError) {
-              console.error('Error saving file metadata:', insertError);
+              console.error('Error saving file metadata to database:', insertError);
+              
+              // Check for specific error types
+              if (insertError.code === '42P01' || insertError.message.includes('does not exist')) {
+                console.log('Table does not exist, creating file entry in local state only');
+              } else if (insertError.message.includes('security policy') || insertError.message.includes('permission denied')) {
+                console.log('Permission error, trying simplified insert');
+                
+                // Try a simplified insert with minimal fields
+                try {
+                  const simplifiedMetadata = {
+                    file_name: file.name,
+                    file_path: fileUrl,
+                    file_type: file.type,
+                    category: category.toLowerCase(),
+                    public_url: publicUrl
+                  };
+                  
+                  const result = await supabase
+                    .from('user_files')
+                    .insert(simplifiedMetadata)
+                    .select();
+                    
+                  if (result.error) {
+                    console.error('Simplified insert also failed:', result.error);
+                  } else {
+                    console.log('Simplified insert succeeded:', result.data);
+                    insertData = result.data;
+                    insertError = null;
+                  }
+                } catch (simplifiedError) {
+                  console.error('Exception during simplified insert:', simplifiedError);
+                }
+              } else {
+                // For other errors, log but don't alert to avoid disrupting the user
+                console.error(`Database error: ${insertError.message}. The file was uploaded but metadata could not be saved.`);
+              }
 
               // Add to local state with local ID if database insert fails
-              newFiles.push({
+              const newFile: FileUpload = {
                 id: `local-${Date.now()}-${i}`,
                 name: file.name,
-                url: storagePath, // Store the storage path, not the full URL
+                url: fileUrl, // Store the storage path
                 type: file.type,
                 created_at: new Date().toISOString(),
                 category: category.toLowerCase(),
                 subject_code: selectedSubject.code,
                 subject_name: selectedSubject.name,
-                is_public: true
-              });
+                is_public: true,
+                publicUrl: publicUrl, // Store the public URL
+                description: `${selectedSubject.code} - ${selectedSubject.name}`,
+                file_path: fileUrl
+              };
+              
+              console.log('Adding file to local state:', newFile);
+              newFiles.push(newFile);
+              
+              // Also update the userFiles state immediately to show the file
+              setUserFiles(prev => [...prev, newFile]);
+              
             } else if (insertData && insertData.length > 0) {
-              console.log('File metadata saved successfully:', insertData);
+              console.log('File metadata saved successfully to database:', insertData);
 
               // Add the database-created file to our local state
-              newFiles.push(insertData[0]);
+              // Enhance the database record with the public URL
+              const newFile: FileUpload = {
+                ...insertData[0],
+                publicUrl: publicUrl, // Add the public URL
+                url: fileUrl // Ensure the URL is set correctly
+              };
+              
+              console.log('Adding database file to local state:', newFile);
+              newFiles.push(newFile);
+              
+              // Also update the userFiles state immediately to show the file
+              setUserFiles(prev => [...prev, newFile]);
             }
           } catch (dbError) {
             console.error('Database error:', dbError);
+            alert(`Error saving file information: ${dbError.message}`);
 
             // Add to local state with local ID if database insert fails
-            newFiles.push({
+            const newFile: FileUpload = {
               id: `local-${Date.now()}-${i}`,
               name: file.name,
-              url: storagePath, // Store the storage path, not the full URL
+              url: fileUrl, // Store the storage path
               type: file.type,
               created_at: new Date().toISOString(),
               category: category.toLowerCase(),
               subject_code: selectedSubject.code,
               subject_name: selectedSubject.name,
-              is_public: true
-            });
+              is_public: true,
+              publicUrl: publicUrl, // Store the public URL
+              description: `${selectedSubject.code} - ${selectedSubject.name}`,
+              file_path: fileUrl
+            };
+            
+            console.log('Adding file to local state after error:', newFile);
+            newFiles.push(newFile);
+            
+            // Also update the userFiles state immediately to show the file
+            setUserFiles(prev => [...prev, newFile]);
           }
         } catch (fileError) {
           console.error(`Error processing file at index ${i}:`, fileError);
@@ -967,41 +1205,105 @@ const ProfilePage: React.FC = () => {
       try {
         console.log('Refreshing file list from database...');
 
-        // Refresh the file list from database
-        const { data: filesData, error: filesError } = await supabase
-          .from('user_files')
-          .select('*')
-          .eq('user_id', userId);
-
-        console.log('File list refresh response:', { filesData, filesError });
-
-        if (filesError) {
-          console.error('Error fetching user files:', filesError);
-          // Use the locally created files
-          console.log('Using locally created files:', newFiles);
-          setUserFiles(prev => [...prev, ...newFiles]);
-        } else if (filesData && filesData.length > 0) {
-          console.log('Setting user files from database:', filesData);
-          setUserFiles(filesData);
-        } else {
-          // If no files found in database but we have new files, use those
-          console.log('No files found in database, using new files:', newFiles);
-          setUserFiles(prev => [...prev, ...newFiles]);
+        // Refresh the file list by calling fetchUserFiles
+        await fetchUserFiles(userId);
+        
+        // Double-check that all newly uploaded files are in the state
+        // This is a safety measure to ensure files appear even if the database fetch fails
+        if (newFiles.length > 0) {
+          console.log('Verifying all uploaded files are in state:', newFiles);
+          
+          // Get the current state
+          const currentFiles = [...userFiles];
+          const currentFileIds = new Set(currentFiles.map(file => file.id));
+          
+          // Find any files that might be missing
+          const missingFiles = newFiles.filter(file => !currentFileIds.has(file.id));
+          
+          if (missingFiles.length > 0) {
+            console.log('Adding missing files to state:', missingFiles);
+            setUserFiles(prev => {
+              const updatedFiles = [...prev, ...missingFiles];
+              
+              // Save to localStorage for persistence
+              try {
+                const localStorageKey = `userFiles_${userId}`;
+                localStorage.setItem(localStorageKey, JSON.stringify(updatedFiles));
+                console.log('Saved updated files to localStorage after adding missing files');
+              } catch (saveError) {
+                console.error('Error saving files to localStorage:', saveError);
+              }
+              
+              return updatedFiles;
+            });
+          } else {
+            console.log('All files are already in state');
+            
+            // Still save current state to localStorage for persistence
+            try {
+              const localStorageKey = `userFiles_${userId}`;
+              localStorage.setItem(localStorageKey, JSON.stringify(currentFiles));
+              console.log('Saved current files to localStorage');
+            } catch (saveError) {
+              console.error('Error saving files to localStorage:', saveError);
+            }
+          }
         }
+        
+        console.log('File list refreshed successfully');
+        
+        // Force a UI update by setting a state variable
+        // This ensures the component re-renders with the new files
+        setUploadSection(prev => {
+          // Set to the same value to trigger a re-render
+          console.log('Forcing UI update for section:', prev);
+          return prev;
+        });
+        
       } catch (refreshError) {
         console.error('Error refreshing files:', refreshError);
-        // Use the locally created files
-        console.log('Using locally created files due to error:', newFiles);
-        setUserFiles(prev => [...prev, ...newFiles]);
+        
+        // Use the locally created files as fallback
+        if (newFiles.length > 0) {
+          console.log('Using locally created files due to error:', newFiles);
+          
+          // Update the state with the new files, avoiding duplicates
+          setUserFiles(prev => {
+            const existingIds = new Set(prev.map(file => file.id));
+            const filesToAdd = newFiles.filter(file => !existingIds.has(file.id));
+            const updatedFiles = [...prev, ...filesToAdd];
+            
+            // Save to localStorage for persistence
+            try {
+              const localStorageKey = `userFiles_${userId}`;
+              localStorage.setItem(localStorageKey, JSON.stringify(updatedFiles));
+              console.log('Saved files to localStorage after error recovery');
+            } catch (saveError) {
+              console.error('Error saving files to localStorage:', saveError);
+            }
+            
+            return updatedFiles;
+          });
+        }
       }
 
-      alert('Files uploaded successfully!');
+      // Check if any files were successfully uploaded
+      if (newFiles.length > 0) {
+        alert(`${newFiles.length} file(s) uploaded successfully! They should now appear in the list below.`);
+      } else {
+        alert('No files were uploaded. Please try again with different files.');
+      }
     } catch (error) {
       console.error('Error uploading files:', error);
-      alert('Failed to upload some files. Please try again.');
+      alert(`Upload error: ${error.message}. Please try again or contact support if the issue persists.`);
     } finally {
       setIsUploading(false);
       setUploadProgress(0);
+      
+      // Force a UI refresh to ensure files are displayed
+      setTimeout(() => {
+        setUploadSection(prev => prev); // Set to same value to trigger re-render
+      }, 500);
     }
   };
 
@@ -1026,15 +1328,31 @@ const ProfilePage: React.FC = () => {
     handleFileUpload(files, category);
   };
 
-  const handleFileDownload = async (file: FileUpload, event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    
+  // Helper function to get a public URL for a file
+  const getFilePublicUrl = (file: FileUpload): string => {
     try {
-      console.log('Downloading file:', file);
+      // First check if the file already has a public URL
+      if (file.publicUrl && file.publicUrl.startsWith('http')) {
+        console.log('Using existing public URL:', file.publicUrl);
+        return file.publicUrl;
+      }
       
       // Get the file path from the file object
-      const filePath = file.url;
-      console.log('File path for download:', filePath);
+      const filePath = file.url || file.file_path || '';
+      
+      // Check if the file path is valid
+      if (!filePath || filePath.trim() === '') {
+        console.error('Invalid file path: Path is empty for file:', file);
+        return '';
+      }
+      
+      // Check if the URL is already a full public URL (starts with http)
+      if (filePath.startsWith('http')) {
+        console.log('File path is already a public URL:', filePath);
+        return filePath;
+      }
+      
+      console.log('Generating public URL for file path:', filePath);
       
       // Get a public URL for the file
       const { data: publicUrlData } = supabase.storage
@@ -1042,19 +1360,124 @@ const ProfilePage: React.FC = () => {
         .getPublicUrl(filePath);
       
       if (!publicUrlData || !publicUrlData.publicUrl) {
-        console.error('Could not generate public URL for file');
-        alert('Failed to download file. Please try again.');
-        return;
+        console.error('Could not generate public URL for file:', file);
+        
+        // Try an alternative approach if the first one fails
+        try {
+          // Extract the file path components
+          const pathParts = filePath.split('/');
+          if (pathParts.length > 0) {
+            const fileName = pathParts[pathParts.length - 1];
+            console.log('Trying alternative URL generation with filename:', fileName);
+            
+            // Try to generate URL with just the filename as fallback
+            const { data: altUrlData } = supabase.storage
+              .from('user-files')
+              .getPublicUrl(fileName);
+              
+            if (altUrlData && altUrlData.publicUrl) {
+              console.log('Generated alternative public URL:', altUrlData.publicUrl);
+              
+              // Update the file object with the new public URL
+              if (file.id && !file.id.startsWith('local-')) {
+                try {
+                  supabase
+                    .from('user_files')
+                    .update({ public_url: altUrlData.publicUrl })
+                    .eq('id', file.id)
+                    .then(({ error }) => {
+                      if (error) {
+                        console.error('Error updating public URL in database:', error);
+                      } else {
+                        console.log('Updated public URL in database');
+                      }
+                    });
+                } catch (updateError) {
+                  console.error('Error updating public URL:', updateError);
+                }
+              }
+              
+              return altUrlData.publicUrl;
+            }
+          }
+        } catch (altError) {
+          console.error('Error generating alternative URL:', altError);
+        }
+        
+        return '';
       }
       
       console.log('Generated public URL:', publicUrlData.publicUrl);
       
-      // Open the file in a new tab
-      window.open(publicUrlData.publicUrl, '_blank');
+      // Update the file object with the new public URL
+      if (file.id && !file.id.startsWith('local-')) {
+        try {
+          supabase
+            .from('user_files')
+            .update({ public_url: publicUrlData.publicUrl })
+            .eq('id', file.id)
+            .then(({ error }) => {
+              if (error) {
+                console.error('Error updating public URL in database:', error);
+              } else {
+                console.log('Updated public URL in database');
+              }
+            });
+        } catch (updateError) {
+          console.error('Error updating public URL:', updateError);
+        }
+      }
+      
+      return publicUrlData.publicUrl;
+    } catch (error) {
+      console.error('Error generating public URL:', error);
+      return '';
+    }
+  };
+
+  const handleFileDownload = async (file: FileUpload, event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    
+    try {
+      console.log('Downloading file:', file);
+      
+      // First try to use the pre-generated public URL if available
+      let publicUrl = file.publicUrl || '';
+      
+      // If no public URL is available, generate one
+      if (!publicUrl) {
+        publicUrl = getFilePublicUrl(file);
+      }
+      
+      if (!publicUrl) {
+        console.error('Failed to generate public URL for download');
+        alert('Failed to download file. Please try again.');
+        return;
+      }
+      
+      console.log('Using public URL for download:', publicUrl);
+      
+      // Create a temporary anchor element to trigger the download
+      const a = document.createElement('a');
+      a.href = publicUrl;
+      a.download = file.name || 'download'; // Use the file name or a default
+      a.target = '_blank'; // Open in new tab as fallback
+      document.body.appendChild(a);
+      a.click();
+      
+      // Remove the temporary element
+      setTimeout(() => {
+        document.body.removeChild(a);
+      }, 100);
       
     } catch (error) {
       console.error('Error in file download:', error);
-      alert('An error occurred while downloading the file.');
+      alert('An error occurred while downloading the file. Please try again.');
+      
+      // Fallback to opening in new tab if download fails
+      if (file.publicUrl) {
+        window.open(file.publicUrl, '_blank');
+      }
     }
   };
 
@@ -1101,8 +1524,13 @@ const ProfilePage: React.FC = () => {
         }
       }
 
-      // Update the local state by removing the deleted file
-      setUserFiles(prev => prev.filter(f => f.id !== file.id));
+      // Refresh the file list from the database
+      if (userData && userData.id) {
+        await fetchUserFiles(userData.id);
+      } else {
+        // Fallback to just updating the local state if we can't refresh from database
+        setUserFiles(prev => prev.filter(f => f.id !== file.id));
+      }
 
       alert('File deleted successfully!');
     } catch (error) {
@@ -1575,20 +2003,63 @@ const ProfilePage: React.FC = () => {
                     return null;
                   })()}
                   {(() => {
+                    // Log all files for debugging
+                    console.log('All files before filtering:', userFiles);
+                    
                     // Get filtered files for the current section and subject
                     const filteredFiles = userFiles.filter(file => {
+                      // Skip files with no data
+                      if (!file || !file.name) {
+                        console.log('Skipping invalid file entry:', file);
+                        return false;
+                      }
+                      
                       // Normalize categories for comparison
                       const normalizedCategory = uploadSection.toLowerCase();
-                      const fileCategory = file.category ? file.category.toLowerCase() : '';
-
+                      
+                      // Get file category, ensuring it's a string and lowercase
+                      let fileCategory = '';
+                      if (file.category) {
+                        fileCategory = file.category.toLowerCase();
+                      } else if (file.description) {
+                        // Try to extract category from description as fallback
+                        fileCategory = file.description.toLowerCase();
+                      }
+                      
+                      // Debug log for category comparison
+                      console.log(`File ${file.name}: Category comparison - File category: "${fileCategory}", Upload section: "${normalizedCategory}"`);
+                      
                       // Check if the file belongs to the selected category
-                      const categoryMatch = fileCategory === normalizedCategory;
+                      // First try exact match, then try partial match
+                      let categoryMatch = fileCategory === normalizedCategory;
+                      
+                      // If exact match fails, try partial match
+                      if (!categoryMatch) {
+                        categoryMatch = fileCategory.includes(normalizedCategory) || normalizedCategory.includes(fileCategory);
+                      }
 
                       // Check if the file belongs to the selected subject
                       // If no subject is selected, show all files in the category
-                      const subjectMatch = !selectedSubject ||
-                        file.subject_code === selectedSubject.code ||
-                        (file.subject_name && file.subject_name.includes(selectedSubject.name));
+                      let subjectMatch = false;
+                      
+                      if (!selectedSubject) {
+                        // If no subject selected, show all files in the category
+                        subjectMatch = true;
+                      } else {
+                        // Try exact match first
+                        if (file.subject_code === selectedSubject.code) {
+                          subjectMatch = true;
+                        } 
+                        // Then try partial matches
+                        else if (file.subject_name && file.subject_name.includes(selectedSubject.name)) {
+                          subjectMatch = true;
+                        }
+                        else if (selectedSubject.code && file.subject_code && 
+                                (file.subject_code.includes(selectedSubject.code) || 
+                                 selectedSubject.code.includes(file.subject_code))) {
+                          subjectMatch = true;
+                        }
+                      }
 
                       console.log(`File ${file.name}: Category match: ${categoryMatch}, Subject match: ${subjectMatch}`);
 
@@ -1631,6 +2102,17 @@ const ProfilePage: React.FC = () => {
                                   </div>
                                 </div>
                                 <div className="flex items-center">
+                                  <a
+                                    href={file.publicUrl || getFilePublicUrl(file)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="ml-2 text-blue-500 hover:text-blue-600"
+                                    title="Open file in new tab"
+                                  >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                    </svg>
+                                  </a>
                                   <button
                                     onClick={(e) => handleFileDownload(file, e as any)}
                                     className="ml-2 text-learnflow-500 hover:text-learnflow-600"

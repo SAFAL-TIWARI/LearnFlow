@@ -62,6 +62,13 @@ const UserFiles: React.FC = () => {
     try {
       setDownloadingFileId(file.id);
       
+      // Validate file path
+      if (!file.file_path || file.file_path.trim() === '') {
+        throw new Error('Invalid file path: File path is empty');
+      }
+      
+      console.log('Attempting to download file:', file.file_name, 'from path:', file.file_path);
+      
       // Get file from storage
       const fileData = await downloadFile(file.file_path);
       if (!fileData) {
@@ -79,9 +86,11 @@ const UserFiles: React.FC = () => {
       // Clean up
       URL.revokeObjectURL(url);
       document.body.removeChild(a);
+      
+      console.log('File download completed successfully');
     } catch (err) {
       console.error('Error downloading file:', err);
-      alert('Failed to download file');
+      alert('Failed to download file: ' + (err instanceof Error ? err.message : 'Unknown error'));
     } finally {
       setDownloadingFileId(null);
     }
