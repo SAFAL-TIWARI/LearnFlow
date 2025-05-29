@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   full_name TEXT,
   branch TEXT,
   year TEXT,
+  semester TEXT,
   college TEXT,
   bio TEXT,
   interests TEXT[],
@@ -135,6 +136,7 @@ RETURNS TABLE (
   full_name TEXT,
   branch TEXT,
   year TEXT,
+  semester TEXT,
   profile_picture_url TEXT,
   is_public BOOLEAN,
   created_at TIMESTAMP WITH TIME ZONE,
@@ -149,6 +151,7 @@ AS $$
     full_name,
     COALESCE(branch, '') as branch,
     COALESCE(year, '') as year,
+    COALESCE(semester, '') as semester,
     COALESCE(profile_picture_url, '') as profile_picture_url,
     is_public,
     created_at,
@@ -159,7 +162,8 @@ AS $$
     (
       username ILIKE '%' || search_query || '%' OR
       full_name ILIKE '%' || search_query || '%' OR
-      branch ILIKE '%' || search_query || '%'
+      branch ILIKE '%' || search_query || '%' OR
+      semester ILIKE '%' || search_query || '%'
     )
   ORDER BY 
     CASE 
@@ -256,6 +260,7 @@ BEGIN
     full_name, 
     branch,
     year,
+    semester,
     college,
     is_public
   )
@@ -265,6 +270,7 @@ BEGIN
     COALESCE(NEW.raw_user_meta_data->>'full_name', split_part(NEW.email, '@', 1)),
     COALESCE(NEW.raw_user_meta_data->>'branch', ''),
     COALESCE(NEW.raw_user_meta_data->>'year', ''),
+    COALESCE(NEW.raw_user_meta_data->>'semester', ''),
     COALESCE(NEW.raw_user_meta_data->>'college', ''),
     true
   );

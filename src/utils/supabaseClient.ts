@@ -13,6 +13,7 @@ export interface UserProfile {
   full_name: string;
   branch?: string;
   year?: string;
+  semester?: string;
   college?: string;
   bio?: string;
   interests?: string[];
@@ -55,8 +56,8 @@ export async function searchUsers(query: string) {
       console.log('Trying direct query as fallback...');
       const { data: directData, error: directError } = await supabase
         .from('profiles')
-        .select('id, username, full_name, branch, year, profile_picture_url, is_public')
-        .or(`username.ilike.%${query}%,full_name.ilike.%${query}%,branch.ilike.%${query}%`)
+        .select('id, username, full_name, branch, year, semester, profile_picture_url, is_public')
+        .or(`username.ilike.%${query}%,full_name.ilike.%${query}%,branch.ilike.%${query}%,semester.ilike.%${query}%`)
         .eq('is_public', true);
         
       if (directError) {
@@ -327,6 +328,11 @@ export async function syncUserDataToProfile(userId: string) {
         updateData.year = userData.year;
       }
       
+      // Check for semester in users table
+      if (userData.semester) {
+        updateData.semester = userData.semester;
+      }
+      
       // Check for name in users table
       if (userData.name) {
         updateData.full_name = userData.name;
@@ -347,6 +353,10 @@ export async function syncUserDataToProfile(userId: string) {
       
       if (!updateData.year && metadata.year) {
         updateData.year = metadata.year;
+      }
+      
+      if (!updateData.semester && metadata.semester) {
+        updateData.semester = metadata.semester;
       }
       
       if (!updateData.full_name && metadata.full_name) {

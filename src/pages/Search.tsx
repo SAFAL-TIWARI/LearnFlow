@@ -15,8 +15,9 @@ interface UserProfile {
   id: string;
   name: string;
   username: string;
-  branch: string;
   year: string;
+  semester: string; // Changed from optional to required
+  branch: string;
   bio: string;
   profilePicture: string;
   interests?: string[]; // Made optional since we're not displaying interests
@@ -29,8 +30,9 @@ const convertSupabaseProfile = (profile: SupabaseUserProfile): UserProfile => {
     id: profile.id,
     name: profile.full_name || 'Unknown User',
     username: profile.username || 'user',
-    branch: profile.branch || 'Not specified',
     year: profile.year || 'Not specified',
+    semester: profile.semester || 'Not specified',
+    branch: profile.branch || 'Not specified',
     bio: '', // Bio is not needed in search results
     profilePicture: profile.profile_picture_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.full_name || 'User')}&background=random`,
     interests: [] // Interests are not needed in search results
@@ -147,7 +149,7 @@ const Search: React.FC = () => {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search by name, branch, college, or interests..."
+                    placeholder="Search by name, branch, semester, etc..."
                     className="w-full p-4 pl-12 pr-12 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-learnflow-500 focus:border-transparent transition-all duration-300"
                   />
                   <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">
@@ -195,15 +197,21 @@ const Search: React.FC = () => {
                           
                           <div className="flex flex-col gap-y-2 mb-3">
                             <div className="flex items-center justify-center text-sm text-gray-600 dark:text-gray-400">
-                              <span className="font-medium mr-1">Branch:</span> 
-                              <span className={profile.branch === 'Not specified' ? 'text-gray-400 italic' : ''}>
-                                {profile.branch}
-                              </span>
-                            </div>
-                            <div className="flex items-center justify-center text-sm text-gray-600 dark:text-gray-400">
                               <span className="font-medium mr-1">Year:</span> 
                               <span className={profile.year === 'Not specified' ? 'text-gray-400 italic' : ''}>
                                 {profile.year}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-center text-sm text-gray-600 dark:text-gray-400">
+                              <span className="font-medium mr-1">Semester:</span> 
+                              <span className={profile.semester === 'Not specified' ? 'text-gray-400 italic' : ''}>
+                                {profile.semester}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-center text-sm text-gray-600 dark:text-gray-400">
+                              <span className="font-medium mr-1">Branch:</span> 
+                              <span className={profile.branch === 'Not specified' ? 'text-gray-400 italic' : ''}>
+                                {profile.branch}
                               </span>
                             </div>
                           </div>

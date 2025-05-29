@@ -31,6 +31,10 @@ BEGIN
           auth_user.raw_user_meta_data->>'year', 
           profiles.year
         ),
+        semester = COALESCE(
+          auth_user.raw_user_meta_data->>'semester', 
+          profiles.semester
+        ),
         updated_at = now()
       WHERE id = auth_user.id;
       
@@ -43,6 +47,7 @@ BEGIN
         full_name,
         branch,
         year,
+        semester,
         is_public,
         created_at,
         updated_at
@@ -52,6 +57,7 @@ BEGIN
         COALESCE(auth_user.raw_user_meta_data->>'full_name', split_part(auth_user.email, '@', 1)),
         COALESCE(auth_user.raw_user_meta_data->>'branch', ''),
         COALESCE(auth_user.raw_user_meta_data->>'year', ''),
+        COALESCE(auth_user.raw_user_meta_data->>'semester', ''),
         true,
         now(),
         now()
@@ -70,8 +76,8 @@ SELECT update_profiles_from_auth();
 CREATE OR REPLACE FUNCTION ensure_profile_fields()
 RETURNS TRIGGER AS $$
 BEGIN
-  -- If branch or year are NULL, try to get them from auth.users metadata
-  IF NEW.branch IS NULL OR NEW.branch = '' OR NEW.year IS NULL OR NEW.year = '' THEN
+  -- If branch, year, or semester are NULL, try to get them from auth.users metadata
+  IF NEW.branch IS NULL OR NEW.branch = '' OR NEW.year IS NULL OR NEW.year = '' OR NEW.semester IS NULL OR NEW.semester = '' THEN
     DECLARE
       user_metadata JSONB;
     BEGIN
@@ -88,6 +94,11 @@ BEGIN
         -- Update year if needed
         IF NEW.year IS NULL OR NEW.year = '' THEN
           NEW.year := COALESCE(user_metadata->>'year', '');
+        END IF;
+        
+        -- Update semester if needed
+        IF NEW.semester IS NULL OR NEW.semester = '' THEN
+          NEW.semester := COALESCE(user_metadata->>'semester', '');
         END IF;
       END IF;
     END;
