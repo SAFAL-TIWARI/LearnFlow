@@ -174,10 +174,12 @@ const ProfilePage: React.FC = () => {
                 }
               }
 
-              // Determine semester based on year (odd year -> odd semester, even year -> even semester)
-              // This is a simple heuristic if semester is not explicitly stored
-              let semester = '';
-              if (year) {
+              // Use the semester value from the profile data if it exists
+              // Otherwise, determine semester based on year as a fallback
+              let semester = data.semester || '';
+              
+              // Only calculate semester from year if it's not already provided in the profile data
+              if (!semester && year) {
                 const yearNum = parseInt(year);
                 if (!isNaN(yearNum)) {
                   // For simplicity: Year 1 -> Semester 1, Year 2 -> Semester 3, etc.
