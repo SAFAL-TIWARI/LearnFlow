@@ -44,6 +44,8 @@ const ProfilePage: React.FC = () => {
   const [dropdownTimeouts, setDropdownTimeouts] = useState<Record<string, NodeJS.Timeout>>({});
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
 
   // Try to use Supabase auth first, then NextAuth as fallback
   const { user: supabaseUser } = useAuth();
@@ -300,6 +302,8 @@ const ProfilePage: React.FC = () => {
       setDropdownTimeouts(newTimeouts);
     }
     setActiveDropdown(category);
+    // Also set the upload section when hovering
+    setUploadSection(category);
   };
 
   const handleDropdownMouseLeave = (category: string) => {
@@ -307,6 +311,8 @@ const ProfilePage: React.FC = () => {
     if (!isMobile) {
       const timeout = setTimeout(() => {
         setActiveDropdown(null);
+        // Don't reset the upload section when the dropdown closes
+        // This keeps the upload section visible even after dropdown closes
       }, 150); // 150ms delay before closing
       
       setDropdownTimeouts(prev => ({
@@ -319,14 +325,15 @@ const ProfilePage: React.FC = () => {
   // Handle click for mobile devices
   const handleCategoryClick = (category: string) => {
     if (isMobile) {
-      // If the dropdown is already open, close it and set upload section
+      // If the dropdown is already open, close it
       if (activeDropdown === category) {
         setActiveDropdown(null);
-        setUploadSection(category);
       } else {
         // Otherwise, open the dropdown
         setActiveDropdown(category);
       }
+      // Always set the upload section when clicking on a category
+      setUploadSection(category);
     } else {
       // For desktop, just set the upload section
       setUploadSection(category);
@@ -369,6 +376,7 @@ const ProfilePage: React.FC = () => {
       // Check if the click is outside of any dropdown
       if (!target.closest('.category-dropdown')) {
         setActiveDropdown(null);
+        // Keep the upload section visible
       }
     };
     
@@ -416,8 +424,29 @@ const ProfilePage: React.FC = () => {
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    if (!isEditMode) return;
+    
     const { name, value } = e.target;
     setUserData(prev => prev ? { ...prev, [name]: value } : null);
+    setHasChanges(true);
+  };
+
+  // Store original user data to revert changes if needed
+  const [originalUserData, setOriginalUserData] = useState<UserData | null>(null);
+
+  const toggleEditMode = () => {
+    if (isEditMode) {
+      // If turning off edit mode without saving, revert any changes
+      if (hasChanges && originalUserData) {
+        setUserData(originalUserData);
+      }
+      setHasChanges(false);
+      setIsEditMode(false);
+    } else {
+      // Store original data before entering edit mode
+      setOriginalUserData({...userData!});
+      setIsEditMode(true);
+    }
   };
 
   const handleSaveProfile = async () => {
@@ -445,6 +474,8 @@ const ProfilePage: React.FC = () => {
           if (error.code === '42P01' || error.message.includes('does not exist')) {
             console.log('Table does not exist, but showing success to user');
             alert('Profile updated successfully!');
+            setIsEditMode(false);
+            setHasChanges(false);
             return;
           }
 
@@ -452,12 +483,16 @@ const ProfilePage: React.FC = () => {
         }
 
         alert('Profile updated successfully!');
+        setIsEditMode(false);
+        setHasChanges(false);
       } catch (error) {
         console.error('Error in Supabase update:', error);
 
         // For demo purposes, show success even if the database update fails
         // This allows the UI to work even if the backend is not fully set up
         alert('Profile updated successfully!');
+        setIsEditMode(false);
+        setHasChanges(false);
       }
     } catch (error) {
       console.error('Error saving profile:', error);
@@ -746,6 +781,15 @@ const ProfilePage: React.FC = () => {
               </svg>
             </button>
             <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Your Profile</h1>
+            
+            {isCurrentUserProfile && (
+              <button
+                onClick={toggleEditMode}
+                className="ml-auto text-sm text-learnflow-600 hover:text-learnflow-700 dark:text-learnflow-400 dark:hover:text-learnflow-300 transition-colors"
+              >
+                {isEditMode ? 'Cancel Edit' : 'Edit Profile'}
+              </button>
+            )}
           </div>
 
           <div className="flex flex-col md:flex-row gap-8">
@@ -772,7 +816,8 @@ const ProfilePage: React.FC = () => {
                     name="name"
                     value={userData.name || ''}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-learnflow-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    readOnly={!isEditMode}
+                    className={`w-full px-3 py-2 border border-gray-300 rounded-md ${isEditMode ? 'focus:outline-none focus:ring-2 focus:ring-learnflow-500' : 'bg-gray-50 cursor-default'} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
                   />
                 </div>
 
@@ -796,7 +841,8 @@ const ProfilePage: React.FC = () => {
                     name="year"
                     value={userData.year || ''}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-learnflow-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    disabled={!isEditMode}
+                    className={`w-full px-3 py-2 border border-gray-300 rounded-md ${isEditMode ? 'focus:outline-none focus:ring-2 focus:ring-learnflow-500' : 'bg-gray-50 cursor-default'} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
                   >
                     <option value="">Select Year</option>
                     <option value="1">1st Year</option>
@@ -814,7 +860,8 @@ const ProfilePage: React.FC = () => {
                     name="semester"
                     value={userData.semester || ''}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-learnflow-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    disabled={!isEditMode}
+                    className={`w-full px-3 py-2 border border-gray-300 rounded-md ${isEditMode ? 'focus:outline-none focus:ring-2 focus:ring-learnflow-500' : 'bg-gray-50 cursor-default'} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
                   >
                     <option value="">Select Semester</option>
                     <option value="1">1st Semester</option>
@@ -836,7 +883,8 @@ const ProfilePage: React.FC = () => {
                     name="branch"
                     value={userData.branch || ''}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-learnflow-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    disabled={!isEditMode}
+                    className={`w-full px-3 py-2 border border-gray-300 rounded-md ${isEditMode ? 'focus:outline-none focus:ring-2 focus:ring-learnflow-500' : 'bg-gray-50 cursor-default'} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
                   >
                     <option value="">Select Branch</option>
                     <option value="CSE">Computer Science Engineering</option>
@@ -852,15 +900,17 @@ const ProfilePage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="mt-6">
-                <button
-                  onClick={handleSaveProfile}
-                  disabled={saving}
-                  className="px-4 py-2 bg-learnflow-500 text-white rounded-md hover:bg-learnflow-600 focus:outline-none focus:ring-2 focus:ring-learnflow-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {saving ? 'Saving...' : 'Save Profile'}
-                </button>
-              </div>
+              {isEditMode && (
+                <div className="mt-6">
+                  <button
+                    onClick={handleSaveProfile}
+                    disabled={saving || !hasChanges}
+                    className="px-4 py-2 bg-learnflow-500 text-white rounded-md hover:bg-learnflow-600 focus:outline-none focus:ring-2 focus:ring-learnflow-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {saving ? 'Saving...' : 'Save Profile'}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -908,6 +958,7 @@ const ProfilePage: React.FC = () => {
                     onClick={(e) => {
                       e.stopPropagation();
                       setActiveDropdown(null);
+                      // Keep the upload section visible
                     }}
                   />
                 )}
@@ -933,6 +984,7 @@ const ProfilePage: React.FC = () => {
                             onClick={(e) => {
                               e.stopPropagation();
                               setActiveDropdown(null);
+                              // Keep the upload section visible
                             }}
                             className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                           >
