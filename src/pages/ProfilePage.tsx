@@ -1077,9 +1077,24 @@ const ProfilePage: React.FC = () => {
             
             try {
               // First try with the full metadata
+              console.log('Inserting file metadata into database:', fileMetadata);
+              
+              // Make sure we're using the correct table name and all required fields
               const result = await supabase
                 .from('user_files')
-                .insert(fileMetadata)
+                .insert({
+                  user_id: userId,
+                  file_name: file.name,
+                  file_path: fileUrl,
+                  file_type: file.type,
+                  file_size: file.size,
+                  description: `${selectedSubject.code} - ${selectedSubject.name}`,
+                  category: category.toLowerCase(),
+                  subject_code: selectedSubject.code,
+                  subject_name: selectedSubject.name,
+                  is_public: true,
+                  public_url: publicUrl
+                })
                 .select();
                 
               insertData = result.data;
