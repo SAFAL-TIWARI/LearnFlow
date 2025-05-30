@@ -27,14 +27,6 @@ const Index = () => {
           <Hero />
         </PageFadeSection>
 
-        {/* Features Overview Section */}
-        <PageFadeSection
-          animationType="fade-up"
-          threshold={0.15}
-        >
-          <FeaturesOverview />
-        </PageFadeSection>
-
         {/* Academic Resources Preview */}
         <PageFadeSection
           animationType="fade-up"
@@ -50,6 +42,16 @@ const Index = () => {
         >
           <StudentToolsShowcase />
         </PageFadeSection>
+
+        {/* Features Overview Section */}
+        <PageFadeSection
+          animationType="fade-up"
+          threshold={0.15}
+        >
+          <FeaturesOverview />
+        </PageFadeSection>
+
+
 
         {/* Statistics Section */}
         <PageFadeSection
