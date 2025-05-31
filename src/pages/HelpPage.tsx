@@ -116,6 +116,39 @@ const HelpPage: React.FC = () => {
         linkText: 'Reset your password'
       },
       {
+        question: 'I\'ve forgotten my password',
+        answer: 'If you\'ve forgotten your password, you can easily reset it by clicking the "Forgot Password" link on the login page. You\'ll receive an email with instructions to create a new password. Make sure to check your spam folder if you don\'t see the email in your inbox.',
+        icon: <Lock className="w-5 h-5 text-orange-500" />,
+        link: '/forgot-password',
+        linkText: 'Reset your password'
+      },
+      {
+        question: 'My account is locked after too many login attempts',
+        answer: 'For security reasons, your account may be temporarily locked after multiple failed login attempts. Wait for 30 minutes before trying again. If you\'re still unable to access your account after waiting, use the "Forgot Password" feature to reset your credentials or contact our support team for assistance.',
+        icon: <AlertTriangle className="w-5 h-5 text-red-500" />,
+        link: '/forgot-password',
+        linkText: 'Reset your password'
+      },
+      {
+        question: 'I\'m not receiving the verification email',
+        answer: 'If you haven\'t received your verification email:\n\n1. Check your spam or junk folder\n2. Verify you entered the correct email address\n3. Add support@learnflow.edu to your contacts\n4. Wait a few minutes as emails can sometimes be delayed\n\nYou can request another verification email from the login page. If you still don\'t receive it, contact our support team.',
+        icon: <Mail className="w-5 h-5 text-blue-500" />,
+        link: 'mailto:support@learnflow.edu?subject=Verification%20Email%20Issue',
+        linkText: 'Contact support'
+      },
+      {
+        question: 'I\'m having trouble with Google Sign-In',
+        answer: 'If you\'re experiencing issues with Google Sign-In:\n\n1. Ensure you\'re using a supported browser (Chrome, Firefox, Safari, Edge)\n2. Clear your browser cookies and cache\n3. Make sure you\'re using the correct Google account\n4. Check if third-party cookies are enabled in your browser\n5. Try signing out of all Google accounts and then sign in again\n\nIf problems persist, try the email/password login method instead.',
+        icon: <User className="w-5 h-5 text-purple-500" />
+      },
+      {
+        question: 'I keep getting redirected after login',
+        answer: 'If you\'re being redirected unexpectedly after logging in:\n\n1. Check if you have any browser extensions that might interfere with redirects\n2. Clear your browser cache and cookies\n3. Try using incognito/private browsing mode\n4. Ensure your browser is updated to the latest version\n\nThis issue is often caused by cached data or session conflicts. If the problem continues, please contact our support team with details about your browser and device.',
+        icon: <ArrowRight className="w-5 h-5 text-yellow-500" />,
+        link: 'mailto:support@learnflow.edu?subject=Login%20Redirect%20Issue',
+        linkText: 'Report redirect issue'
+      },
+      {
         question: 'The website is loading slowly',
         answer: 'This could be due to your internet connection or high traffic on our servers. Try refreshing the page or accessing the site during off-peak hours. You can also try clearing your browser cache or using a different browser.',
         icon: <Clock className="w-5 h-5 text-yellow-500" />
