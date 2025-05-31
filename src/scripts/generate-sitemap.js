@@ -30,6 +30,7 @@ function generateSitemap() {
   // Use a fixed current date instead of system date which might be incorrect
   const today = '2023-10-30';
   
+  // Create a properly formatted XML document
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
@@ -110,8 +111,15 @@ function generateSitemap() {
 // Write the sitemap to the dist directory
 try {
   const sitemap = generateSitemap();
-  fs.writeFileSync(sitemapPath, sitemap);
-  console.log(`Sitemap generated at ${sitemapPath}`);
+  
+  // Ensure the file is written with UTF-8 encoding without BOM
+  fs.writeFileSync(sitemapPath, sitemap, { encoding: 'utf8' });
+  
+  // Also create a copy in the public directory to ensure it's available during development
+  const publicSitemapPath = path.join(rootDir, 'public', 'sitemap.xml');
+  fs.writeFileSync(publicSitemapPath, sitemap, { encoding: 'utf8' });
+  
+  console.log(`Sitemap generated at ${sitemapPath} and ${publicSitemapPath}`);
 } catch (error) {
   console.error('Error generating sitemap:', error);
 }
