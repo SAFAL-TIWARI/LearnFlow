@@ -40,9 +40,9 @@ const Footer: React.FC = () => {
                 LearnFlow
               </h2>
               <div className="ml-2 transform transition-transform group-hover:translate-y-[-4px]">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-learnflow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                {/* <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-learnflow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                </svg>
+                </svg> */}
               </div>
             </div>
             <p className="text-gray-600 dark:text-gray-400 text-sm mt-2 mb-4">Empowering Education, Inspiring Growth</p>
