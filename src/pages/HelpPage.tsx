@@ -574,11 +574,11 @@ const HelpPage: React.FC = () => {
                             <h3
                               className="text-lg font-medium text-gray-800 dark:text-white"
                               style={{
-                                opacity: '1 !important',
-                                visibility: 'visible !important',
-                                display: 'block !important',
+                                opacity: 1,
+                                visibility: 'visible',
+                                display: 'block',
                                 color: theme === 'dark' ? '#ffffff' : '#1f2937'
-                              }}
+                              } as React.CSSProperties}
                             >
                               {item.question}
                             </h3>
@@ -603,7 +603,7 @@ const HelpPage: React.FC = () => {
                                   className="text-gray-600 dark:text-gray-300 whitespace-pre-line"
                                   style={{
                                     opacity: '1 !important',
-                                    visibility: 'visible !important',
+                                    visibility: 'visible',
                                     display: 'block !important',
                                     color: theme === 'dark' ? '#d1d5db' : '#4b5563'
                                   }}
