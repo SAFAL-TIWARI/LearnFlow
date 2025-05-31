@@ -191,24 +191,29 @@ const Footer: React.FC = () => {
 
         {/* Bottom Section with Copyright and Legal */}
         <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 md:mb-0 text-center md:text-left">
+          <div className="flex flex-col items-center text-center">
+            <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
               © {currentYear} LearnFlow | Transforming Education for Engineering Students
             </p>
-            <div className="flex flex-col items-center gap-y-2">
-              <ExternalLink
-                to="/privacy-policy"
-                className="text-gray-600 dark:text-gray-400 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors cursor-pointer text-sm"
-              >
-                Privacy Policy
-              </ExternalLink>
-              <ExternalLink
-                to="/terms-of-service"
-                className="text-gray-600 dark:text-gray-400 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors cursor-pointer text-sm"
-              >
-                Terms of Service
-              </ExternalLink>
-              <CookieManager className="text-xs mt-2" />
+            <div className="flex flex-col items-center">
+              {/* Policy links - horizontal on desktop, vertical on mobile */}
+              <div className="flex flex-col md:flex-row items-center gap-y-2 md:gap-x-4 mb-2">
+                <ExternalLink
+                  to="/privacy-policy"
+                  className="text-gray-600 dark:text-gray-400 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors cursor-pointer text-sm"
+                >
+                  Privacy Policy
+                </ExternalLink>
+                <span className="hidden md:inline text-gray-400 dark:text-gray-600">|</span>
+                <ExternalLink
+                  to="/terms-of-service"
+                  className="text-gray-600 dark:text-gray-400 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors cursor-pointer text-sm"
+                >
+                  Terms of Service
+                </ExternalLink>
+              </div>
+              {/* Cookie manager below the policy links */}
+              <CookieManager className="text-xs" />
             </div>
           </div>
         </div>
