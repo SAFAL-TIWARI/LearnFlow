@@ -132,7 +132,7 @@ The enhanced home page now contains:
 - **SATI Vidisha** - Primary institution
 - **IIT Delhi** - Prestigious reference
 - **NIT Bhopal** - Regional relevance
-- **MANIT Bhopal** - Local engineering college
+- **IIIT Bhopal Bhopal** - Local engineering college
 
 #### Geographic Targeting
 - **Madhya Pradesh** engineering colleges

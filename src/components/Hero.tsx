@@ -129,9 +129,11 @@ const Hero: React.FC = () => {
               </p>
               <div className="flex flex-wrap justify-center gap-2 text-xs text-gray-400 dark:text-gray-500">
                 <span className="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">SATI Vidisha</span>
-                <span className="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">MANIT Bhopal</span>
                 <span className="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">NIT Bhopal</span>
-                <span className="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">IIT Delhi</span>
+                <span className="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">IIIT Bhopal</span>
+                <span className="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">IIT Indore</span>
+                <span className="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">SGSITS Indore</span>
+                <span className="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">DAVV Indore</span>
               </div>
             </div>
           </FadeInElement>

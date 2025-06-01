@@ -616,13 +616,43 @@ const HelpPage: React.FC = () => {
                                     className="mt-4"
                                     whileHover={{ x: 5 }}
                                   >
-                                    <Link
-                                      to={item.link.startsWith('mailto:') ? item.link : item.link}
-                                      className="inline-flex items-center text-learnflow-600 dark:text-learnflow-400 hover:text-learnflow-700 dark:hover:text-learnflow-300"
-                                    >
-                                      {item.linkText}
-                                      <ArrowRight className="ml-2 w-4 h-4" />
-                                    </Link>
+                                    {item.link.startsWith('mailto:') ? (
+                                      <Link
+                                        to={item.link}
+                                        className="inline-flex items-center text-learnflow-600 dark:text-learnflow-400 hover:text-learnflow-700 dark:hover:text-learnflow-300"
+                                      >
+                                        {item.linkText}
+                                        <ArrowRight className="ml-2 w-4 h-4" />
+                                      </Link>
+                                    ) : (
+                                      item.link.includes('/signup') || 
+                                      item.link.includes('/login') || 
+                                      item.link.includes('/forgot-password') ? (
+                                        <button
+                                          onClick={() => {
+                                            const mode = item.link.includes('/signup') ? 'signup' : 'signin';
+                                            const loginWindow = window.open(
+                                              `/login?mode=${mode}`, 
+                                              '_blank', 
+                                              'width=500,height=600'
+                                            );
+                                            if (loginWindow) loginWindow.focus();
+                                          }}
+                                          className="inline-flex items-center text-learnflow-600 dark:text-learnflow-400 hover:text-learnflow-700 dark:hover:text-learnflow-300"
+                                        >
+                                          {item.linkText}
+                                          <ExternalLink className="ml-2 w-4 h-4" />
+                                        </button>
+                                      ) : (
+                                        <Link
+                                          to={item.link}
+                                          className="inline-flex items-center text-learnflow-600 dark:text-learnflow-400 hover:text-learnflow-700 dark:hover:text-learnflow-300"
+                                        >
+                                          {item.linkText}
+                                          <ArrowRight className="ml-2 w-4 h-4" />
+                                        </Link>
+                                      )
+                                    )}
                                   </motion.div>
                                 )}
                               </div>

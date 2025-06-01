@@ -193,11 +193,11 @@ const CallToActionSection: React.FC = () => {
               <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-500 dark:text-gray-500">
                 <span>SATI Vidisha</span>
                 <span>•</span>
-                <span>IIT Delhi</span>
+                <span>ACROPOLIS Indore</span>
                 <span>•</span>
-                <span>NIT Bhopal</span>
+                <span>LNCT Bhopal</span>
                 <span>•</span>
-                <span>MANIT Bhopal</span>
+                <span>IPS Indore</span>
                 <span>•</span>
                 <span>And 100+ more colleges</span>
               </div>

@@ -292,7 +292,7 @@ const Signup = () => {
           </div>
         </form>
 
-        <div className="mt-6">
+        {/* <div className="mt-6">
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-300 dark:border-gray-700"></div>
@@ -329,7 +329,7 @@ const Signup = () => {
               Google
             </button>
           </div>
-        </div>
+        </div> */}
 
         <div className="mt-6 text-center">
           <Link
