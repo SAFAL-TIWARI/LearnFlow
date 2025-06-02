@@ -6,6 +6,7 @@
 @import './styles/fonts.css';
 @import './styles/text-alignment.css';
 @import './styles/rolling-gallery.css';
+@import './styles/animations.css';
 
 @tailwind base;
 @tailwind components;

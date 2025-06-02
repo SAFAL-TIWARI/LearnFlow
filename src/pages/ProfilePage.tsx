@@ -5,6 +5,7 @@ import { useAuth } from '../context/SupabaseAuthContext';
 import { useSafeSession } from '../hooks/useSafeSession';
 import { branchSubjects, Subject } from '../data/academicData';
 import BackButton from '../components/BackButton';
+import '../styles/animations.css';
 
 interface UserData {
   id: string;
@@ -34,29 +35,46 @@ interface FileUpload {
 // Error fallback component
 const ProfilePageErrorFallback = () => {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden p-6">
-        <div className="flex items-center mb-4">
-          <button
-            onClick={() => window.location.href = '/'}
-            className="mr-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            aria-label="Go back to home page"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-          </button>
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Profile</h1>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4 animate-fadeIn">
+      <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+        {/* <div className="bg-red-500 h-2 w-full"></div> */}
+        <div className="p-8">
+          <div className="flex items-center mb-6">
+            <div className="bg-red-100 dark:bg-red-900/30 p-3 rounded-full">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-white ml-4">Profile Error</h1>
+          </div>
+
+          <p className="text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
+            We encountered an issue loading your profile. This could be due to a network issue or a temporary server problem.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4">
+            <button
+              onClick={() => window.location.href = '/'}
+              className="flex items-center justify-center px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 hover:shadow-md"
+              aria-label="Go back to home page"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Back to Home
+            </button>
+
+            <button
+              onClick={() => window.location.reload()}
+              className="flex items-center justify-center px-4 py-3 bg-learnflow-500 text-white rounded-lg hover:bg-learnflow-600 transition-all duration-300 hover:shadow-md transform hover:scale-105"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Refresh Page
+            </button>
+          </div>
         </div>
-        <p className="text-gray-600 dark:text-gray-400 mb-6">
-          We encountered an issue loading your profile. Please try again later.
-        </p>
-        <button
-          onClick={() => window.location.reload()}
-          className="px-4 py-2 bg-learnflow-500 text-white rounded-lg hover:bg-learnflow-600 transition-colors"
-        >
-          Refresh Page
-        </button>
       </div>
     </div>
   );
@@ -181,7 +199,7 @@ const ProfilePage: React.FC = () => {
               // Use the semester value from the profile data if it exists
               // Otherwise, determine semester based on year as a fallback
               let semester = data.semester || '';
-              
+
               // Only calculate semester from year if it's not already provided in the profile data
               if (!semester && year) {
                 const yearNum = parseInt(year);
@@ -406,10 +424,10 @@ const ProfilePage: React.FC = () => {
 
       console.log('Current user ID for file fetch:', currentUserId);
       const isOwnProfile = currentUserId === userId;
-      
+
       // Direct query to get files from the database
       console.log('Querying user_files table for files');
-      
+
       const query = supabase
         .from('user_files')
         .select('*')
@@ -431,7 +449,7 @@ const ProfilePage: React.FC = () => {
       // If there's a database error, try to use localStorage as fallback
       if (filesError) {
         console.error('Error fetching user files:', filesError);
-        
+
         // Try to get files from localStorage as a fallback
         const localStorageKey = `userFiles_${userId}`;
         try {
@@ -445,8 +463,8 @@ const ProfilePage: React.FC = () => {
           console.error('Error retrieving files from localStorage:', localStorageError);
         }
         return;
-      } 
-      
+      }
+
       // If we have files from the database, process them
       if (filesData && filesData.length > 0) {
         console.log('Processing files from database:', filesData);
@@ -461,7 +479,7 @@ const ProfilePage: React.FC = () => {
             console.log(`Skipping duplicate file path: ${file.file_path}`);
             return null;
           }
-          
+
           // Ensure category is lowercase for consistent filtering
           const category = (file.category || 'notes').toLowerCase();
 
@@ -480,33 +498,33 @@ const ProfilePage: React.FC = () => {
 
           // Get the file path - ensure it's properly formatted
           let filePath = file.file_path || '';
-          
+
           // Make sure the file path is valid
           if (!filePath || filePath.trim() === '') {
             console.warn(`File ${file.id} has an empty file path`);
           }
-          
+
           // Get the public URL for the file
           let publicUrl = file.public_url || ''; // Use stored public URL if available
-          
+
           // If no public URL is stored, generate one
           if (!publicUrl && filePath) {
             try {
               const { data: urlData } = await supabase.storage
                 .from('user-files')
                 .getPublicUrl(filePath);
-              
+
               if (urlData && urlData.publicUrl) {
                 publicUrl = urlData.publicUrl;
                 console.log(`Generated public URL for file ${file.id}:`, publicUrl);
-                
+
                 // Update the database record with the public URL for future use
                 try {
                   const { error: updateError } = await supabase
                     .from('user_files')
                     .update({ public_url: publicUrl })
                     .eq('id', file.id);
-                    
+
                   if (updateError) {
                     console.error(`Error updating public URL for file ${file.id}:`, updateError);
                   } else {
@@ -518,7 +536,7 @@ const ProfilePage: React.FC = () => {
               }
             } catch (urlError) {
               console.error(`Error generating URL for file ${file.id}:`, urlError);
-              
+
               // Create a fallback URL
               if (filePath) {
                 publicUrl = `${supabaseUrl}/storage/v1/object/public/user-files/${filePath}`;
@@ -526,7 +544,7 @@ const ProfilePage: React.FC = () => {
               }
             }
           }
-          
+
           // Convert database fields to our FileUpload interface format
           const processedFile = {
             id: file.id,
@@ -542,22 +560,22 @@ const ProfilePage: React.FC = () => {
             description: file.description || '',
             file_path: filePath
           };
-          
+
           // Add to map to track duplicates
           if (filePath) {
             filesByPath.set(filePath, processedFile);
           }
-          
+
           return processedFile;
         }));
 
         // Filter out null values (duplicates we skipped)
         const uniqueFiles = processedFiles.filter(file => file !== null);
         console.log('Processed unique files:', uniqueFiles);
-        
+
         // Update the state with the processed files
         setUserFiles(uniqueFiles);
-        
+
         // Save to localStorage for persistence
         const localStorageKey = `userFiles_${userId}`;
         try {
@@ -568,7 +586,7 @@ const ProfilePage: React.FC = () => {
         }
       } else {
         console.log('No files found for user in database');
-        
+
         // Try to get files from localStorage as a fallback
         const localStorageKey = `userFiles_${userId}`;
         try {
@@ -588,7 +606,7 @@ const ProfilePage: React.FC = () => {
       }
     } catch (error) {
       console.error('Error fetching user files:', error);
-      
+
       // Try to use localStorage as fallback on error
       try {
         const localStorageKey = `userFiles_${userId}`;
@@ -613,25 +631,42 @@ const ProfilePage: React.FC = () => {
       delete newTimeouts[category];
       setDropdownTimeouts(newTimeouts);
     }
+
+    // Clear any timeouts for other categories as well to prevent unexpected closings
+    Object.keys(dropdownTimeouts).forEach(key => {
+      clearTimeout(dropdownTimeouts[key]);
+    });
+    setDropdownTimeouts({});
+
     setActiveDropdown(category);
     // Also set the upload section when hovering
     setUploadSection(category);
   };
 
   const handleDropdownMouseLeave = (category: string) => {
-    // Only use hover behavior for non-mobile
-    if (!isMobile) {
-      const timeout = setTimeout(() => {
-        setActiveDropdown(null);
-        // Don't reset the upload section when the dropdown closes
-        // This keeps the upload section visible even after dropdown closes
-      }, 150); // 150ms delay before closing
+    // We're modifying this function to keep the dropdown open
+    // The dropdown will now remain open until a subject is selected
+    // or until another category is clicked
 
-      setDropdownTimeouts(prev => ({
-        ...prev,
-        [category]: timeout
-      }));
-    }
+    // No longer closing the dropdown on mouse leave
+    // This ensures the dropdown stays open for subject selection
+
+    // Add a longer delay before closing to allow users to move to the dropdown
+    const timeout = setTimeout(() => {
+      // Only close if no subject is being hovered and no dropdown is being hovered
+      const subjectElements = document.querySelectorAll('.subject-list button:hover');
+      const dropdownElements = document.querySelectorAll('.category-dropdown:hover');
+
+      if (subjectElements.length === 0 && dropdownElements.length === 0) {
+        setActiveDropdown(null);
+      }
+    }, 500); // Increased timeout for better usability
+
+    // Store the timeout so we can clear it if needed
+    setDropdownTimeouts({
+      ...dropdownTimeouts,
+      [category]: timeout
+    });
   };
 
   // Handle click for mobile devices
@@ -643,6 +678,18 @@ const ProfilePage: React.FC = () => {
       } else {
         // Otherwise, open the dropdown
         setActiveDropdown(category);
+        
+        // On mobile, when opening a dropdown, ensure it appears above other elements
+        // This is done by temporarily adjusting z-index values
+        setTimeout(() => {
+          // Find all category buttons except the active one and reduce their z-index
+          const categoryButtons = document.querySelectorAll('.category-dropdown');
+          categoryButtons.forEach((button) => {
+            if (!button.contains(document.activeElement)) {
+              (button as HTMLElement).style.zIndex = '50';
+            }
+          });
+        }, 10);
       }
       // Always set the upload section when clicking on a category
       setUploadSection(category);
@@ -656,11 +703,11 @@ const ProfilePage: React.FC = () => {
   useEffect(() => {
     const refreshUserFiles = async () => {
       if (!userData || !userData.id) return;
-      
+
       console.log('Refreshing user files for user ID:', userData.id);
       await fetchUserFiles(userData.id);
     };
-    
+
     refreshUserFiles();
   }, [userData?.id]);
 
@@ -693,14 +740,22 @@ const ProfilePage: React.FC = () => {
 
   // Handle clicks outside of dropdown on mobile
   useEffect(() => {
-    if (!isMobile || !activeDropdown) return;
+    if (!isMobile) return;
 
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
       // Check if the click is outside of any dropdown
-      if (!target.closest('.category-dropdown')) {
+      if (activeDropdown && !target.closest('.category-dropdown')) {
         setActiveDropdown(null);
         // Keep the upload section visible
+        
+        // Reset z-index values for all category buttons
+        setTimeout(() => {
+          const categoryButtons = document.querySelectorAll('.category-dropdown');
+          categoryButtons.forEach((button) => {
+            (button as HTMLElement).style.zIndex = '100';
+          });
+        }, 10);
       }
     };
 
@@ -709,6 +764,19 @@ const ProfilePage: React.FC = () => {
     return () => {
       document.removeEventListener('click', handleClickOutside);
     };
+  }, [isMobile, activeDropdown]);
+  
+  // Reset z-index values when dropdown is closed
+  useEffect(() => {
+    if (isMobile && !activeDropdown) {
+      // Reset z-index values for all category buttons
+      setTimeout(() => {
+        const categoryButtons = document.querySelectorAll('.category-dropdown');
+        categoryButtons.forEach((button) => {
+          (button as HTMLElement).style.zIndex = '100';
+        });
+      }, 10);
+    }
   }, [isMobile, activeDropdown]);
 
   // Get subjects based on user's year, semester, and branch
@@ -895,7 +963,7 @@ const ProfilePage: React.FC = () => {
 
       // IMPORTANT: Use the correct bucket name - must match exactly what's in Supabase
       const bucketName = 'user-files'; // This is the correct bucket name with hyphen
-      
+
       // Get the current authenticated user ID
       const { data: { user } } = await supabase.auth.getUser();
       console.log('Current authenticated user:', user);
@@ -909,9 +977,9 @@ const ProfilePage: React.FC = () => {
         .from('user_files')
         .select('file_name, file_path')
         .eq('user_id', userId);
-        
+
       console.log('Existing files check:', { existingFiles, existingFilesError });
-      
+
       // Create a set of existing file paths for quick lookup
       const existingFilePaths = new Set();
       if (existingFiles && !existingFilesError) {
@@ -926,25 +994,25 @@ const ProfilePage: React.FC = () => {
       for (let i = 0; i < files.length; i++) {
         try {
           const file = files[i];
-          
+
           // Validate file
           if (!file || file.size === 0) {
             console.error('Invalid file or empty file');
             continue;
           }
-          
+
           // Get file extension safely
           const fileNameParts = file.name.split('.');
           const fileExt = fileNameParts.length > 1 ? fileNameParts.pop() : 'unknown';
-          
+
           // Create a unique filename with timestamp and index
           const uniqueFileName = `${Date.now()}-${i}-${Math.random().toString(36).substring(2, 10)}.${fileExt}`;
-          
+
           // Create a clean storage path - format: userId/category/subjectCode/fileName
           // Make sure all path components are valid and sanitized
           const sanitizedCategory = category.toLowerCase().replace(/[^a-z0-9-]/g, '-');
           const sanitizedSubjectCode = selectedSubject.code.replace(/[^a-zA-Z0-9-]/g, '-');
-          
+
           // Ensure the path starts with the user ID as required by storage policies
           let storagePath = `${userId}/${sanitizedCategory}/${sanitizedSubjectCode}/${uniqueFileName}`;
           console.log('Storage path for upload:', storagePath);
@@ -960,10 +1028,10 @@ const ProfilePage: React.FC = () => {
 
           try {
             console.log(`Uploading file ${i + 1}/${files.length}: ${file.name} (${file.size} bytes)`);
-            
+
             // Update progress for UI feedback
             setUploadProgress(Math.round((i / files.length) * 50)); // First 50% for upload
-            
+
             // Upload the file to Supabase Storage
             const { data, error } = await supabase.storage
               .from(bucketName)
@@ -981,15 +1049,15 @@ const ProfilePage: React.FC = () => {
                 console.log(`File ${file.name} already exists in storage, skipping`);
                 continue;
               }
-              
+
               // Handle other error cases
               if (error.message.includes('security policy') || error.message.includes('permission denied')) {
                 console.error(`Permission error uploading file ${file.name}:`, error);
-                
+
                 // Try a different path without the user ID prefix
                 const simplePath = `${sanitizedCategory}/${sanitizedSubjectCode}/${uniqueFileName}`;
                 console.log('Trying alternative upload path:', simplePath);
-                
+
                 const { data: altData, error: altError } = await supabase.storage
                   .from(bucketName)
                   .upload(simplePath, file, {
@@ -997,12 +1065,12 @@ const ProfilePage: React.FC = () => {
                     upsert: false,
                     contentType: file.type
                   });
-                  
+
                 if (altError) {
                   console.error(`Alternative upload also failed for ${file.name}:`, altError);
                   throw new Error(`Upload failed: ${altError.message}`);
                 }
-                
+
                 // If alternative upload worked, use that path
                 console.log('Alternative upload succeeded:', altData);
                 storagePath = simplePath;
@@ -1011,34 +1079,34 @@ const ProfilePage: React.FC = () => {
                 throw new Error(`Upload failed: ${error.message}`);
               }
             }
-            
+
             // Get the public URL for the file
             console.log('Getting public URL for:', storagePath);
-            
+
             try {
               const { data: urlData } = supabase.storage
                 .from(bucketName)
                 .getPublicUrl(storagePath);
-  
+
               console.log('Public URL data:', urlData);
-              
+
               if (!urlData || !urlData.publicUrl) {
                 console.error('Failed to get public URL');
                 throw new Error('Could not generate public URL for file');
               }
-              
+
               fileUrl = storagePath; // Store the storage path for database
               publicUrl = urlData.publicUrl; // Store the public URL for immediate use
-              
+
               console.log('File storage path:', fileUrl);
               console.log('File public URL:', publicUrl);
             } catch (urlError) {
               console.error('Error generating public URL:', urlError);
-              
+
               // Create a fallback URL using the Supabase project URL and storage path
               const fallbackUrl = `${supabaseUrl}/storage/v1/object/public/${bucketName}/${storagePath}`;
               console.log('Created fallback public URL:', fallbackUrl);
-              
+
               fileUrl = storagePath; // Store the storage path for database
               publicUrl = fallbackUrl; // Use the fallback URL
             }
@@ -1074,11 +1142,11 @@ const ProfilePage: React.FC = () => {
             // Try to save file metadata to the database
             let insertData = null;
             let insertError = null;
-            
+
             try {
               // First try with the full metadata
               console.log('Inserting file metadata into database:', fileMetadata);
-              
+
               // Make sure we're using the correct table name and all required fields
               const result = await supabase
                 .from('user_files')
@@ -1096,10 +1164,10 @@ const ProfilePage: React.FC = () => {
                   public_url: publicUrl
                 })
                 .select();
-                
+
               insertData = result.data;
               insertError = result.error;
-              
+
               console.log('Database insert response:', { insertData, insertError });
             } catch (dbError) {
               console.error('Exception during database insert:', dbError);
@@ -1109,13 +1177,13 @@ const ProfilePage: React.FC = () => {
             // Handle database insert errors
             if (insertError) {
               console.error('Error saving file metadata to database:', insertError);
-              
+
               // Check for specific error types
               if (insertError.code === '42P01' || insertError.message.includes('does not exist')) {
                 console.log('Table does not exist, creating file entry in local state only');
               } else if (insertError.message.includes('security policy') || insertError.message.includes('permission denied')) {
                 console.log('Permission error, trying simplified insert');
-                
+
                 // Try a simplified insert with minimal fields
                 try {
                   const simplifiedMetadata = {
@@ -1126,12 +1194,12 @@ const ProfilePage: React.FC = () => {
                     public_url: publicUrl,
                     is_public: true
                   };
-                  
+
                   const result = await supabase
                     .from('user_files')
                     .insert(simplifiedMetadata)
                     .select();
-                    
+
                   if (result.error) {
                     console.error('Simplified insert also failed:', result.error);
                   } else {
@@ -1162,13 +1230,13 @@ const ProfilePage: React.FC = () => {
                 description: `${selectedSubject.code} - ${selectedSubject.name}`,
                 file_path: fileUrl
               };
-              
+
               console.log('Adding file to local state:', newFile);
               newFiles.push(newFile);
-              
+
               // Add to existingFilePaths to prevent duplicates
               existingFilePaths.add(fileUrl);
-              
+
             } else if (insertData && insertData.length > 0) {
               console.log('File metadata saved successfully to database:', insertData);
 
@@ -1179,10 +1247,10 @@ const ProfilePage: React.FC = () => {
                 publicUrl: publicUrl, // Add the public URL
                 url: fileUrl // Ensure the URL is set correctly
               };
-              
+
               console.log('Adding database file to local state:', newFile);
               newFiles.push(newFile);
-              
+
               // Add to existingFilePaths to prevent duplicates
               existingFilePaths.add(fileUrl);
             }
@@ -1205,10 +1273,10 @@ const ProfilePage: React.FC = () => {
               description: `${selectedSubject.code} - ${selectedSubject.name}`,
               file_path: fileUrl
             };
-            
+
             console.log('Adding file to local state after error:', newFile);
             newFiles.push(newFile);
-            
+
             // Add to existingFilePaths to prevent duplicates
             existingFilePaths.add(fileUrl);
           }
@@ -1225,15 +1293,15 @@ const ProfilePage: React.FC = () => {
         setUserFiles(prev => {
           // Create a map of existing files by ID to avoid duplicates
           const existingFilesMap = new Map(prev.map(file => [file.id, file]));
-          
+
           // Add new files to the map, overwriting any with the same ID
           newFiles.forEach(file => {
             existingFilesMap.set(file.id, file);
           });
-          
+
           // Convert map back to array
           const updatedFiles = Array.from(existingFilesMap.values());
-          
+
           // Save to localStorage for persistence
           try {
             const localStorageKey = `userFiles_${userId}`;
@@ -1242,31 +1310,31 @@ const ProfilePage: React.FC = () => {
           } catch (saveError) {
             console.error('Error saving files to localStorage:', saveError);
           }
-          
+
           return updatedFiles;
         });
-        
+
         // Alert the user about successful uploads
         alert(`${newFiles.length} file(s) uploaded successfully! They should now appear in the list below.`);
       } else {
         alert('No new files were uploaded. Files may already exist or there was an error.');
       }
-      
+
       // Refresh the file list from the database to ensure consistency
       // This will replace the fetchUserFiles call that was causing duplicates
       try {
         console.log('Refreshing file list from database...');
-        
+
         const { data: refreshedFiles, error: refreshError } = await supabase
           .from('user_files')
           .select('*')
           .eq('user_id', userId);
-          
+
         if (refreshError) {
           console.error('Error refreshing files from database:', refreshError);
         } else if (refreshedFiles) {
           console.log('Successfully refreshed files from database:', refreshedFiles);
-          
+
           // Process the files to ensure they have all required fields
           const processedFiles = refreshedFiles.map(file => ({
             id: file.id,
@@ -1282,10 +1350,10 @@ const ProfilePage: React.FC = () => {
             description: file.description || '',
             file_path: file.file_path || ''
           }));
-          
+
           // Update the state with the refreshed files
           setUserFiles(processedFiles);
-          
+
           // Save to localStorage for persistence
           try {
             const localStorageKey = `userFiles_${userId}`;
@@ -1298,14 +1366,14 @@ const ProfilePage: React.FC = () => {
       } catch (refreshError) {
         console.error('Error during file refresh:', refreshError);
       }
-      
+
     } catch (error) {
       console.error('Error uploading files:', error);
       alert(`Upload error: ${error.message}. Please try again or contact support if the issue persists.`);
     } finally {
       setIsUploading(false);
       setUploadProgress(0);
-      
+
       // Force a UI refresh to ensure files are displayed
       setTimeout(() => {
         setUploadSection(prev => prev); // Set to same value to trigger re-render
@@ -1342,32 +1410,32 @@ const ProfilePage: React.FC = () => {
         console.log('Using existing public URL:', file.publicUrl);
         return file.publicUrl;
       }
-      
+
       // Get the file path from the file object
       const filePath = file.url || file.file_path || '';
-      
+
       // Check if the file path is valid
       if (!filePath || filePath.trim() === '') {
         console.error('Invalid file path: Path is empty for file:', file);
         return '';
       }
-      
+
       // Check if the URL is already a full public URL (starts with http)
       if (filePath.startsWith('http')) {
         console.log('File path is already a public URL:', filePath);
         return filePath;
       }
-      
+
       console.log('Generating public URL for file path:', filePath);
-      
+
       // Get a public URL for the file
       const { data: publicUrlData } = supabase.storage
         .from('user-files')
         .getPublicUrl(filePath);
-      
+
       if (!publicUrlData || !publicUrlData.publicUrl) {
         console.error('Could not generate public URL for file:', file);
-        
+
         // Try an alternative approach if the first one fails
         try {
           // Extract the file path components
@@ -1375,15 +1443,15 @@ const ProfilePage: React.FC = () => {
           if (pathParts.length > 0) {
             const fileName = pathParts[pathParts.length - 1];
             console.log('Trying alternative URL generation with filename:', fileName);
-            
+
             // Try to generate URL with just the filename as fallback
             const { data: altUrlData } = supabase.storage
               .from('user-files')
               .getPublicUrl(fileName);
-              
+
             if (altUrlData && altUrlData.publicUrl) {
               console.log('Generated alternative public URL:', altUrlData.publicUrl);
-              
+
               // Update the file object with the new public URL
               if (file.id && !file.id.startsWith('local-')) {
                 try {
@@ -1402,19 +1470,19 @@ const ProfilePage: React.FC = () => {
                   console.error('Error updating public URL:', updateError);
                 }
               }
-              
+
               return altUrlData.publicUrl;
             }
           }
         } catch (altError) {
           console.error('Error generating alternative URL:', altError);
         }
-        
+
         return '';
       }
-      
+
       console.log('Generated public URL:', publicUrlData.publicUrl);
-      
+
       // Update the file object with the new public URL
       if (file.id && !file.id.startsWith('local-')) {
         try {
@@ -1433,7 +1501,7 @@ const ProfilePage: React.FC = () => {
           console.error('Error updating public URL:', updateError);
         }
       }
-      
+
       return publicUrlData.publicUrl;
     } catch (error) {
       console.error('Error generating public URL:', error);
@@ -1443,26 +1511,26 @@ const ProfilePage: React.FC = () => {
 
   const handleFileDownload = async (file: FileUpload, event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    
+
     try {
       console.log('Downloading file:', file);
-      
+
       // First try to use the pre-generated public URL if available
       let publicUrl = file.publicUrl || '';
-      
+
       // If no public URL is available, generate one
       if (!publicUrl) {
         publicUrl = getFilePublicUrl(file);
       }
-      
+
       if (!publicUrl) {
         console.error('Failed to generate public URL for download');
         alert('Failed to download file. Please try again.');
         return;
       }
-      
+
       console.log('Using public URL for download:', publicUrl);
-      
+
       // Create a temporary anchor element to trigger the download
       const a = document.createElement('a');
       a.href = publicUrl;
@@ -1470,16 +1538,16 @@ const ProfilePage: React.FC = () => {
       a.target = '_blank'; // Open in new tab as fallback
       document.body.appendChild(a);
       a.click();
-      
+
       // Remove the temporary element
       setTimeout(() => {
         document.body.removeChild(a);
       }, 100);
-      
+
     } catch (error) {
       console.error('Error in file download:', error);
       alert('An error occurred while downloading the file. Please try again.');
-      
+
       // Fallback to opening in new tab if download fails
       if (file.publicUrl) {
         window.open(file.publicUrl, '_blank');
@@ -1553,8 +1621,14 @@ const ProfilePage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="w-12 h-12 border-t-4 border-learnflow-500 border-solid rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex flex-col justify-center items-center p-4">
+        <div className="relative w-20 h-20 mb-4">
+          <div className="w-20 h-20 border-4 border-learnflow-200 dark:border-learnflow-900 border-solid rounded-full"></div>
+          <div className="absolute top-0 left-0 w-20 h-20 border-4 border-t-learnflow-500 border-solid rounded-full animate-spin"></div>
+        </div>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md px-6 py-4 animate-pulse">
+          <p className="text-gray-700 dark:text-gray-300 font-medium">Loading profile...</p>
+        </div>
       </div>
     );
   }
@@ -1568,67 +1642,99 @@ const ProfilePage: React.FC = () => {
     // show a "User not found" message instead of the sign-in prompt
     if (isViewingOtherProfile) {
       return (
-        <div className="flex flex-col items-center justify-center min-h-screen p-4">
-          <div className="flex items-center mb-4 w-full max-w-md justify-between">
-            <button
-              onClick={() => window.location.href = '/'}
-              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              aria-label="Go back to home page"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-            </button>
-            <h1 className="text-2xl font-bold">User Not Found</h1>
-            <div className="w-8"></div> {/* Empty div for balance */}
+        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4 animate-fadeIn">
+          <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+            <div className="bg-yellow-500 h-2 w-full"></div>
+            <div className="p-8">
+              <div className="flex items-center mb-6">
+                <div className="bg-yellow-100 dark:bg-yellow-900/30 p-3 rounded-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
+                <h1 className="text-2xl font-bold text-gray-800 dark:text-white ml-4">User Not Found</h1>
+              </div>
+
+              <p className="text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
+                The user profile you're looking for could not be found. The user may have deleted their account or changed their privacy settings.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4">
+                <button
+                  onClick={() => window.location.href = '/'}
+                  className="flex items-center justify-center px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 hover:shadow-md"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                  </svg>
+                  Home
+                </button>
+
+                <button
+                  onClick={() => window.location.href = '/search'}
+                  className="flex items-center justify-center px-4 py-3 bg-learnflow-500 text-white rounded-lg hover:bg-learnflow-600 transition-all duration-300 hover:shadow-md transform hover:scale-105"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  Back to Search
+                </button>
+              </div>
+            </div>
           </div>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">The user profile you're looking for could not be found.</p>
-          <button
-            onClick={() => window.location.href = '/search'}
-            className="w-full max-w-xs flex items-center justify-center px-4 py-2 bg-learnflow-600 text-white rounded-lg font-medium transition-all duration-300 hover:bg-learnflow-700 hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-learnflow-500 focus:ring-offset-2"
-          >
-            Back to Search
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </button>
         </div>
       );
     } else {
       // If we're trying to view our own profile but not signed in, show the sign-in prompt
       return (
-        <div className="flex flex-col items-center justify-center min-h-screen p-4">
-          <div className="flex items-center mb-4 w-full max-w-md justify-between">
-            <button
-              onClick={() => window.location.href = '/'}
-              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              aria-label="Go back to home page"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-            </button>
-            <h1 className="text-2xl font-bold">Please Sign In</h1>
-            <div className="w-8"></div> {/* Empty div for balance */}
-          </div>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">You need to be signed in to view your profile.</p>
-          <button
-            onClick={() => {
-              // Open login page in a new window with signup mode
-              const signupWindow = window.open('/login?mode=signup', '_blank', 'width=500,height=600');
+        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4 animate-fadeIn">
+          <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+            <div className="bg-blue-500 h-2 w-full"></div>
+            <div className="p-8">
+              <div className="flex items-center mb-6">
+                <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+                <h1 className="text-2xl font-bold text-gray-800 dark:text-white ml-4">Sign In Required</h1>
+              </div>
 
-              // Focus the new window
-              if (signupWindow) {
-                signupWindow.focus();
-              }
-            }}
-            className="w-full max-w-xs flex items-center justify-center px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium transition-all duration-300 hover:bg-indigo-700 hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-          >
-            Sign Up
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </button>
+              <p className="text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
+                You need to be signed in to view your profile. Sign in to access your personal dashboard, upload files, and manage your account.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4">
+                <button
+                  onClick={() => window.location.href = '/'}
+                  className="flex items-center justify-center px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300 hover:shadow-md"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                  </svg>
+                  Home
+                </button>
+
+                <button
+                  onClick={() => {
+                    // Open login page in a new window with signup mode
+                    const signupWindow = window.open('/login?mode=signup', '_blank', 'width=500,height=600');
+
+                    // Focus the new window
+                    if (signupWindow) {
+                      signupWindow.focus();
+                    }
+                  }}
+                  className="flex items-center justify-center px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all duration-300 hover:shadow-md transform hover:scale-105"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                  </svg>
+                  Sign In / Sign Up
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       );
     }
@@ -1644,47 +1750,72 @@ const ProfilePage: React.FC = () => {
   // Wrap the render in a try-catch to prevent the entire app from crashing
   try {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-          <div className="p-6">
-            <div className="flex items-center mb-6">
-              <BackButton 
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 transition-all duration-300">
+        {/* Header with back button and profile title */}
+        <header className="sticky top-0 z-10 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md shadow-sm border-b border-gray-200 dark:border-gray-800">
+          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <BackButton
                 fallbackPath={isCurrentUserProfile ? '/' : '/search'}
-                className="mr-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="p-2 rounded-full bg-white dark:bg-gray-800 shadow-sm hover:shadow-md hover:scale-105 transition-all duration-300"
                 ariaLabel={isCurrentUserProfile ? "Go back to home page" : "Go back to search page"}
                 title={isCurrentUserProfile ? "Go back to home" : "Go back to search"}
               />
               <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
                 {isCurrentUserProfile ? 'Your Profile' : `${userData?.name}'s Profile`}
               </h1>
-
-              {isCurrentUserProfile && (
-                <button
-                  onClick={toggleEditMode}
-                  className="ml-auto text-sm text-learnflow-600 hover:text-learnflow-700 dark:text-learnflow-400 dark:hover:text-learnflow-300 transition-colors"
-                >
-                  {isEditMode ? 'Cancel Edit' : 'Edit Profile'}
-                </button>
-              )}
             </div>
 
-            <div className="flex flex-col md:flex-row gap-8">
-              {/* Profile Picture Section */}
-              <div className="flex flex-col items-center">
-                <div className="relative">
+            {isCurrentUserProfile && (
+              <button
+                onClick={toggleEditMode}
+                className="flex items-center space-x-2 px-4 py-2 rounded-full bg-white dark:bg-gray-800 shadow-sm hover:shadow-md hover:scale-105 transition-all duration-300 text-learnflow-600 hover:text-learnflow-700 dark:text-learnflow-400 dark:hover:text-learnflow-300"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  {isEditMode ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  )}
+                </svg>
+                <span>{isEditMode ? 'Cancel Edit' : 'Edit Profile'}</span>
+              </button>
+            )}
+          </div>
+        </header>
+
+        <main className="container mx-auto px-4 py-8 animate-fadeIn">
+          {/* Profile Card */}
+          <section className="mb-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transform transition-all duration-500 hover:shadow-xl">
+            <div className="md:flex">
+              {/* Profile Picture Section - Left side on desktop, top on mobile */}
+              <div className="md:w-1/3 bg-gradient-to-br from-learnflow-500 to-learnflow-700 p-8 flex flex-col items-center justify-center">
+                <div className="relative mb-4 group">
+                  <div className="absolute inset-0 rounded-full bg-white dark:bg-gray-700 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
                   <img
                     src={profilePicture}
                     alt="Profile"
-                    className="w-32 h-32 rounded-full object-cover border-4 border-gray-200"
+                    className="w-40 h-40 rounded-full object-cover border-4 border-white dark:border-gray-600 shadow-lg transform transition-all duration-500 group-hover:scale-105"
                   />
                 </div>
+                <h2 className="text-2xl font-bold text-white text-center mt-2">{userData?.name}</h2>
+                {userData?.branch && (
+                  <p className="text-white/80 text-center mt-1">{userData.branch}</p>
+                )}
+                {userData?.year && userData?.semester && (
+                  <p className="text-white/70 text-center mt-1">Year {userData.year} • Semester {userData.semester}</p>
+                )}
               </div>
 
-              {/* Profile Information Section */}
-              <div id="profile-section" className="flex-1">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              {/* Profile Information Section - Right side on desktop, bottom on mobile */}
+              <div id="profile-section" className="md:w-2/3 p-8">
+                <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-6">
+                  {isCurrentUserProfile ? 'Your Information' : 'Student Information'}
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-1">
+                    <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
                       Full Name
                     </label>
                     <input
@@ -1693,26 +1824,28 @@ const ProfilePage: React.FC = () => {
                       value={userData.name || ''}
                       onChange={handleInputChange}
                       readOnly={!isEditMode}
-                      className={`w-full px-3 py-2 border border-gray-300 rounded-md ${isEditMode ? 'focus:outline-none focus:ring-2 focus:ring-learnflow-500' : 'bg-gray-50 cursor-default'} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
+                      className={`w-full px-4 py-3 border border-gray-300 rounded-lg ${isEditMode
+                        ? 'focus:outline-none focus:ring-2 focus:ring-learnflow-500 focus:border-learnflow-500 transition-all duration-300'
+                        : 'bg-gray-50 cursor-default'} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
                     />
                   </div>
 
                   {isCurrentUserProfile && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
                         Email
                       </label>
                       <input
                         type="email"
                         value={userData.email || ''}
                         disabled
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 dark:bg-gray-600 dark:border-gray-600 dark:text-gray-300"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
                       />
                     </div>
                   )}
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <div className="space-y-1">
+                    <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
                       Year
                     </label>
                     <select
@@ -1720,7 +1853,9 @@ const ProfilePage: React.FC = () => {
                       value={userData.year || ''}
                       onChange={handleInputChange}
                       disabled={!isEditMode}
-                      className={`w-full px-3 py-2 border border-gray-300 rounded-md ${isEditMode ? 'focus:outline-none focus:ring-2 focus:ring-learnflow-500' : 'bg-gray-50 cursor-default'} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
+                      className={`w-full px-4 py-3 border border-gray-300 rounded-lg ${isEditMode
+                        ? 'focus:outline-none focus:ring-2 focus:ring-learnflow-500 focus:border-learnflow-500 transition-all duration-300'
+                        : 'bg-gray-50 cursor-default'} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
                     >
                       <option value="">Select Year</option>
                       <option value="1">1st Year</option>
@@ -1730,8 +1865,8 @@ const ProfilePage: React.FC = () => {
                     </select>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <div className="space-y-1">
+                    <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
                       Semester
                     </label>
                     <select
@@ -1739,7 +1874,9 @@ const ProfilePage: React.FC = () => {
                       value={userData.semester || ''}
                       onChange={handleInputChange}
                       disabled={!isEditMode}
-                      className={`w-full px-3 py-2 border border-gray-300 rounded-md ${isEditMode ? 'focus:outline-none focus:ring-2 focus:ring-learnflow-500' : 'bg-gray-50 cursor-default'} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
+                      className={`w-full px-4 py-3 border border-gray-300 rounded-lg ${isEditMode
+                        ? 'focus:outline-none focus:ring-2 focus:ring-learnflow-500 focus:border-learnflow-500 transition-all duration-300'
+                        : 'bg-gray-50 cursor-default'} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
                     >
                       <option value="">Select Semester</option>
                       <option value="1">1st Semester</option>
@@ -1753,8 +1890,8 @@ const ProfilePage: React.FC = () => {
                     </select>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <div className="space-y-1">
+                    <label className="block text-sm font-medium text-gray-500 dark:text-gray-400">
                       Branch
                     </label>
                     <select
@@ -1762,7 +1899,9 @@ const ProfilePage: React.FC = () => {
                       value={userData.branch || ''}
                       onChange={handleInputChange}
                       disabled={!isEditMode}
-                      className={`w-full px-3 py-2 border border-gray-300 rounded-md ${isEditMode ? 'focus:outline-none focus:ring-2 focus:ring-learnflow-500' : 'bg-gray-50 cursor-default'} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
+                      className={`w-full px-4 py-3 border border-gray-300 rounded-lg ${isEditMode
+                        ? 'focus:outline-none focus:ring-2 focus:ring-learnflow-500 focus:border-learnflow-500 transition-all duration-300'
+                        : 'bg-gray-50 cursor-default'} dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
                     >
                       <option value="">Select Branch</option>
                       <option value="CSE">Computer Science Engineering</option>
@@ -1779,382 +1918,443 @@ const ProfilePage: React.FC = () => {
                 </div>
 
                 {isEditMode && (
-                  <div className="mt-6">
+                  <div className="mt-8">
                     <button
                       onClick={handleSaveProfile}
                       disabled={saving || !hasChanges}
-                      className="px-4 py-2 bg-learnflow-500 text-white rounded-md hover:bg-learnflow-600 focus:outline-none focus:ring-2 focus:ring-learnflow-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-6 py-3 bg-learnflow-500 text-white rounded-lg hover:bg-learnflow-600 focus:outline-none focus:ring-2 focus:ring-learnflow-500 focus:ring-offset-2 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 hover:shadow-lg"
                     >
-                      {saving ? 'Saving...' : 'Save Profile'}
+                      {saving ? (
+                        <span className="flex items-center">
+                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Saving...
+                        </span>
+                      ) : 'Save Profile'}
                     </button>
                   </div>
                 )}
               </div>
             </div>
-          </div>
+          </section>
 
           {/* File Upload Section */}
-          <div className="p-6 border-t border-gray-200 dark:border-gray-700">
-            <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">Your Uploads</h2>
+          <section className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transform transition-all duration-500 hover:shadow-xl">
+            <div className="p-8">
+              <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-learnflow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                {isCurrentUserProfile ? 'Your Uploads' : `${userData?.name}'s Uploads`}
+              </h2>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
-              {['Syllabus', 'Assignments', 'Practicals', 'Lab Work', 'PYQs', 'Notes'].map((category) => (
-                <div
-                  key={category}
-                  className="relative category-dropdown"
-                  onMouseEnter={() => !isMobile && handleDropdownMouseEnter(category)}
-                  onMouseLeave={() => !isMobile && handleDropdownMouseLeave(category)}
-                >
-                  <button
-                    onClick={() => handleCategoryClick(category)}
-                    className={`w-full px-4 py-2 rounded-md transition-colors ${uploadSection === category
-                      ? 'bg-learnflow-500 text-white'
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                      }`}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 mb-8">
+                {['Syllabus', 'Assignments', 'Practicals', 'Lab Work', 'PYQs', 'Notes'].map((category, index) => (
+                  <div
+                    key={category}
+                    className="relative category-dropdown stagger-item"
+                    onMouseEnter={() => !isMobile && handleDropdownMouseEnter(category)}
+                    onMouseLeave={() => !isMobile && handleDropdownMouseLeave(category)}
+                    style={{ zIndex: isMobile && activeDropdown === category ? 110 : 100 }}
                   >
-                    <div className="flex items-center justify-center">
-                      <span>{category}</span>
-                      {isMobile && (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className={`ml-1 h-4 w-4 transition-transform duration-200 ${activeDropdown === category ? 'rotate-180' : ''}`}
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      )}
-                    </div>
-                  </button>
-
-                  {/* Mobile Backdrop */}
-                  {isMobile && activeDropdown === category && (
-                    <div
-                      className="fixed inset-0 bg-black bg-opacity-50 z-40"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setActiveDropdown(null);
-                        // Keep the upload section visible
-                      }}
-                    />
-                  )}
-
-                  {/* Dropdown Menu */}
-                  {activeDropdown === category && (
-                    <div className={`absolute ${isMobile
-                      ? 'top-full left-0 right-0 w-full'
-                      : 'top-full left-0 w-56'
-                      } mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 ${isMobile
-                        ? 'transition-all duration-300 ease-in-out max-h-80 overflow-y-auto animate-in slide-in-from-top-5'
-                        : 'animate-in fade-in-0 zoom-in-95 duration-200'
-                      }`}>
-                      <div className="py-2">
+                    <button
+                      onClick={() => handleCategoryClick(category)}
+                      className={`w-full px-4 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 ${uploadSection === category
+                        ? 'bg-learnflow-500 text-white shadow-md'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                        }`}
+                    >
+                      <div className="flex items-center justify-center">
+                        <span>{category}</span>
                         {isMobile && (
-                          <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                              Select Subject
-                            </span>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setActiveDropdown(null);
-                                // Keep the upload section visible
-                              }}
-                              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                              </svg>
-                            </button>
-                          </div>
-                        )}
-                        {getUserSubjects().length > 0 ? (
-                          getUserSubjects().map((subject, index) => (
-                            <button
-                              key={index}
-                              onClick={(e) => {
-                                e.stopPropagation(); // Prevent event bubbling on mobile
-                                setUploadSection(category);
-                                setSelectedSubject(subject);
-                                setActiveDropdown(null);
-                                console.log(`Selected ${category} for ${subject.code}: ${subject.name}`);
-                              }}
-                              className={`block w-full text-left px-4 ${isMobile ? 'py-3 text-base' : 'py-2 text-sm'
-                                } text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors`}
-                              title={`${subject.name} (${subject.code})`}
-                            >
-                              {subject.code}
-                            </button>
-                          ))
-                        ) : (
-                          <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                            {isMobile ? (
-                              <div className="flex flex-col space-y-2">
-                                <p>No subjects found</p>
-                                <p className="text-xs">Please update your profile with year, semester, and branch</p>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setActiveDropdown(null);
-                                    // Scroll to profile section
-                                    document.getElementById('profile-section')?.scrollIntoView({ behavior: 'smooth' });
-                                  }}
-                                  className="mt-2 text-learnflow-500 hover:text-learnflow-600 text-xs font-medium"
-                                >
-                                  Go to Profile Settings
-                                </button>
-                              </div>
-                            ) : (
-                              "Please set your year, semester, and branch in profile settings"
-                            )}
-                          </div>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className={`ml-1 h-4 w-4 transition-transform duration-300 ${activeDropdown === category ? 'rotate-180' : ''}`}
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
                         )}
                       </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+                    </button>
 
-            {uploadSection && (
-              <div className="mt-4">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-                    {uploadSection} Files
-                    {selectedSubject && (
-                      <span className="ml-2 text-learnflow-500 dark:text-learnflow-400">
-                        for {selectedSubject.code}: {selectedSubject.name}
-                      </span>
+                    {/* Mobile Backdrop */}
+                    {isMobile && activeDropdown === category && (
+                      <div
+                        className="fixed inset-0 bg-black bg-opacity-50 animate-fadeIn"
+                        style={{ zIndex: 105 }} /* Lower than buttons but higher than other content */
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // Only close if not clicking on a subject
+                          if (!(e.target as HTMLElement).closest('.subject-list')) {
+                            // Add a small delay before closing to allow for subject selection
+                            setTimeout(() => {
+                              setActiveDropdown(null);
+                            }, 100);
+                          }
+                        }}
+                      />
                     )}
-                  </h3>
-                  {isCurrentUserProfile && selectedSubject && (
-                    <button
-                      onClick={() => setSelectedSubject(null)}
-                      className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                    >
-                      <span className="flex items-center">
+
+                    {/* Dropdown Menu */}
+                    {activeDropdown === category && (
+                      <div className={`absolute ${isMobile
+                        ? 'top-full left-0 right-0 w-full'
+                        : 'top-full left-0 w-56'
+                        } mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl ${isMobile
+                          ? 'transition-all duration-300 ease-in-out max-h-60 overflow-y-auto animate-slideDown'
+                          : 'animate-fadeIn'
+                        }`}
+                        style={{ pointerEvents: 'auto', zIndex: isMobile ? 2000 : 1000 }}
+                      >
+                        <div className="py-2">
+                          {isMobile && (
+                            <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Select Subject
+                              </span>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveDropdown(null);
+                                }}
+                                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              </button>
+                            </div>
+                          )}
+                          {getUserSubjects().length > 0 ? (
+                            <div className="subject-list" style={{ position: 'relative', zIndex: isMobile ? 3000 : 1001 }}>
+                              {getUserSubjects().map((subject, index) => (
+                                <button
+                                  key={index}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setUploadSection(category);
+                                    setSelectedSubject(subject);
+                                    setActiveDropdown(null);
+                                    console.log(`Selected ${category} for ${subject.code}: ${subject.name}`);
+                                  }}
+                                  className={`block w-full text-left px-3 ${isMobile ? 'py-3 text-base' : 'py-2 text-sm'
+                                    } text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors cursor-pointer`}
+                                  title={`${subject.name} (${subject.code})`}
+                                  style={{ pointerEvents: 'auto' }}
+                                >
+                                  <div className="flex items-center justify-center">
+                                    <span className="font-medium">{subject.code}</span>
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                              {isMobile ? (
+                                <div className="flex flex-col space-y-2">
+                                  <p>No subjects found</p>
+                                  <p className="text-xs">Please update your profile with year, semester, and branch</p>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setActiveDropdown(null);
+                                      document.getElementById('profile-section')?.scrollIntoView({ behavior: 'smooth' });
+                                    }}
+                                    className="mt-2 text-learnflow-500 hover:text-learnflow-600 text-xs font-medium"
+                                  >
+                                    Go to Profile Settings
+                                  </button>
+                                </div>
+                              ) : (
+                                "Please set your year, semester, and branch in profile settings"
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {uploadSection && (
+                <div className="mt-8 animate-fadeIn">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+                    <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2 sm:mb-0">
+                      {uploadSection} Files
+                      {selectedSubject && (
+                        <span className="ml-2 text-learnflow-500 dark:text-learnflow-400 text-sm font-normal">
+                          for {selectedSubject.code}: {selectedSubject.name}
+                        </span>
+                      )}
+                    </h3>
+                    {isCurrentUserProfile && selectedSubject && (
+                      <button
+                        onClick={() => setSelectedSubject(null)}
+                        className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 transition-colors flex items-center"
+                      >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                         Clear subject
-                      </span>
-                    </button>
-                  )}
-                </div>
-
-                {/* Drag and Drop Area - Only show for current user's profile */}
-                {isCurrentUserProfile ? (
-                  <>
-                    <div
-                      className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${isDragging
-                        ? 'border-learnflow-500 bg-learnflow-50 dark:bg-gray-700'
-                        : 'border-gray-300 hover:border-learnflow-400 dark:border-gray-600 dark:hover:border-gray-500'
-                        }`}
-                      onDragOver={handleDragOver}
-                      onDragLeave={handleDragLeave}
-                      onDrop={(e) => handleDrop(e, uploadSection.toLowerCase())}
-                      onClick={triggerFileInput}
-                    >
-                      <input
-                        type="file"
-                        ref={fileInputRef}
-                        className="hidden"
-                        multiple
-                        onChange={(e) => handleFileInputChange(e, uploadSection.toLowerCase())}
-                      />
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                      </svg>
-                      <p className="text-gray-600 dark:text-gray-400 mb-2">Drag and drop files here or click to upload</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-500">
-                        Upload {uploadSection} files for {selectedSubject ? `${selectedSubject.code}: ${selectedSubject.name}` : 'your selected subject'}
-                      </p>
-                      {!selectedSubject && (
-                        <p className="text-xs text-red-500 mt-1">Please select a subject from the dropdown menu first</p>
-                      )}
-                    </div>
-
-                    {isUploading && (
-                      <div className="mt-4">
-                        <div className="flex items-center">
-                          <div className="w-full bg-gray-200 rounded-full h-2.5 mr-4 dark:bg-gray-700">
-                            <div className="bg-learnflow-500 h-2.5 rounded-full" style={{ width: `${uploadProgress}%` }}></div>
-                          </div>
-                          <span className="text-sm text-gray-500 dark:text-gray-400 w-10">{Math.round(uploadProgress)}%</span>
-                        </div>
-                      </div>
+                      </button>
                     )}
-                  </>
-                ) : (
-                  <div className="text-center py-4 text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700">
-                    <p>You are viewing {userData?.name}'s profile. You can see their files but cannot upload new ones.</p>
                   </div>
-                )}
 
-                {/* File List */}
-                <div className="mt-6">
-                  <h4 className="text-md font-medium mb-2 text-gray-700 dark:text-gray-300">
-                    {isCurrentUserProfile ? 'Your' : `${userData?.name}'s`} {uploadSection} Files
-                    {selectedSubject && (
-                      <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">
-                        for {selectedSubject.code}
-                      </span>
-                    )}
-                  </h4>
-
-                  {/* Log file list info */}
-                  {(() => {
-                    console.log('Rendering file list:', { userFiles, uploadSection, selectedSubject });
-                    return null;
-                  })()}
-                  {(() => {
-                    // Log all files for debugging
-                    console.log('All files before filtering:', userFiles);
-                    
-                    // Get filtered files for the current section and subject
-                    const filteredFiles = userFiles.filter(file => {
-                      // Skip files with no data
-                      if (!file || !file.name) {
-                        console.log('Skipping invalid file entry:', file);
-                        return false;
-                      }
-                      
-                      // Normalize categories for comparison
-                      const normalizedCategory = uploadSection.toLowerCase();
-                      
-                      // Get file category, ensuring it's a string and lowercase
-                      let fileCategory = '';
-                      if (file.category) {
-                        fileCategory = file.category.toLowerCase();
-                      } else if (file.description) {
-                        // Try to extract category from description as fallback
-                        fileCategory = file.description.toLowerCase();
-                      }
-                      
-                      // Debug log for category comparison
-                      console.log(`File ${file.name}: Category comparison - File category: "${fileCategory}", Upload section: "${normalizedCategory}"`);
-                      
-                      // Check if the file belongs to the selected category
-                      // First try exact match, then try partial match
-                      let categoryMatch = fileCategory === normalizedCategory;
-                      
-                      // If exact match fails, try partial match
-                      if (!categoryMatch) {
-                        categoryMatch = fileCategory.includes(normalizedCategory) || normalizedCategory.includes(fileCategory);
-                      }
-
-                      // Check if the file belongs to the selected subject
-                      // If no subject is selected, show all files in the category
-                      let subjectMatch = false;
-                      
-                      if (!selectedSubject) {
-                        // If no subject selected, show all files in the category
-                        subjectMatch = true;
-                      } else {
-                        // Try exact match first
-                        if (file.subject_code === selectedSubject.code) {
-                          subjectMatch = true;
-                        } 
-                        // Then try partial matches
-                        else if (file.subject_name && file.subject_name.includes(selectedSubject.name)) {
-                          subjectMatch = true;
-                        }
-                        else if (selectedSubject.code && file.subject_code && 
-                                (file.subject_code.includes(selectedSubject.code) || 
-                                 selectedSubject.code.includes(file.subject_code))) {
-                          subjectMatch = true;
-                        }
-                      }
-
-                      console.log(`File ${file.name}: Category match: ${categoryMatch}, Subject match: ${subjectMatch}`);
-
-                      return categoryMatch && subjectMatch;
-                    });
-
-                    console.log('Filtered files for display:', filteredFiles);
-
-                    // Return the appropriate UI based on whether we have files
-                    if (filteredFiles.length === 0) {
-                      return (
-                        <p className="text-gray-500 dark:text-gray-400 text-sm italic">
-                          {selectedSubject
-                            ? `No ${uploadSection} files ${isCurrentUserProfile ? 'uploaded' : 'shared'} yet for ${selectedSubject.code}`
-                            : `No ${uploadSection} files ${isCurrentUserProfile ? 'uploaded' : 'shared'} yet`}
+                  {/* Drag and Drop Area - Only show for current user's profile */}
+                  {isCurrentUserProfile ? (
+                    <>
+                      <div
+                        className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-all duration-300 ${isDragging
+                          ? 'border-learnflow-500 bg-learnflow-50 dark:bg-gray-700 scale-105 shadow-lg'
+                          : 'border-gray-300 hover:border-learnflow-400 dark:border-gray-600 dark:hover:border-gray-500 hover:shadow-md'
+                          }`}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={(e) => handleDrop(e, uploadSection.toLowerCase())}
+                        onClick={triggerFileInput}
+                      >
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          className="hidden"
+                          multiple
+                          onChange={(e) => handleFileInputChange(e, uploadSection.toLowerCase())}
+                        />
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <p className="text-gray-600 dark:text-gray-400 mb-2 text-lg">Drag and drop files here or click to upload</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-500">
+                          Upload {uploadSection} files for {selectedSubject ? `${selectedSubject.code}: ${selectedSubject.name}` : 'your selected subject'}
                         </p>
-                      );
-                    } else {
-                      return (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                          {filteredFiles
-                            .map(file => (
-                              <div key={file.id} className="border border-gray-200 dark:border-gray-700 rounded-md p-3 flex items-center">
-                                <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded-md mr-3">
-                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                  </svg>
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-medium text-gray-800 dark:text-white truncate">{file.name}</p>
-                                  <div className="flex items-center">
-                                    {file.subject_code && (
-                                      <span className="text-xs bg-learnflow-100 text-learnflow-800 dark:bg-learnflow-900 dark:text-learnflow-200 px-2 py-0.5 rounded mr-2">
-                                        {file.subject_code}
-                                      </span>
-                                    )}
-                                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                                      {new Date(file.created_at).toLocaleDateString()}
-                                    </p>
+                        {!selectedSubject && (
+                          <p className="text-xs text-red-500 mt-2 bg-red-50 dark:bg-red-900/20 p-2 rounded-lg inline-block">
+                            Please select a subject from the dropdown menu first
+                          </p>
+                        )}
+                      </div>
+
+                      {isUploading && (
+                        <div className="mt-6 animate-fadeIn">
+                          <div className="flex items-center">
+                            <div className="w-full bg-gray-200 rounded-full h-3 mr-4 dark:bg-gray-700 overflow-hidden">
+                              <div
+                                className="bg-learnflow-500 h-3 rounded-full transition-all duration-300"
+                                style={{ width: `${uploadProgress}%` }}
+                              ></div>
+                            </div>
+                            <span className="text-sm font-medium text-gray-500 dark:text-gray-400 w-12">{Math.round(uploadProgress)}%</span>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="text-center py-6 text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
+                      <p>You are viewing {userData?.name}'s profile. You can see their shared files but cannot upload new ones.</p>
+                    </div>
+                  )}
+
+                  {/* File List */}
+                  <div className="mt-6">
+                    <h4 className="text-md font-medium mb-2 text-gray-700 dark:text-gray-300">
+                      {isCurrentUserProfile ? 'Your' : `${userData?.name}'s`} {uploadSection} Files
+                      {selectedSubject && (
+                        <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">
+                          for {selectedSubject.code}
+                        </span>
+                      )}
+                    </h4>
+
+                    {/* Log file list info */}
+                    {(() => {
+                      console.log('Rendering file list:', { userFiles, uploadSection, selectedSubject });
+                      return null;
+                    })()}
+                    {(() => {
+                      // Log all files for debugging
+                      console.log('All files before filtering:', userFiles);
+
+                      // Get filtered files for the current section and subject
+                      const filteredFiles = userFiles.filter(file => {
+                        // Skip files with no data
+                        if (!file || !file.name) {
+                          console.log('Skipping invalid file entry:', file);
+                          return false;
+                        }
+
+                        // Normalize categories for comparison
+                        const normalizedCategory = uploadSection.toLowerCase();
+
+                        // Get file category, ensuring it's a string and lowercase
+                        let fileCategory = '';
+                        if (file.category) {
+                          fileCategory = file.category.toLowerCase();
+                        } else if (file.description) {
+                          // Try to extract category from description as fallback
+                          fileCategory = file.description.toLowerCase();
+                        }
+
+                        // Debug log for category comparison
+                        console.log(`File ${file.name}: Category comparison - File category: "${fileCategory}", Upload section: "${normalizedCategory}"`);
+
+                        // Check if the file belongs to the selected category
+                        // First try exact match, then try partial match
+                        let categoryMatch = fileCategory === normalizedCategory;
+
+                        // If exact match fails, try partial match
+                        if (!categoryMatch) {
+                          categoryMatch = fileCategory.includes(normalizedCategory) || normalizedCategory.includes(fileCategory);
+                        }
+
+                        // Check if the file belongs to the selected subject
+                        // If no subject is selected, show all files in the category
+                        let subjectMatch = false;
+
+                        if (!selectedSubject) {
+                          // If no subject selected, show all files in the category
+                          subjectMatch = true;
+                        } else {
+                          // Try exact match first
+                          if (file.subject_code === selectedSubject.code) {
+                            subjectMatch = true;
+                          }
+                          // Then try partial matches
+                          else if (file.subject_name && file.subject_name.includes(selectedSubject.name)) {
+                            subjectMatch = true;
+                          }
+                          else if (selectedSubject.code && file.subject_code &&
+                            (file.subject_code.includes(selectedSubject.code) ||
+                              selectedSubject.code.includes(file.subject_code))) {
+                            subjectMatch = true;
+                          }
+                        }
+
+                        console.log(`File ${file.name}: Category match: ${categoryMatch}, Subject match: ${subjectMatch}`);
+
+                        return categoryMatch && subjectMatch;
+                      });
+
+                      console.log('Filtered files for display:', filteredFiles);
+
+                      // Return the appropriate UI based on whether we have files
+                      if (filteredFiles.length === 0) {
+                        return (
+                          <div className="flex flex-col items-center justify-center py-10 bg-gray-50 dark:bg-gray-700/30 rounded-xl animate-fadeIn">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-gray-300 dark:text-gray-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                            </svg>
+                            <p className="text-gray-500 dark:text-gray-400 text-center max-w-md">
+                              {selectedSubject
+                                ? `No ${uploadSection} files ${isCurrentUserProfile ? 'uploaded' : 'shared'} yet for ${selectedSubject.code}`
+                                : `No ${uploadSection} files ${isCurrentUserProfile ? 'uploaded' : 'shared'} yet`}
+                            </p>
+                            {isCurrentUserProfile && (
+                              <button
+                                onClick={triggerFileInput}
+                                className="mt-4 px-4 py-2 bg-learnflow-500 text-white rounded-lg hover:bg-learnflow-600 transition-all duration-300 transform hover:scale-105 flex items-center"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                </svg>
+                                Upload Now
+                              </button>
+                            )}
+                          </div>
+                        );
+                      } else {
+                        return (
+                          <div className="mt-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                              {filteredFiles.map((file, index) => (
+                                <div
+                                  key={file.id}
+                                  className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group stagger-item hover-lift"
+                                >
+                                  <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex items-center">
+                                    <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg mr-3">
+                                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-learnflow-500 dark:text-learnflow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                      </svg>
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="font-medium text-gray-800 dark:text-white truncate group-hover:text-learnflow-600 dark:group-hover:text-learnflow-400 transition-colors duration-300">
+                                        {file.name}
+                                      </p>
+                                      <div className="flex items-center mt-1">
+                                        {file.subject_code && (
+                                          <span className="text-xs bg-learnflow-100 text-learnflow-800 dark:bg-learnflow-900 dark:text-learnflow-200 px-2 py-0.5 rounded-full mr-2">
+                                            {file.subject_code}
+                                          </span>
+                                        )}
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                                          {new Date(file.created_at).toLocaleDateString()}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div className="p-3 bg-gray-50 dark:bg-gray-800 flex justify-between items-center">
+                                    <div className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[150px]">
+                                      {file.type || 'Document'}
+                                    </div>
+                                    <div className="flex items-center space-x-1">
+                                      <a
+                                        href={file.publicUrl || getFilePublicUrl(file)}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="p-2 text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-full transition-all duration-300"
+                                        title="Open file in new tab"
+                                      >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                        </svg>
+                                      </a>
+                                      <button
+                                        onClick={(e) => handleFileDownload(file, e as any)}
+                                        className="p-2 text-learnflow-500 hover:text-learnflow-600 hover:bg-learnflow-50 dark:hover:bg-learnflow-900/20 rounded-full transition-all duration-300"
+                                        title="Download file"
+                                      >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                        </svg>
+                                      </button>
+                                      {isCurrentUserProfile && (
+                                        <button
+                                          onClick={() => handleDeleteFile(file)}
+                                          className="p-2 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-all duration-300"
+                                          title="Delete file"
+                                        >
+                                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                          </svg>
+                                        </button>
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
-                                <div className="flex items-center">
-                                  <a
-                                    href={file.publicUrl || getFilePublicUrl(file)}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="ml-2 text-blue-500 hover:text-blue-600"
-                                    title="Open file in new tab"
-                                  >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                    </svg>
-                                  </a>
-                                  <button
-                                    onClick={(e) => handleFileDownload(file, e as any)}
-                                    className="ml-2 text-learnflow-500 hover:text-learnflow-600"
-                                    title="Download file"
-                                  >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                    </svg>
-                                  </button>
-                                  {isCurrentUserProfile && (
-                                    <button
-                                      onClick={() => handleDeleteFile(file)}
-                                      className="ml-2 text-red-500 hover:text-red-600"
-                                      title="Delete file"
-                                    >
-                                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                      </svg>
-                                    </button>
-                                  )}
-                                </div>
-                              </div>
-                            ))}
-                        </div>
-                      );
-                    }
-                  })()}
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      }
+                    })()}
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-        </div>
+              )}
+            </div>
+          </section>
+        </main>
       </div>
     );
   } catch (error) {
     console.error('Error fetching user profile:', error);
+    return <ProfilePageErrorFallback />;
   }
 }; // End of ProfilePage component
 

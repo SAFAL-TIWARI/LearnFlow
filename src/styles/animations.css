@@ -1,0 +1,142 @@
+/* Animation styles for ProfilePage and other components */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(79, 70, 229, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+  }
+}
+
+/* Animation utility classes */
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-slideDown {
+  animation: slideDown 0.3s ease-out forwards;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.3s ease-out forwards;
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.3s ease-out forwards;
+}
+
+.animate-pulse {
+  animation: pulse 2s infinite;
+}
+
+/* Staggered animation for lists */
+.stagger-item {
+  opacity: 0;
+}
+
+.stagger-item:nth-child(1) { animation: fadeIn 0.5s ease-out 0.1s forwards; }
+.stagger-item:nth-child(2) { animation: fadeIn 0.5s ease-out 0.2s forwards; }
+.stagger-item:nth-child(3) { animation: fadeIn 0.5s ease-out 0.3s forwards; }
+.stagger-item:nth-child(4) { animation: fadeIn 0.5s ease-out 0.4s forwards; }
+.stagger-item:nth-child(5) { animation: fadeIn 0.5s ease-out 0.5s forwards; }
+.stagger-item:nth-child(6) { animation: fadeIn 0.5s ease-out 0.6s forwards; }
+.stagger-item:nth-child(7) { animation: fadeIn 0.5s ease-out 0.7s forwards; }
+.stagger-item:nth-child(8) { animation: fadeIn 0.5s ease-out 0.8s forwards; }
+.stagger-item:nth-child(9) { animation: fadeIn 0.5s ease-out 0.9s forwards; }
+.stagger-item:nth-child(10) { animation: fadeIn 0.5s ease-out 1s forwards; }
+
+/* Hover animations */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Loading animations */
+.loading-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Dark mode versions */
+.dark .loading-skeleton {
+  background: linear-gradient(90deg, #2d3748 25%, #1a202c 50%, #2d3748 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+/* Dropdown menu styles */
+.subject-list {
+  position: relative;
+  z-index: 1000000000000;
+}
+
+.subject-list button {
+  position: relative;
+  z-index: 10100000000;
+  pointer-events: auto !important;
+  cursor: pointer;
+}
+
+.subject-list button:hover {
+  background-color: rgba(79, 70, 229, 0.1);
+}
