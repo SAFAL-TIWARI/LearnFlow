@@ -140,7 +140,7 @@ const SubjectSelector: React.FC = () => {
       <p className="text-gray-600 dark:text-gray-400 mb-4">
         Showing subjects for <span className="font-semibold">{getBranchName()}</span> branch
       </p>
-      <div className={`${isMobile ? 'grid grid-cols-2 sm:grid-cols-3 gap-2' : 'flex flex-wrap gap-2'}`}>
+      <div className={`${isMobile ? 'grid grid-cols-2 sm:grid-cols-3 gap-2' : 'flex flex-wrap gap-3'}`}>
         {subjects.map((subject) => (
           <div key={subject.code} className="relative">
             <button
