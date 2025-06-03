@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { supabase, supabaseUrl } from '../lib/supabase';
 import { branchSubjects, Subject } from '../data/academicData';
 import BackButton from '../components/BackButton';
+import SubjectFilesDisplay from '../components/SubjectFilesDisplay';
+import FileViewerModal from '../components/FileViewerModal';
 import '../styles/animations.css';
 import { ProfilePageErrorFallback } from './ProfilePageWrapper';
 
@@ -43,6 +45,8 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ userId }) => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [dropdownTimeouts, setDropdownTimeouts] = useState<Record<string, NodeJS.Timeout>>({});
   const [isMobile, setIsMobile] = useState(false);
+  const [isFileViewerOpen, setIsFileViewerOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<FileUpload | null>(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -131,17 +135,50 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ userId }) => {
     }
   }, [userId]);
 
+  // Get subjects for the selected branch - moved up to be available for fetchUserFiles
+  const getSubjectsForUser = () => {
+    let subjectsList: Subject[] = [];
+    if (userData?.year && userData?.semester && userData?.branch) {
+      const yearNum = parseInt(userData.year, 10);
+      const semesterNum = parseInt(userData.semester, 10);
+      // Convert branch to lowercase to match the keys in branchSubjects
+      const branchId = userData.branch.toLowerCase();
+
+      console.log('Getting subjects for:', {
+        year: yearNum,
+        semester: semesterNum,
+        branch: userData.branch,
+        branchId: branchId
+      });
+
+      if (!isNaN(yearNum) && !isNaN(semesterNum) &&
+        branchSubjects[yearNum] &&
+        branchSubjects[yearNum][semesterNum] &&
+        branchSubjects[yearNum][semesterNum][branchId]) {
+        // Access the subjects for this specific branch, year, and semester
+        subjectsList = branchSubjects[yearNum][semesterNum][branchId];
+        console.log('Found subjects:', subjectsList);
+      } else {
+        console.log('No subjects found for this combination. Available branches:',
+          branchSubjects[yearNum] && branchSubjects[yearNum][semesterNum]
+            ? Object.keys(branchSubjects[yearNum][semesterNum])
+            : 'None');
+      }
+    }
+    return subjectsList;
+  };
+
   // Fetch user files
   const fetchUserFiles = async (userId: string) => {
     try {
       console.log('Fetching files for user ID:', userId);
-      
+
       // First try to get files from user_files table
       const { data, error } = await supabase
         .from('user_files')
         .select('*')
-        .eq('user_id', userId)
-        .eq('is_public', true); // Only get public files
+        .eq('user_id', userId);
+        // Removed .eq('is_public', true) to include all files
 
       if (error) {
         console.error('Error fetching user files:', error);
@@ -150,12 +187,14 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ userId }) => {
 
       console.log('User files:', data);
 
+      let allFiles = [];
+
       if (data && data.length > 0) {
-        // Process the files to add public URLs
+        // Process the files to add public URLs and map material_type to category
         const processedFiles = data.map((file: any) => {
           // Create a public URL for the file
           let publicUrl = '';
-          
+
           if (file.file_path) {
             // If we have a file_path, use it to construct the URL
             publicUrl = `${supabaseUrl}/storage/v1/object/public/${file.file_path}`;
@@ -166,53 +205,141 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ userId }) => {
             publicUrl = `${supabaseUrl}/storage/v1/object/public/${bucketName}/${filePath}`;
           }
 
+          // Add academic information to the file if it's not already there
+          if (!file.subject_code && userData) {
+            // Try to infer subject code from filename or set to empty
+            const subjectCode = file.name.match(/^([A-Z]{2,3}\s*\d{3})/) ?
+              file.name.match(/^([A-Z]{2,3}\s*\d{3})/)[1] : '';
+
+            return {
+              ...file,
+              publicUrl,
+              year: file.year || userData.year,
+              semester: file.semester || userData.semester,
+              branch: file.branch || userData.branch,
+              subject_code: file.subject_code || subjectCode,
+              category: file.material_type || ''  // Map material_type to category
+            };
+          }
+
           return {
             ...file,
-            publicUrl
+            publicUrl,
+            category: file.material_type || ''  // Map material_type to category
           };
         });
 
-        setUserFiles(processedFiles);
-      } else {
-        // If no files found in user_files table, try to get from storage directly
-        try {
-          const bucketName = 'user-files';
-          const { data: storageData, error: storageError } = await supabase.storage
-            .from(bucketName)
-            .list(userId);
+        allFiles = [...processedFiles];
+      }
 
-          if (storageError) {
-            console.error('Error listing files from storage:', storageError);
-            return;
+      // Also try to get files from storage directly
+      try {
+        const bucketName = 'user-files';
+
+        // First check the user's personal folder
+        const { data: personalStorageData, error: personalStorageError } = await supabase.storage
+          .from(bucketName)
+          .list(userId);
+
+        if (!personalStorageError && personalStorageData && personalStorageData.length > 0) {
+          console.log('Files found in personal storage:', personalStorageData);
+
+          // Convert storage files to our FileUpload format
+          const personalStorageFiles = personalStorageData.map((file: any) => {
+            const publicUrl = `${supabaseUrl}/storage/v1/object/public/${bucketName}/${userId}/${file.name}`;
+
+            // Try to infer subject code from filename or set to empty
+            const subjectCode = file.name.match(/^([A-Z]{2,3}\s*\d{3})/) ?
+              file.name.match(/^([A-Z]{2,3}\s*\d{3})/)[1] : '';
+
+            return {
+              id: file.id || Math.random().toString(36).substring(2),
+              name: file.name,
+              url: publicUrl,
+              publicUrl: publicUrl,
+              type: file.metadata?.mimetype || 'application/octet-stream',
+              created_at: file.created_at || new Date().toISOString(),
+              category: 'notes', // Default category
+              file_path: `${bucketName}/${userId}/${file.name}`,
+              is_public: true,
+              // Add academic information if available
+              year: userData?.year,
+              semester: userData?.semester,
+              branch: userData?.branch,
+              subject_code: subjectCode
+            };
+          });
+
+          allFiles = [...allFiles, ...personalStorageFiles];
+        }
+
+        // Now check for organized files in material type folders
+        const materialTypes = ['syllabus', 'assignments', 'practicals', 'lab-reports', 'notes'];
+
+        // Get subjects for this user
+        const subjects = getSubjectsForUser();
+
+        // If we have subjects, check for each subject
+        if (subjects.length > 0) {
+          for (const subject of subjects) {
+            for (const materialType of materialTypes) {
+              try {
+                const storagePath = `${materialType}/${subject.code}`;
+
+                const { data: subjectStorageData, error: subjectStorageError } = await supabase.storage
+                  .from(bucketName)
+                  .list(storagePath);
+
+                if (!subjectStorageError && subjectStorageData && subjectStorageData.length > 0) {
+                  console.log(`Files found for ${subject.code} in ${materialType}:`, subjectStorageData);
+
+                  const subjectFiles = subjectStorageData.map((file: any) => {
+                    const filePath = `${storagePath}/${file.name}`;
+                    const publicUrl = `${supabaseUrl}/storage/v1/object/public/${bucketName}/${filePath}`;
+
+                    return {
+                      id: file.id || Math.random().toString(36).substring(2),
+                      name: file.name,
+                      url: publicUrl,
+                      publicUrl: publicUrl,
+                      type: file.metadata?.mimetype || 'application/octet-stream',
+                      created_at: file.created_at || new Date().toISOString(),
+                      category: materialType,
+                      file_path: `${bucketName}/${filePath}`,
+                      is_public: true,
+                      subject_code: subject.code,
+                      subject_name: subject.name
+                    };
+                  });
+
+                  allFiles = [...allFiles, ...subjectFiles];
+                }
+              } catch (err) {
+                console.error(`Error checking ${materialType} for ${subject.code}:`, err);
+              }
+            }
           }
+        }
 
-          if (storageData && storageData.length > 0) {
-            console.log('Files found in storage:', storageData);
-            
-            // Convert storage files to our FileUpload format
-            const storageFiles = storageData.map((file: any) => {
-              const publicUrl = `${supabaseUrl}/storage/v1/object/public/${bucketName}/${userId}/${file.name}`;
-              
-              return {
-                id: file.id || Math.random().toString(36).substring(2),
-                name: file.name,
-                url: publicUrl,
-                publicUrl: publicUrl,
-                type: file.metadata?.mimetype || 'application/octet-stream',
-                created_at: file.created_at || new Date().toISOString(),
-                category: 'notes', // Default category
-                file_path: `${bucketName}/${userId}/${file.name}`,
-                is_public: true
-              };
-            });
+        // Remove duplicates based on file path
+        const uniqueFiles = allFiles.filter((file, index, self) =>
+          index === self.findIndex(f => f.file_path === file.file_path)
+        );
 
-            setUserFiles(storageFiles);
-          } else {
-            console.log('No files found for user');
-            setUserFiles([]);
-          }
-        } catch (storageError) {
-          console.error('Error accessing storage:', storageError);
+        if (uniqueFiles.length > 0) {
+          setUserFiles(uniqueFiles);
+        } else {
+          console.log('No files found for user');
+          setUserFiles([]);
+        }
+      } catch (storageError) {
+        console.error('Error accessing storage:', storageError);
+
+        // If we have files from the database but storage access failed, still show those
+        if (allFiles.length > 0) {
+          setUserFiles(allFiles);
+        } else {
+          setUserFiles([]);
         }
       }
     } catch (error) {
@@ -226,7 +353,7 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ userId }) => {
     if (dropdownTimeouts[dropdownId]) {
       clearTimeout(dropdownTimeouts[dropdownId]);
     }
-    
+
     setActiveDropdown(dropdownId);
   };
 
@@ -235,13 +362,37 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ userId }) => {
     const timeout = setTimeout(() => {
       setActiveDropdown(null);
     }, 300);
-    
+
     // Store the timeout ID
     setDropdownTimeouts({
       ...dropdownTimeouts,
       [dropdownId]: timeout
     });
   };
+  
+  // Handle file selection for viewing
+  const handleFileSelect = (file: FileUpload) => {
+    setSelectedFile(file);
+    setIsFileViewerOpen(true);
+  };
+  
+  // Close the file viewer modal
+  const handleCloseFileViewer = () => {
+    setIsFileViewerOpen(false);
+    // We keep the selected file in state for a moment to avoid UI flicker during the closing animation
+    setTimeout(() => {
+      setSelectedFile(null);
+    }, 300);
+  };
+
+  // Effect to log when selected subject changes
+  useEffect(() => {
+    if (selectedSubject) {
+      console.log('Selected subject changed:', selectedSubject);
+    } else {
+      console.log('Subject selection cleared');
+    }
+  }, [selectedSubject]);
 
   // Handle window resize for mobile detection
   useEffect(() => {
@@ -315,26 +466,15 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ userId }) => {
   }
 
   // Get subjects for the selected branch
-  let subjects: Subject[] = [];
-  if (userData?.year && userData?.semester && userData?.branch) {
-    const yearNum = parseInt(userData.year, 10);
-    const semesterNum = parseInt(userData.semester, 10);
-    
-    if (!isNaN(yearNum) && !isNaN(semesterNum) && 
-        branchSubjects[yearNum] && 
-        branchSubjects[yearNum][semesterNum] && 
-        branchSubjects[yearNum][semesterNum][userData.branch]) {
-      // Access the subjects for this specific branch, year, and semester
-      subjects = branchSubjects[yearNum][semesterNum][userData.branch];
-    }
-  }
+  const subjects = getSubjectsForUser();
+  console.log('Subjects for rendering:', subjects);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 animate-fadeIn">
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
           <div className="flex items-center mb-4 md:mb-0">
-            <BackButton 
+            <BackButton
               fallbackPath="/search"
               className="mr-4"
               ariaLabel="Go back to search page"
@@ -358,51 +498,60 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ userId }) => {
 
             <div className="flex flex-col md:flex-row gap-8">
               {/* Left Column - Profile Photo and Basic Info */}
-              <div className="w-full md:w-1/3 flex flex-col items-center">
-                <div className="w-40 h-40 mb-4 rounded-full overflow-hidden border-4 border-learnflow-100 dark:border-learnflow-900 shadow-lg">
-                  <div className="w-full h-full bg-learnflow-50 dark:bg-learnflow-900 flex items-center justify-center">
-                    <div className="w-32 h-32">
-                      <div className="w-full h-full relative">
-                        <div 
-                          className="absolute inset-0 flex items-center justify-center"
-                          style={{ transform: "scale(1.2)" }}
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-full w-full text-learnflow-300 dark:text-learnflow-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
+              <div className="w-full md:w-1/3">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300">
+                  <div className="p-6 flex flex-col items-center">
+                    <div className="mb-4">
+                      <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-learnflow-200 dark:border-learnflow-800">
+                        <div className="w-full h-full bg-learnflow-500 dark:bg-learnflow-700 flex items-center justify-center text-white font-semibold text-2xl">
+                          {userData.name ? (
+                            // Get initials: first letter of first name and first letter of last name
+                            userData.name.split(' ').map(part => part.charAt(0).toUpperCase()).slice(0, 2).join('')
+                          ) : (
+                            // Fallback to first letter if no name or no space in name
+                            userData.email.charAt(0).toUpperCase()
+                          )}
                         </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-                
-                <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
-                  {userData.name}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">{userData.email}</p>
-                
-                <div className="w-full bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                  <div className="mb-3">
-                    <span className="block text-sm font-medium text-gray-500 dark:text-gray-400">Year</span>
-                    <span className="text-gray-800 dark:text-white">{userData.year ? `Year ${userData.year}` : 'Not specified'}</span>
-                  </div>
-                  <div className="mb-3">
-                    <span className="block text-sm font-medium text-gray-500 dark:text-gray-400">Semester</span>
-                    <span className="text-gray-800 dark:text-white">{userData.semester ? `Semester ${userData.semester}` : 'Not specified'}</span>
-                  </div>
-                  <div>
-                    <span className="block text-sm font-medium text-gray-500 dark:text-gray-400">Branch</span>
-                    <span className="text-gray-800 dark:text-white">
-                      {userData.branch ? (
-                        userData.branch === 'CSE' ? 'Computer Science Engineering' :
-                        userData.branch === 'ECE' ? 'Electronics & Communication Engineering' :
-                        userData.branch === 'EEE' ? 'Electrical & Electronics Engineering' :
-                        userData.branch === 'ME' ? 'Mechanical Engineering' :
-                        userData.branch === 'CE' ? 'Civil Engineering' :
-                        userData.branch === 'IT' ? 'Information Technology' :
-                        userData.branch
-                      ) : 'Not specified'}
-                    </span>
+                    <div className="text-center">
+                      <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">{userData.name}</h2>
+                      <p className="text-gray-600 dark:text-gray-400 mb-3">{userData.email}</p>
+
+                      <div className="flex flex-col gap-y-2 mb-3">
+                        <div className="flex items-center justify-center text-sm text-gray-600 dark:text-gray-400">
+                          <span className="font-medium mr-1">Year:</span>
+                          <span className={!userData.year ? 'text-gray-400 italic' : ''}>
+                            {userData.year ? `${userData.year}` : 'Not specified'}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-center text-sm text-gray-600 dark:text-gray-400">
+                          <span className="font-medium mr-1">Semester:</span>
+                          <span className={!userData.semester ? 'text-gray-400 italic' : ''}>
+                            {userData.semester ? `${userData.semester}` : 'Not specified'}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-center text-sm text-gray-600 dark:text-gray-400">
+                          <span className="font-medium mr-1">Branch:</span>
+                          <span className={!userData.branch ? 'text-gray-400 italic' : ''}>
+                            {userData.branch ? (
+                              userData.branch === 'CSE' ? 'Computer Science Engineering' :
+                                userData.branch === 'BLOCKCHAIN' ? 'Blockchain Technology' :
+                                  userData.branch === 'AIADS' ? 'Artificial Intelligence & Data Science' :
+                                    userData.branch === 'AIAML' ? 'Artificial Intelligence & Machine Learning' :
+                                      userData.branch === 'CSE-IOT' ? 'Internet of Things' :
+                                        userData.branch === 'IT' ? 'Information Technology' :
+                                          userData.branch === 'ECE' ? 'Electronics & Communication' :
+                                            userData.branch === 'EE' ? 'Electrical Engineering' :
+                                              userData.branch === 'EI' ? 'Electronics & Instrumentation' :
+                                                userData.branch === 'ME' ? 'Mechanical Engineering' :
+                                                  userData.branch === 'CE' ? 'Civil Engineering' :
+                                                    userData.branch
+                            ) : 'Not specified'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -415,10 +564,10 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ userId }) => {
                     <p className="text-gray-800 dark:text-white">{userData.name}</p>
                   </div>
 
-                  <div>
+                  {/* <div>
                     <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Email</label>
                     <p className="text-gray-800 dark:text-white">{userData.email || 'Not available'}</p>
-                  </div>
+                  </div> */}
 
                   <div>
                     <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Year</label>
@@ -435,27 +584,40 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ userId }) => {
                     <p className="text-gray-800 dark:text-white">
                       {userData.branch ? (
                         userData.branch === 'CSE' ? 'Computer Science Engineering' :
-                        userData.branch === 'ECE' ? 'Electronics & Communication Engineering' :
-                        userData.branch === 'EEE' ? 'Electrical & Electronics Engineering' :
-                        userData.branch === 'ME' ? 'Mechanical Engineering' :
-                        userData.branch === 'CE' ? 'Civil Engineering' :
-                        userData.branch === 'IT' ? 'Information Technology' :
-                        userData.branch
+                          userData.branch === 'BLOCKCHAIN' ? 'Blockchain Technology' :
+                            userData.branch === 'AI&DS' ? 'Artificial Intelligence & Data Science' :
+                              userData.branch === 'AI&ML' ? 'Artificial Intelligence & Machine Learning' :
+                                userData.branch === 'CSE-IOT' ? 'Internet of Things' :
+                                  userData.branch === 'IT' ? 'Information Technology' :
+                                    userData.branch === 'ECE' ? 'Electronics & Communication' :
+                                      userData.branch === 'EE' ? 'Electrical Engineering' :
+                                        userData.branch === 'ME' ? 'Mechanical Engineering' :
+                                          userData.branch === 'CE' ? 'Civil Engineering' :
+                                            userData.branch
                       ) : 'Not specified'}
                     </p>
                   </div>
 
-                  <div>
+                  {/* <div>
                     <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Profile Visibility</label>
                     <p className="text-gray-800 dark:text-white">
                       {userData.is_public ? 'Public' : 'Private'}
                     </p>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>
           </div>
         </div>
+
+        {/* Subject Files Section */}
+        {userData?.year && userData?.semester && userData?.branch && (
+          <SubjectFilesDisplay
+            year={userData.year}
+            semester={userData.semester}
+            branch={userData.branch}
+          />
+        )}
 
         {/* User Uploads Section */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden mb-8 transition-all duration-300 hover:shadow-xl">
@@ -468,15 +630,14 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ userId }) => {
             </h2>
 
             {/* Upload Categories */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-              {['notes', 'assignments', 'lab-reports'].map((category) => (
+            <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-8">
+              {['syllabus', 'assignments', 'practicals', 'lab-work', 'PYQs', 'notes'].map((category) => (
                 <div
                   key={category}
-                  className={`p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 ${
-                    uploadSection === category
-                      ? 'border-learnflow-500 bg-learnflow-50 dark:bg-learnflow-900/20'
-                      : 'border-gray-200 dark:border-gray-700 hover:border-learnflow-300 dark:hover:border-learnflow-700'
-                  }`}
+                  className={`p-2 border-2 rounded-xl cursor-pointer transition-all duration-300 ${uploadSection === category
+                    ? 'border-learnflow-500 bg-learnflow-50 dark:bg-learnflow-900/20'
+                    : 'border-gray-200 dark:border-gray-700 hover:border-learnflow-300 dark:hover:border-learnflow-700'
+                    }`}
                   onClick={() => setUploadSection(category)}
                 >
                   <div className="flex items-center justify-between">
@@ -485,9 +646,8 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ userId }) => {
                     </span>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className={`h-5 w-5 transition-transform duration-300 ${
-                        uploadSection === category ? 'text-learnflow-500 rotate-180' : 'text-gray-400'
-                      }`}
+                      className={`h-5 w-5 transition-transform duration-300 ${uploadSection === category ? 'text-learnflow-500 rotate-180' : 'text-gray-400'
+                        }`}
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -509,18 +669,25 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ userId }) => {
                     value={selectedSubject ? JSON.stringify(selectedSubject) : ''}
                     onChange={(e) => {
                       if (e.target.value) {
-                        setSelectedSubject(JSON.parse(e.target.value));
+                        const selected = JSON.parse(e.target.value);
+                        console.log('Selected subject:', selected);
+                        setSelectedSubject(selected);
                       } else {
+                        console.log('Cleared subject selection');
                         setSelectedSubject(null);
                       }
                     }}
                   >
                     <option value="">All Subjects</option>
-                    {subjects.map((subject) => (
-                      <option key={subject.code} value={JSON.stringify(subject)}>
-                        {subject.code} - {subject.name}
-                      </option>
-                    ))}
+                    {subjects && subjects.length > 0 ? (
+                      subjects.map((subject) => (
+                        <option key={subject.code} value={JSON.stringify(subject)}>
+                          {subject.code} - {subject.name}
+                        </option>
+                      ))
+                    ) : (
+                      <option disabled value="">No subjects available for this branch/year/semester</option>
+                    )}
                   </select>
                 </div>
               </div>
@@ -534,15 +701,33 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ userId }) => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                   {userData?.name}'s {uploadSection} Files
+                  {selectedSubject && (
+                    <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
+                      ({selectedSubject.code})
+                    </span>
+                  )}
                 </h3>
 
                 {userFiles.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-3 gap-4">
                     {userFiles
-                      .filter(file => 
-                        file.category === uploadSection && 
-                        (!selectedSubject || file.subject_code === selectedSubject.code)
-                      )
+                      .filter(file => {
+                        // Filter by category/section
+                        const categoryMatch = file.category === uploadSection;
+
+                        // Filter by subject if selected
+                        let subjectMatch = true;
+                        if (selectedSubject) {
+                          // If a subject is selected, only show files for that subject
+                          subjectMatch = file.subject_code &&
+                            file.subject_code.trim().toUpperCase() === selectedSubject.code.trim().toUpperCase();
+                        }
+
+                        // Log for debugging
+                        console.log(`File: ${file.name}, Category: ${file.category}, Subject: ${file.subject_code || 'none'}, Selected Subject: ${selectedSubject?.code || 'none'}, Matches: ${categoryMatch && subjectMatch}`);
+
+                        return categoryMatch && subjectMatch;
+                      })
                       .map((file) => (
                         <div
                           key={file.id}
@@ -555,15 +740,22 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ userId }) => {
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
                                 <div>
-                                  <h4 className="text-sm font-medium text-gray-800 dark:text-white truncate" title={file.name}>
+                                  {/* <h4 className="text-sm font-medium text-gray-800 dark:text-white truncate" title={file.name}>
                                     {file.name}
-                                  </h4>
-                                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                                    {new Date(file.created_at).toLocaleDateString()}
-                                  </p>
+                                  </h4> */}
+                                  <div className="flex flex-col text-xs">
+                                    {/* <p className="text-gray-500 dark:text-gray-400">
+                                      {new Date(file.created_at).toLocaleDateString()}
+                                    </p> */}
+                                    {file.subject_code && (
+                                      <p className="text-learnflow-600 dark:text-learnflow-400">
+                                        {file.subject_code}
+                                      </p>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
-                              <div className="relative" 
+                              <div className="relative"
                                 onMouseEnter={() => handleDropdownHover(`file-${file.id}`)}
                                 onMouseLeave={() => handleDropdownLeave(`file-${file.id}`)}
                               >
@@ -604,8 +796,8 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ userId }) => {
                     </svg>
                     <p className="text-gray-600 dark:text-gray-400">
                       {selectedSubject
-                        ? `No ${uploadSection} files shared yet for ${selectedSubject.code}`
-                        : `No ${uploadSection} files shared yet`}
+                        ? `No ${uploadSection} files shared yet for ${selectedSubject.code} - ${selectedSubject.name}`
+                        : `No ${uploadSection} files shared yet. Try selecting a specific subject.`}
                     </p>
                   </div>
                 )}

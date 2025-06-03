@@ -188,7 +188,9 @@ export async function uploadFile(
   file: File, 
   userId: string, 
   description: string = '', 
-  isPublic: boolean = false
+  isPublic: boolean = false,
+  subjectCode: string = '',
+  materialType: string = ''
 ) {
   try {
     // Validate inputs
@@ -200,8 +202,18 @@ export async function uploadFile(
       throw new Error('User ID is required');
     }
     
-    // Upload to storage - ensure path starts with userId to comply with storage policies
-    const filePath = `${userId}/${Date.now()}_${file.name}`;
+    // Create a properly organized file path based on material type and subject code
+    let filePath = '';
+    
+    if (materialType && subjectCode) {
+      // If both material type and subject code are provided, organize files accordingly
+      // Format: user-files/[materialType]/[subjectCode]/[userId]_[timestamp]_[filename]
+      filePath = `${materialType}/${subjectCode}/${userId}_${Date.now()}_${file.name}`;
+    } else {
+      // Default path if no material type or subject code is provided
+      filePath = `${userId}/${Date.now()}_${file.name}`;
+    }
+    
     console.log('Uploading file to path:', filePath);
     
     // Check if buckets exist
@@ -257,7 +269,9 @@ export async function uploadFile(
             file_type: file.type,
             file_size: file.size,
             description,
-            is_public: isPublic
+            is_public: isPublic,
+            subject_code: subjectCode || null,
+            material_type: materialType || null  // Store the material type in the database
           }
         ])
         .select()
@@ -272,7 +286,9 @@ export async function uploadFile(
             {
               user_id: userId,
               file_path: filePath,
-              is_public: isPublic
+              is_public: isPublic,
+              subject_code: subjectCode || null,
+              material_type: materialType || null  // Store the material type in the database
             }
           ])
           .select()
@@ -299,7 +315,9 @@ export async function uploadFile(
         user_id: userId,
         file_path: filePath,
         file_name: file.name,
-        is_public: isPublic
+        is_public: isPublic,
+        subject_code: subjectCode || null,
+        material_type: materialType || null
       };
     }
   } catch (error) {

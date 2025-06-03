@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/SupabaseAuthContext';
 import { getSession, isAuthenticated } from '../lib/auth-fallback';
 import BackButton from '../components/BackButton';
+import { branchSubjects, Subject } from '../data/academicData';
 
 const BasicProfilePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -20,6 +21,8 @@ const BasicProfilePage: React.FC = () => {
     semester: '',
     branch: ''
   });
+  
+  const [userSubjects, setUserSubjects] = useState<Subject[]>([]);
 
   // Try to use Supabase auth
   const { user } = useAuth();
@@ -67,6 +70,31 @@ const BasicProfilePage: React.FC = () => {
 
     fetchUserData();
   }, [user]);
+  
+  // Update subjects when user data changes
+  useEffect(() => {
+    if (userData.year && userData.semester && userData.branch) {
+      const yearNum = parseInt(userData.year, 10);
+      const semesterNum = parseInt(userData.semester, 10);
+      const branchId = userData.branch.toLowerCase();
+      
+      // Get subjects for the user's year, semester, and branch
+      if (
+        !isNaN(yearNum) && 
+        !isNaN(semesterNum) && 
+        branchSubjects[yearNum] && 
+        branchSubjects[yearNum][semesterNum] && 
+        branchSubjects[yearNum][semesterNum][branchId]
+      ) {
+        setUserSubjects(branchSubjects[yearNum][semesterNum][branchId]);
+      } else {
+        // If no subjects found for this combination
+        setUserSubjects([]);
+      }
+    } else {
+      setUserSubjects([]);
+    }
+  }, [userData.year, userData.semester, userData.branch]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -324,6 +352,31 @@ const BasicProfilePage: React.FC = () => {
                   </select>
                 </div>
               </div>
+              
+              {/* Subject Selection Section */}
+              {userSubjects.length > 0 && (
+                <div className="mt-6">
+                  <h3 className="text-lg font-medium text-gray-800 dark:text-white mb-3">Your Subjects</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {userSubjects.map((subject) => (
+                      <div 
+                        key={subject.code}
+                        className="bg-gray-50 dark:bg-gray-700 p-3 rounded-md border border-gray-200 dark:border-gray-600"
+                      >
+                        <div className="flex items-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-learnflow-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                          </svg>
+                          <div>
+                            <p className="font-medium text-gray-800 dark:text-white">{subject.code}</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">{subject.name}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="mt-6">
                 <button

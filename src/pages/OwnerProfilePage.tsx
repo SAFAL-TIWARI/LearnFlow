@@ -356,7 +356,17 @@ const OwnerProfilePage: React.FC = () => {
 
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
-                const filePath = `${userId}/${file.name}`;
+
+                // Create organized file path based on category and subject
+                let filePath = '';
+
+                if (category && selectedSubject) {
+                    // Format: [category]/[subjectCode]/[userId]_[filename]
+                    filePath = `${category}/${selectedSubject.code}/${userId}_${file.name}`;
+                } else {
+                    // Default path if no category or subject is selected
+                    filePath = `${userId}/${file.name}`;
+                }
 
                 // Upload file to storage
                 const { data: uploadData, error: uploadError } = await supabase.storage
@@ -388,12 +398,15 @@ const OwnerProfilePage: React.FC = () => {
                             {
                                 user_id: userId,
                                 name: file.name,
+                                file_name: file.name,
                                 type: file.type,
+                                file_type: file.type,
                                 category: category,
                                 url: publicUrl,
                                 file_path: filePath,
                                 subject_code: selectedSubject?.code || null,
                                 subject_name: selectedSubject?.name || null,
+                                material_type: category,
                                 is_public: true // Default to public
                             }
                         ]);
@@ -566,13 +579,14 @@ const OwnerProfilePage: React.FC = () => {
     if (userData?.year && userData?.semester && userData?.branch) {
         const yearNum = parseInt(userData.year, 10);
         const semesterNum = parseInt(userData.semester, 10);
+        const branchId = userData.branch.toLowerCase();
 
         if (!isNaN(yearNum) && !isNaN(semesterNum) &&
             branchSubjects[yearNum] &&
             branchSubjects[yearNum][semesterNum] &&
-            branchSubjects[yearNum][semesterNum][userData.branch]) {
+            branchSubjects[yearNum][semesterNum][branchId]) {
             // Access the subjects for this specific branch, year, and semester
-            subjects = branchSubjects[yearNum][semesterNum][userData.branch];
+            subjects = branchSubjects[yearNum][semesterNum][branchId];
         }
     }
 
@@ -643,51 +657,59 @@ const OwnerProfilePage: React.FC = () => {
 
                         <div className="flex flex-col md:flex-row gap-8">
                             {/* Left Column - Profile Photo and Basic Info */}
-                            <div className="w-full md:w-1/3 flex flex-col items-center">
-                                <div className="w-40 h-40 mb-4 rounded-full overflow-hidden border-4 border-learnflow-100 dark:border-learnflow-900 shadow-lg">
-                                    <div className="w-full h-full bg-learnflow-50 dark:bg-learnflow-900 flex items-center justify-center">
-                                        <div className="w-32 h-32">
-                                            <div className="w-full h-full relative">
-                                                <div
-                                                    className="absolute inset-0 flex items-center justify-center"
-                                                    style={{ transform: "scale(1.2)" }}
-                                                >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-full w-full text-learnflow-300 dark:text-learnflow-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                    </svg>
+                            <div className="w-full md:w-1/3">
+                                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300">
+                                    <div className="p-6 flex flex-col items-center">
+                                        <div className="mb-4">
+                                            <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-learnflow-200 dark:border-learnflow-800">
+                                                <div className="w-full h-full bg-learnflow-500 dark:bg-learnflow-700 flex items-center justify-center text-white font-semibold text-2xl">
+                                                    {userData.name ? (
+                                                        // Get initials: first letter of first name and first letter of last name
+                                                        userData.name.split(' ').map(part => part.charAt(0).toUpperCase()).slice(0, 2).join('')
+                                                    ) : (
+                                                        // Fallback to first letter if no name or no space in name
+                                                        userData.email.charAt(0).toUpperCase()
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
+                                        <div className="text-center">
+                                            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">{userData.name}</h2>
+                                            <p className="text-gray-600 dark:text-gray-400 mb-3">{userData.email}</p>
 
-                                <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
-                                    {userData.name}
-                                </h3>
-                                <p className="text-gray-600 dark:text-gray-400 mb-4">{userData.email}</p>
-
-                                <div className="w-full bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                                    <div className="mb-3">
-                                        <span className="block text-sm font-medium text-gray-500 dark:text-gray-400">Year</span>
-                                        <span className="text-gray-800 dark:text-white">{userData.year ? `Year ${userData.year}` : 'Not specified'}</span>
-                                    </div>
-                                    <div className="mb-3">
-                                        <span className="block text-sm font-medium text-gray-500 dark:text-gray-400">Semester</span>
-                                        <span className="text-gray-800 dark:text-white">{userData.semester ? `Semester ${userData.semester}` : 'Not specified'}</span>
-                                    </div>
-                                    <div>
-                                        <span className="block text-sm font-medium text-gray-500 dark:text-gray-400">Branch</span>
-                                        <span className="text-gray-800 dark:text-white">
-                                            {userData.branch ? (
-                                                userData.branch === 'CSE' ? 'Computer Science Engineering' :
-                                                    userData.branch === 'ECE' ? 'Electronics & Communication Engineering' :
-                                                        userData.branch === 'EEE' ? 'Electrical & Electronics Engineering' :
-                                                            userData.branch === 'ME' ? 'Mechanical Engineering' :
-                                                                userData.branch === 'CE' ? 'Civil Engineering' :
-                                                                    userData.branch === 'IT' ? 'Information Technology' :
-                                                                        userData.branch
-                                            ) : 'Not specified'}
-                                        </span>
+                                            <div className="flex flex-col gap-y-2 mb-3">
+                                                <div className="flex items-center justify-center text-sm text-gray-600 dark:text-gray-400">
+                                                    <span className="font-medium mr-1">Year:</span>
+                                                    <span className={!userData.year ? 'text-gray-400 italic' : ''}>
+                                                        {userData.year ? `${userData.year}` : 'Not specified'}
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center justify-center text-sm text-gray-600 dark:text-gray-400">
+                                                    <span className="font-medium mr-1">Semester:</span>
+                                                    <span className={!userData.semester ? 'text-gray-400 italic' : ''}>
+                                                        {userData.semester ? `${userData.semester}` : 'Not specified'}
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center justify-center text-sm text-gray-600 dark:text-gray-400">
+                                                    <span className="font-medium mr-1">Branch:</span>
+                                                    <span className={!userData.branch ? 'text-gray-400 italic' : ''}>
+                                                        {userData.branch ? (
+                                                            userData.branch === 'CSE' ? 'Computer Science Engineering' :
+                                                                userData.branch === 'BLOCKCHAIN' ? 'Blockchain Technology' :
+                                                                    userData.branch === 'AI&DS' ? 'Artificial Intelligence & Data Science' :
+                                                                        userData.branch === 'AI&ML' ? 'Artificial Intelligence & Machine Learning' :
+                                                                            userData.branch === 'CSE-IOT' ? 'Internet of Things' :
+                                                                                userData.branch === 'IT' ? 'Information Technology' :
+                                                                                    userData.branch === 'ECE' ? 'Electronics & Communication' :
+                                                                                        userData.branch === 'EE' ? 'Electrical Engineering' :
+                                                                                            userData.branch === 'ME' ? 'Mechanical Engineering' :
+                                                                                                userData.branch === 'CE' ? 'Civil Engineering' :
+                                                                                                    userData.branch
+                                                        ) : 'Not specified'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -766,22 +788,30 @@ const OwnerProfilePage: React.FC = () => {
                                             >
                                                 <option value="">Select Branch</option>
                                                 <option value="CSE">Computer Science Engineering</option>
-                                                <option value="ECE">Electronics & Communication Engineering</option>
-                                                <option value="EEE">Electrical & Electronics Engineering</option>
+                                                <option value="BLOCKCHAIN">Blockchain Technology</option>
+                                                <option value="AI&DS">Artificial Intelligence And DS</option>
+                                                <option value="AI&ML">Artificial Intelligence And ML</option>
+                                                <option value="IT">Information Technology</option>
+                                                <option value="CSE-IOT">Internet of Things</option>
+                                                <option value="ECE">Electronics & Communication</option>
+                                                <option value="EE">Electrical Engineering</option>
                                                 <option value="ME">Mechanical Engineering</option>
                                                 <option value="CE">Civil Engineering</option>
-                                                <option value="IT">Information Technology</option>
                                             </select>
                                         ) : (
                                             <p className="text-gray-800 dark:text-white">
                                                 {userData.branch ? (
                                                     userData.branch === 'CSE' ? 'Computer Science Engineering' :
-                                                        userData.branch === 'ECE' ? 'Electronics & Communication Engineering' :
-                                                            userData.branch === 'EEE' ? 'Electrical & Electronics Engineering' :
-                                                                userData.branch === 'ME' ? 'Mechanical Engineering' :
-                                                                    userData.branch === 'CE' ? 'Civil Engineering' :
+                                                        userData.branch === 'BLOCKCHAIN' ? 'Blockchain Technology' :
+                                                            userData.branch === 'AI&DS' ? 'Artificial Intelligence & Data Science' :
+                                                                userData.branch === 'AI&ML' ? 'Artificial Intelligence & Machine Learning' :
+                                                                    userData.branch === 'CSE-IOT' ? 'Internet of Things' :
                                                                         userData.branch === 'IT' ? 'Information Technology' :
-                                                                            userData.branch
+                                                                            userData.branch === 'ECE' ? 'Electronics & Communication' :
+                                                                                userData.branch === 'EE' ? 'Electrical Engineering' :
+                                                                                    userData.branch === 'ME' ? 'Mechanical Engineering' :
+                                                                                        userData.branch === 'CE' ? 'Civil Engineering' :
+                                                                                            userData.branch
                                                 ) : 'Not specified'}
                                             </p>
                                         )}
@@ -800,12 +830,37 @@ const OwnerProfilePage: React.FC = () => {
                                     Your Uploads
                                 </h2>
 
+                                {/* Subject List Section */}
+                                {/* {subjects.length > 0 && (
+                                    <div className="mb-8">
+                                        <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">Your Subjects</h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                            {subjects.map((subject) => (
+                                                <div 
+                                                    key={subject.code}
+                                                    className="bg-gray-50 dark:bg-gray-700 p-3 rounded-md border border-gray-200 dark:border-gray-600"
+                                                >
+                                                    <div className="flex items-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-learnflow-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                                        </svg>
+                                                        <div>
+                                                            <p className="font-medium text-gray-800 dark:text-white">{subject.code}</p>
+                                                            <p className="text-sm text-gray-600 dark:text-gray-400">{subject.name}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )} */}
+
                                 {/* Upload Categories */}
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                                    {['notes', 'assignments', 'lab-reports'].map((category) => (
+                                <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-8">
+                                    {['syllabus', 'assignments', 'practicals', 'lab-work','PYQs', 'notes'].map((category) => (
                                         <div
                                             key={category}
-                                            className={`p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 ${uploadSection === category
+                                            className={`p-2 border-2 rounded-xl cursor-pointer transition-all duration-300 ${uploadSection === category
                                                 ? 'border-learnflow-500 bg-learnflow-50 dark:bg-learnflow-900/20'
                                                 : 'border-gray-200 dark:border-gray-700 hover:border-learnflow-300 dark:hover:border-learnflow-700'
                                                 }`}
@@ -849,7 +904,7 @@ const OwnerProfilePage: React.FC = () => {
                                                 <option value="">All Subjects</option>
                                                 {subjects.map((subject) => (
                                                     <option key={subject.code} value={JSON.stringify(subject)}>
-                                                        {subject.code} - {subject.name}
+                                                        {subject.code}
                                                     </option>
                                                 ))}
                                             </select>

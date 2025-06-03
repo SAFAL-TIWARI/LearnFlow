@@ -19,6 +19,7 @@ export const branches: Branch[] = [
   { id: 'cse', name: 'CSE' },
   { id: 'blockchain', name: 'Blockchain' },
   { id: 'aiads', name: 'AIADS' },
+  { id: 'aiaml', name: 'AI & ML' },
   { id: 'it', name: 'IT' },
   { id: 'cse-iot', name: 'CSE (IoT)' },
   { id: 'ec', name: 'EC' },
@@ -285,10 +286,10 @@ export const subjectMaterials: Record<string, SubjectMaterials> = {
         downloadUrl: 'https://drive.google.com/uc?export=download&id=1a-Yfbd0CKrPvzxg3JioWEEUvnHokH2zn',
       },
       {
-       id:'mab_pyq2',
-       name: 'PYQ 2024 - May',
-       url: 'https://drive.google.com/file/d/1YyrzUHVsfCf5XMzxKrAIY6dbRca89jUy/preview',
-       downloadUrl: 'https://drive.google.com/uc?export=download&id=1YyrzUHVsfCf5XMzxKrAIY6dbRca89jUy',
+        id: 'mab_pyq2',
+        name: 'PYQ 2024 - May',
+        url: 'https://drive.google.com/file/d/1YyrzUHVsfCf5XMzxKrAIY6dbRca89jUy/preview',
+        downloadUrl: 'https://drive.google.com/uc?export=download&id=1YyrzUHVsfCf5XMzxKrAIY6dbRca89jUy',
       }
     ],
   },
@@ -328,6 +329,14 @@ export const branchSubjects: Record<
         { code: 'MAC 101', name: 'Professional Ethics' },
       ],
       'aiads': [
+        { code: 'MAB 101', name: 'Engineering Mathematics I' },
+        { code: 'CHB 101', name: 'Engineering Chemistry' },
+        { code: 'CSA 101', name: 'Computer Fundamentals' },
+        { code: 'HUB 101', name: 'Communication Skills' },
+        { code: 'CSA 102', name: 'Digital Electronics' },
+        { code: 'MAC 101', name: 'Professional Ethics' },
+      ],
+      'aiaml': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
         { code: 'CHB 101', name: 'Engineering Chemistry' },
         { code: 'CSA 101', name: 'Computer Fundamentals' },
@@ -420,6 +429,15 @@ export const branchSubjects: Record<
         { code: 'PYB 101', name: 'Applied Physics' },
         { code: 'MAC 102', name: 'Professional Ethics' },
       ],
+      'aiaml': [
+        { code: 'MAB 102', name: 'Engineering Mathematics II' },
+        { code: 'CSA 103', name: 'Data Structures And Algorithms' },
+        { code: 'ITC 101', name: 'Python Programming' },
+        { code: 'CSL 110', name: 'Linux' },
+        { code: 'CSA 104', name: 'System Softwares' },
+        { code: 'PYB 101', name: 'Applied Physics' },
+        { code: 'MAC 102', name: 'Professional Ethics' },
+      ],
       'it': [
         { code: 'MAB 102', name: 'Engineering Mathematics II' },
         { code: 'CSA 103', name: 'Data Structures And Algorithms' },
@@ -498,6 +516,13 @@ export const branchSubjects: Record<
         { code: 'CSB 204', name: 'Object-Oriented Programming' },
         { code: 'IOB 201', name: 'IoT Architecture' },
       ],
+      'blockchain': [
+        { code: 'MAB 101', name: 'Engineering Mathematics I' },
+        { code: 'CSA 102', name: 'Digital Electronics' },
+        { code: 'CSA 101', name: 'Computer Fundamentals' },
+        { code: 'HUB 101', name: 'Communication Skills' },
+        { code: 'PYB 101', name: 'Engineering Physics' },
+      ],
       'aiads': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
         { code: 'CHB 101', name: 'Engineering Chemistry' },
@@ -505,12 +530,12 @@ export const branchSubjects: Record<
         { code: 'HUB 101', name: 'Communication Skills' },
         { code: 'AIADS 101', name: 'Data Science' },
       ],
-      'blockchain': [
+      'aiaml': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
-        { code: 'CSA 102', name: 'Digital Electronics' },
+        { code: 'CHB 101', name: 'Engineering Chemistry' },
         { code: 'CSA 101', name: 'Computer Fundamentals' },
         { code: 'HUB 101', name: 'Communication Skills' },
-        { code: 'PYB 101', name: 'Engineering Physics' },
+        { code: 'AIADS 101', name: 'Data Science' },
       ],
       'it': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
@@ -542,6 +567,13 @@ export const branchSubjects: Record<
         { code: 'IOB 203', name: 'Embedded Systems' },
         { code: 'MAB 202', name: 'Probability & Statistics' },
       ],
+      'blockchain': [
+        { code: 'MAB 101', name: 'Engineering Mathematics I' },
+        { code: 'CSA 102', name: 'Digital Electronics' },
+        { code: 'CSA 101', name: 'Computer Fundamentals' },
+        { code: 'HUB 101', name: 'Communication Skills' },
+        { code: 'PYB 101', name: 'Engineering Physics' },
+      ],
       'aiads': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
         { code: 'CHB 101', name: 'Engineering Chemistry' },
@@ -549,12 +581,12 @@ export const branchSubjects: Record<
         { code: 'HUB 101', name: 'Communication Skills' },
         { code: 'AIADS 101', name: 'Data Science' },
       ],
-      'blockchain': [
+      'aiaml': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
-        { code: 'CSA 102', name: 'Digital Electronics' },
+        { code: 'CHB 101', name: 'Engineering Chemistry' },
         { code: 'CSA 101', name: 'Computer Fundamentals' },
         { code: 'HUB 101', name: 'Communication Skills' },
-        { code: 'PYB 101', name: 'Engineering Physics' },
+        { code: 'AIADS 101', name: 'Data Science' },
       ],
       'it': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
@@ -588,6 +620,13 @@ export const branchSubjects: Record<
         { code: 'IOC 302', name: 'Sensor Networks' },
         { code: 'IOC 303', name: 'Edge Computing' },
       ],
+      'blockchain': [
+        { code: 'MAB 101', name: 'Engineering Mathematics I' },
+        { code: 'CSA 102', name: 'Digital Electronics' },
+        { code: 'CSA 101', name: 'Computer Fundamentals' },
+        { code: 'HUB 101', name: 'Communication Skills' },
+        { code: 'PYB 101', name: 'Engineering Physics' },
+      ],
       'aiads': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
         { code: 'CHB 101', name: 'Engineering Chemistry' },
@@ -595,12 +634,12 @@ export const branchSubjects: Record<
         { code: 'HUB 101', name: 'Communication Skills' },
         { code: 'AIADS 101', name: 'Data Science' },
       ],
-      'blockchain': [
+      'aiaml': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
-        { code: 'CSA 102', name: 'Digital Electronics' },
+        { code: 'CHB 101', name: 'Engineering Chemistry' },
         { code: 'CSA 101', name: 'Computer Fundamentals' },
         { code: 'HUB 101', name: 'Communication Skills' },
-        { code: 'PYB 101', name: 'Engineering Physics' },
+        { code: 'AIADS 101', name: 'Data Science' },
       ],
       'it': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
@@ -625,6 +664,13 @@ export const branchSubjects: Record<
         { code: 'CSC 308', name: 'Big Data Analytics' },
         { code: 'IOC 306', name: 'IoT Project' },
       ],
+      'blockchain': [
+        { code: 'MAB 101', name: 'Engineering Mathematics I' },
+        { code: 'CSA 102', name: 'Digital Electronics' },
+        { code: 'CSA 101', name: 'Computer Fundamentals' },
+        { code: 'HUB 101', name: 'Communication Skills' },
+        { code: 'PYB 101', name: 'Engineering Physics' },
+      ],
       'aiads': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
         { code: 'CHB 101', name: 'Engineering Chemistry' },
@@ -632,12 +678,12 @@ export const branchSubjects: Record<
         { code: 'HUB 101', name: 'Communication Skills' },
         { code: 'AIADS 101', name: 'Data Science' },
       ],
-      'blockchain': [
+      'aiaml': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
-        { code: 'CSA 102', name: 'Digital Electronics' },
+        { code: 'CHB 101', name: 'Engineering Chemistry' },
         { code: 'CSA 101', name: 'Computer Fundamentals' },
         { code: 'HUB 101', name: 'Communication Skills' },
-        { code: 'PYB 101', name: 'Engineering Physics' },
+        { code: 'AIADS 101', name: 'Data Science' },
       ],
       'it': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
@@ -664,6 +710,13 @@ export const branchSubjects: Record<
         { code: 'CSC 404', name: 'AR/VR Technologies' },
         { code: 'CSC 405', name: 'Ethics in Computing' },
       ],
+      'blockchain': [
+        { code: 'MAB 101', name: 'Engineering Mathematics I' },
+        { code: 'CSA 102', name: 'Digital Electronics' },
+        { code: 'CSA 101', name: 'Computer Fundamentals' },
+        { code: 'HUB 101', name: 'Communication Skills' },
+        { code: 'PYB 101', name: 'Engineering Physics' },
+      ],
       'aiads': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
         { code: 'CHB 101', name: 'Engineering Chemistry' },
@@ -671,12 +724,12 @@ export const branchSubjects: Record<
         { code: 'HUB 101', name: 'Communication Skills' },
         { code: 'AIADS 101', name: 'Data Science' },
       ],
-      'blockchain': [
+      'aiaml': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
-        { code: 'CSA 102', name: 'Digital Electronics' },
+        { code: 'CHB 101', name: 'Engineering Chemistry' },
         { code: 'CSA 101', name: 'Computer Fundamentals' },
         { code: 'HUB 101', name: 'Communication Skills' },
-        { code: 'PYB 101', name: 'Engineering Physics' },
+        { code: 'AIADS 101', name: 'Data Science' },
       ],
       'it': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
@@ -701,6 +754,13 @@ export const branchSubjects: Record<
         { code: 'CSC 409', name: 'Entrepreneurship' },
         { code: 'IOC 403', name: 'IoT Capstone Project' },
       ],
+      'blockchain': [
+        { code: 'MAB 101', name: 'Engineering Mathematics I' },
+        { code: 'CSA 102', name: 'Digital Electronics' },
+        { code: 'CSA 101', name: 'Computer Fundamentals' },
+        { code: 'HUB 101', name: 'Communication Skills' },
+        { code: 'PYB 101', name: 'Engineering Physics' },
+      ],
       'aiads': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
         { code: 'CHB 101', name: 'Engineering Chemistry' },
@@ -708,12 +768,12 @@ export const branchSubjects: Record<
         { code: 'HUB 101', name: 'Communication Skills' },
         { code: 'AIADS 101', name: 'Data Science' },
       ],
-      'blockchain': [
+      'aiaml': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
-        { code: 'CSA 102', name: 'Digital Electronics' },
+        { code: 'CHB 101', name: 'Engineering Chemistry' },
         { code: 'CSA 101', name: 'Computer Fundamentals' },
         { code: 'HUB 101', name: 'Communication Skills' },
-        { code: 'PYB 101', name: 'Engineering Physics' },
+        { code: 'AIADS 101', name: 'Data Science' },
       ],
       'it': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
