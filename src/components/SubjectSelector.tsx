@@ -155,45 +155,45 @@ const SubjectSelector: React.FC = () => {
             </button>
             
             {/* Hover Popup with Files */}
-            {hoveredSubject === subject.code && (
-              <div className="absolute z-10 mt-2 w-64 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 p-3">
-                <h4 className="font-semibold text-gray-800 dark:text-white mb-2">{subject.name}</h4>
+            {/* {hoveredSubject === subject.code && ( */}
+              {/* <div className="absolute z-10 mt-2 w-64 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 p-3"> */}
+                {/* <h4 className="font-semibold text-gray-800 dark:text-white mb-2">{subject.name}</h4> */}
                 
-                {isLoadingFiles[subject.code] ? (
-                  <div className="flex items-center justify-center py-4">
-                    <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-learnflow-500"></div>
-                    <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">Loading files...</span>
-                  </div>
-                ) : (
-                  <>
-                    {subjectFiles[subject.code] && subjectFiles[subject.code].length > 0 ? (
-                      <div className="max-h-48 overflow-y-auto">
-                        <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Available files:</p>
-                        <ul className="space-y-1">
-                          {subjectFiles[subject.code].map((file) => (
-                            <li key={file.id} className="text-sm">
-                              <a 
-                                href={file.publicUrl} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="text-learnflow-600 dark:text-learnflow-400 hover:underline flex items-center"
-                              >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                                {file.name}
-                              </a>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ) : (
-                      <p className="text-sm text-gray-600 dark:text-gray-400">No files available for this subject.</p>
-                    )}
-                  </>
-                )}
-              </div>
-            )}
+                {/* {isLoadingFiles[subject.code] ? ( */}
+                  {/* <div className="flex items-center justify-center py-4"> */}
+                    {/* <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-learnflow-500"></div> */}
+                    {/* <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">Loading files...</span> */}
+                  {/* </div> */}
+                {/* ) : ( */}
+                  {/* <> */}
+                    {/* {subjectFiles[subject.code] && subjectFiles[subject.code].length > 0 ? ( */}
+                      {/* <div className="max-h-48 overflow-y-auto"> */}
+                        {/* <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Available files:</p> */}
+                        {/* <ul className="space-y-1"> */}
+                          {/* {subjectFiles[subject.code].map((file) => ( */}
+                            {/* <li key={file.id} className="text-sm"> */}
+                              {/* <a  */}
+                                {/* href={file.publicUrl}  */}
+                                {/* target="_blank"  */}
+                                {/* rel="noopener noreferrer" */}
+                                {/* className="text-learnflow-600 dark:text-learnflow-400 hover:underline flex items-center" */}
+                              {/* > */}
+                                {/* <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"> */}
+                                  {/* <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /> */}
+                                {/* </svg> */}
+                                {/* {file.name} */}
+                              {/* </a> */}
+                            {/* </li> */}
+                          {/* ))} */}
+                        {/* </ul> */}
+                      {/* </div> */}
+                    {/* ) : ( */}
+                      {/* <p className="text-sm text-gray-600 dark:text-gray-400">No files available for this subject.</p> */}
+                    {/* )} */}
+                  {/* </> */}
+                {/* )} */}
+              {/* </div> */}
+            {/* )} */}
           </div>
         ))}
       </div>
