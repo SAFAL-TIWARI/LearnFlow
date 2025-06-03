@@ -21,7 +21,8 @@ export const ProfilePageErrorFallback = () => {
           </div>
 
           <p className="text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
-            We encountered an issue loading your profile. This could be due to a network issue or a temporary server problem.
+            {/* We encountered an issue loading your profile. This could be due to a network issue or a temporary server problem. */}
+            Please create account first to view your profile. If you already have an account, try logging in again.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4">
@@ -36,7 +37,7 @@ export const ProfilePageErrorFallback = () => {
               Back to Home
             </button>
 
-            <button
+            {/* <button
               onClick={() => window.location.reload()}
               className="flex items-center justify-center px-4 py-3 bg-learnflow-500 text-white rounded-lg hover:bg-learnflow-600 transition-all duration-300 hover:shadow-md transform hover:scale-105"
             >
@@ -44,6 +45,15 @@ export const ProfilePageErrorFallback = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
               Refresh Page
+            </button> */}
+            <button
+              onClick={() => window.location.href = '/login'}
+              className="flex items-center justify-center px-4 py-3 bg-learnflow-500 text-white rounded-lg hover:bg-learnflow-600 transition-all duration-300 hover:shadow-md transform hover:scale-105"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 21h2a2 2 0 002-2V5a2 2 0 00-2-2h-2m-4 14l5-5m0 0l-5-5m5 5H3" />
+              </svg>
+              Login
             </button>
           </div>
         </div>
@@ -55,7 +65,7 @@ export const ProfilePageErrorFallback = () => {
 const ProfilePageWrapper: React.FC = () => {
   const [viewingUserId, setViewingUserId] = useState<string | null>(null);
   const [isCurrentUserProfile, setIsCurrentUserProfile] = useState(true);
-  
+
   // Try to use Supabase auth first, then NextAuth as fallback
   const { user: supabaseUser } = useAuth();
   const { data: nextAuthSession, status } = useSafeSession();
@@ -64,11 +74,11 @@ const ProfilePageWrapper: React.FC = () => {
     // Check if we're viewing another user's profile from URL
     const urlParams = new URLSearchParams(window.location.search);
     const queryUserId = urlParams.get('userId');
-    
+
     // Get userId from URL path if available (for /profile/:userId routes)
     const pathParts = window.location.pathname.split('/');
     const pathUserId = pathParts.length > 2 ? pathParts[2] : null;
-    
+
     // Use either the query parameter or path parameter
     const userId = queryUserId || pathUserId;
 
@@ -85,7 +95,7 @@ const ProfilePageWrapper: React.FC = () => {
     if (!isCurrentUserProfile && viewingUserId) {
       return <UserProfilePage userId={viewingUserId} />;
     }
-    
+
     // If viewing own profile
     return <OwnerProfilePage />;
   } catch (error) {
