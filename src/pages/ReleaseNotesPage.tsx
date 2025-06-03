@@ -4,8 +4,8 @@ import BackButton from '../components/BackButton';
 const ReleaseNotesPage: React.FC = () => {
   const releases = [
     {
-      version: '1.5.0',
-      date: 'June 25, 2025',
+      version: '1.0.5',
+      date: 'June 30, 2025',
       features: [
         'Added interactive monkey animation on login page with cursor tracking and password visibility reactions',
         'Enhanced CGPA calculator with year-based structure and multiple university formulas including SATI official formula',
@@ -14,8 +14,8 @@ const ReleaseNotesPage: React.FC = () => {
       ]
     },
     {
-      version: '1.4.0',
-      date: 'June 20, 2024',
+      version: '1.0.4',
+      date: 'June 25, 2024',
       features: [
         'Implemented click spark animation with customizable parameters (26px size, 45px radius, 11 sparks, 500ms duration)',
         'Added blue spark animation in light mode while maintaining current colors in dark mode',
@@ -25,8 +25,8 @@ const ReleaseNotesPage: React.FC = () => {
       ]
     },
     {
-      version: '1.3.0',
-      date: 'June 17, 2024',
+      version: '1.0.3',
+      date: 'June 20, 2024',
       features: [
         'Enhanced authentication system with automatic window closure after Google sign-in',
         'Implemented Supabase storage buckets alongside manual file management within free tier limitations',
@@ -36,7 +36,7 @@ const ReleaseNotesPage: React.FC = () => {
       ]
     },
     {
-      version: '1.2.0',
+      version: '1.0.2',
       date: 'June 15, 2025',
       features: [
         'Added user profiles with customizable information',
@@ -47,8 +47,8 @@ const ReleaseNotesPage: React.FC = () => {
       ]
     },
     {
-      version: '1.1.0',
-      date: 'May 1, 2025',
+      version: '1.0.1',
+      date: 'May 10, 2025',
       features: [
         'Added academic resources section',
         'Improved mobile responsiveness',
@@ -58,10 +58,10 @@ const ReleaseNotesPage: React.FC = () => {
     },
     {
       version: '1.0.0',
-      date: 'April 10, 2025',
+      date: 'May 09, 2025',
       features: [
         'Initial release of LearnFlow',
-        'Basic authentication with Google',
+        'Basic authentication with Email',
         'Student tools section',
         'Course information'
       ]
