@@ -281,15 +281,15 @@ export const subjectMaterials: Record<string, SubjectMaterials> = {
     pyq: [
       {
         id: 'mab_pyq1',
-        name: 'PYQ 2024 - June',
+        name: 'PYQ 2023 - June',
         url: 'https://drive.google.com/file/d/1a-Yfbd0CKrPvzxg3JioWEEUvnHokH2zn/preview',
         downloadUrl: 'https://drive.google.com/uc?export=download&id=1a-Yfbd0CKrPvzxg3JioWEEUvnHokH2zn',
       },
       {
         id: 'mab_pyq2',
         name: 'PYQ 2024 - May',
-        url: 'https://drive.google.com/file/d/1YyrzUHVsfCf5XMzxKrAIY6dbRca89jUy/preview',
-        downloadUrl: 'https://drive.google.com/uc?export=download&id=1YyrzUHVsfCf5XMzxKrAIY6dbRca89jUy',
+        url: 'https://drive.google.com/file/d/1V8wiXQYp4wqeAwZ2jIWoMeIx5F1RI6lO/preview',
+        downloadUrl: 'https://drive.google.com/uc?export=download&id=1V8wiXQYp4wqeAwZ2jIWoMeIx5F1RI6lO',
       }
     ],
   },
