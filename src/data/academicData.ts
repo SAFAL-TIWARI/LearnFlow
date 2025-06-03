@@ -107,11 +107,11 @@ export const subjectsByYearAndSemester: Record<
 };
 
 export const materialTypes = [
-  { id: 'syllabus', name: 'Syllabus', icon: 'Syllabus' },
-  { id: 'assignments', name: 'Assignments', icon: 'assignment' },
-  { id: 'practicals', name: 'Practicals', icon: 'lab' },
-  { id: 'labwork', name: 'Lab Work', icon: 'computer' },
-  { id: 'pyq', name: 'PYQ', icon: 'pyq' },
+  { id: 'syllabus', name: 'Syllabus' },
+  { id: 'assignments', name: 'Assignments' },
+  { id: 'practicals', name: 'Practicals' },
+  { id: 'labwork', name: 'Lab Work' },
+  { id: 'pyq', name: 'PYQ' },
 ];
 
 // Subject-specific learning materials
@@ -128,21 +128,9 @@ export const subjectMaterials: Record<string, SubjectMaterials> = {
   // Data Structures And Algorithms And algorithm
   'CSA 103': {
     assignments: [
-      {
-        id: 'ds_assignment1',
-        name: 'Assignment 1 - Array Implementation',
-        url: 'https://drive.google.com/file/d/1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4/preview',
-        downloadUrl: 'https://drive.google.com/uc?export=download&id=1VeDVrKDbXBtDoVY8QXdiylt1FxEevid7lOg05NnMgw4',
-      },
 
     ],
     practicals: [
-      {
-        id: 'ds_practical1',
-        name: 'Lab 1 - Stack and Queue Implementation',
-        url: 'https://drive.google.com/file/d/1PRACTICAL_UNIQUE_ID_PLACEHOLDER/preview',
-        downloadUrl: 'https://drive.google.com/uc?export=download&id=1PRACTICAL_UNIQUE_ID_PLACEHOLDER',
-      },
 
     ],
     labwork: [
@@ -160,22 +148,149 @@ export const subjectMaterials: Record<string, SubjectMaterials> = {
       },
     ],
     Syllabus: [
-      {
-        id: 'ds_syllabus',
-        name: 'Syllabus - Data Structures And Algorithms ',
-        url: 'https://drive.google.com/file/d/1SmdONnxM4Q7NXgknn180zfk868jdELzu/preview',
-        downloadUrl: 'https://drive.google.com/uc?export=download&id=1SmdONnxM4Q7NXgknn180zfk868jdELzu',
-      }
+
+    ],
+    pyq: [
+
+    ],
+  },
+
+  // Python Programming
+  'ITC 101': {
+    assignments: [
+
+    ],
+    practicals: [
+
+    ],
+    labwork: [
+
+    ],
+    Syllabus: [
+
     ],
     pyq: [
       {
-        id: 'ds_pyq1',
-        name: 'PYQ 2024',
-        url: 'https://drive.google.com/file/d/1PYQ_UNIQUE_ID_PLACEHOLDER/preview',
-        downloadUrl: 'https://drive.google.com/uc?export=download&id=1PYQ_UNIQUE_ID_PLACEHOLDER',
+        id: 'py_pyq1',
+        name: 'PYQ 2024 - May',
+        url: 'https://drive.google.com/file/d/1bcm2BMpjueuoGcjLxFRRGIWfeagSP4ZB/preview',
+        downloadUrl: 'https://drive.google.com/file/d/1bcm2BMpjueuoGcjLxFRRGIWfeagSP4ZB/view?export=download',
+      },
+      {
+        id: 'py_pyq2',
+        name: 'PYQ 2023 - June',
+        url: 'https://drive.google.com/file/d/1av_i5-6QPsax-5YFgxZ3dDl0l1PVXPoE/preview',
+        downloadUrl: 'https://drive.google.com/uc?export=download&id=1av_i5-6QPsax-5YFgxZ3dDl0l1PVXPoE',
+      },
+      {
+        id: 'py_pyq3',
+        name: 'PYQ 2023 - May',
+        url: 'https://drive.google.com/file/d/1ETkSInNudTvWO4Zc4f6_5yp1H11WYEEz/preview',
+        downloadUrl: 'https://drive.google.com/file/d/1ETkSInNudTvWO4Zc4f6_5yp1H11WYEEz/view?export=download',
       },
     ],
 
+  },
+
+  // Communication And Report Writing
+  'HUB 101': {
+    assignments: [
+
+    ],
+    practicals: [
+
+    ],
+    labwork: [
+
+    ],
+    Syllabus: [
+
+    ],
+    pyq: [
+      {
+        id: 'hub_pyq1',
+        name: 'PYQ 2022 - June',
+        url: 'https://drive.google.com/file/d/1Snw3eVcKHPh3SZ0h7k_RDFBQwvsLZ5_C/preview',
+        downloadUrl: 'https://drive.google.com/uc?export=download&id=1Snw3eVcKHPh3SZ0h7k_RDFBQwvsLZ5_C',
+      },
+      {
+        id: 'hub_pyq2',
+        name: 'PYQ 2022 - Nov',
+        url: 'https://drive.google.com/file/d/1cJQJLu0-xA4jN004-t0c-ThsprfRJdZX/preview',
+        downloadUrl: 'https://drive.google.com/uc?export=download&id=1cJQJLu0-xA4jN004-t0c-ThsprfRJdZX',
+      },
+      {
+        id: 'hub_pyq3',
+        name: 'PYQ 2022 - Dec',
+        url: 'https://drive.google.com/file/d/1TN_sCjjdkIceuqBarIKonvX6_okdkSQ0/preview',
+        downloadUrl: 'https://drive.google.com/uc?export=download&id=1TN_sCjjdkIceuqBarIKonvX6_okdkSQ0',
+      },
+      {
+        id: 'hub_pyq4',
+        name: 'PYQ 2024 - May',
+        url: 'https://drive.google.com/file/d/1ZVMTWqnGq7wr6zEZceoYAnXgOkM4-Ry8/preview',
+        downloadUrl: 'https://drive.google.com/uc?export=download&id=1ZVMTWqnGq7wr6zEZceoYAnXgOkM4-Ry8',
+      },
+      {
+        id: 'hub_pyq5',
+        name: 'PYQ 2024 - Dec',
+        url: 'https://drive.google.com/file/d/1vNJ_Uj2_fswhRnv4ZjBCXgx2kJKkYwuH/preview',
+        downloadUrl: 'https://drive.google.com/uc?export=download&id=1vNJ_Uj2_fswhRnv4ZjBCXgx2kJKkYwuH',
+      },
+    ],
+  },
+  // Applied Chemistry
+  'CHB 101': {
+    assignments: [
+
+    ],
+    practicals: [
+
+    ],
+    labwork: [
+
+    ],
+    Syllabus: [
+
+    ],
+    pyq: [
+      {
+        id: 'chb_pyq1',
+        name: 'PYQ 2024 - Dec',
+        url: 'https://drive.google.com/file/d/1ASzyYwCfk5XUUccu183Qta_D_N-hz0-f/preview',
+        downloadUrl: 'https://drive.google.com/uc?export=download&id=1ASzyYwCfk5XUUccu183Qta_D_N-hz0-f',
+      },
+    ],
+  },
+  // Mathematics II
+  'MAB 102': {
+
+    assignments: [
+
+    ],
+    practicals: [
+
+    ],
+    labwork: [
+
+    ],
+    Syllabus: [
+
+    ],
+    pyq: [
+      {
+        id: 'mab_pyq1',
+        name: 'PYQ 2024 - June',
+        url: 'https://drive.google.com/file/d/1a-Yfbd0CKrPvzxg3JioWEEUvnHokH2zn/preview',
+        downloadUrl: 'https://drive.google.com/uc?export=download&id=1a-Yfbd0CKrPvzxg3JioWEEUvnHokH2zn',
+      },
+      {
+       id:'mab_pyq2',
+       name: 'PYQ 2024 - May',
+       url: 'https://drive.google.com/file/d/1YyrzUHVsfCf5XMzxKrAIY6dbRca89jUy/preview',
+       downloadUrl: 'https://drive.google.com/uc?export=download&id=1YyrzUHVsfCf5XMzxKrAIY6dbRca89jUy',
+      }
+    ],
   },
 
   // Other subjects...

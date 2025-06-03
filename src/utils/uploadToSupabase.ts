@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabaseClient'
+import { supabase } from '../lib/supabase'
 
 export const uploadFile = async (file: File, path: string, bucketName: string = 'resources') => {
   // If path starts with a user ID and we're uploading to user files, use the user-files bucket

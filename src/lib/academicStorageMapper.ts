@@ -1,7 +1,7 @@
 import { supabase } from './supabaseClient';
 import { FileResource, SubjectMaterials } from '../data/academicData';
 import {
-  STORAGE_BUCKET,
+  STORAGE_BUCKETS,
   STORAGE_FOLDERS,
   MATERIAL_TYPES,
   getPublicUrl
@@ -40,7 +40,7 @@ export const fetchSubjectMaterialFiles = async (
     const folderPath = `${STORAGE_FOLDERS.ACADEMIC}/${subjectCode}/${materialType}`;
 
     const { data, error } = await supabase.storage
-      .from(STORAGE_BUCKET)
+      .from(STORAGE_BUCKETS.RESOURCES)
       .list(folderPath);
 
     if (error || !data) {

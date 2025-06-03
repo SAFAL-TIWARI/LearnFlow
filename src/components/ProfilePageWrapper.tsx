@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import ProfilePage from '../pages/ProfilePage';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import OwnerProfilePage from '../pages/OwnerProfilePage';
+import UserProfilePage from '../pages/UserProfilePage';
 import BasicProfilePage from '../pages/BasicProfilePage';
 
-const ProfilePageWrapper: React.FC = () => {
+const ProfilePageWrapperComponent: React.FC = () => {
   const [hasError, setHasError] = useState(false);
   const [key, setKey] = useState(0); // Used to force re-render
-
+  const location = useLocation();
+  const params = useParams();
+  const userId = params.userId;
+  
   // Reset error state if we navigate away and back
   useEffect(() => {
     return () => {
@@ -19,10 +24,22 @@ const ProfilePageWrapper: React.FC = () => {
     return <BasicProfilePage />;
   }
 
+  // If userId is provided in the URL, show the user profile page
+  if (userId) {
+    return (
+      <React.Fragment key={key}>
+        <ErrorBoundary onError={() => setHasError(true)}>
+          <UserProfilePage userId={userId} />
+        </ErrorBoundary>
+      </React.Fragment>
+    );
+  }
+
+  // Otherwise show the owner's profile page
   return (
     <React.Fragment key={key}>
       <ErrorBoundary onError={() => setHasError(true)}>
-        <ProfilePage />
+        <OwnerProfilePage />
       </ErrorBoundary>
     </React.Fragment>
   );
@@ -56,4 +73,4 @@ class ErrorBoundary extends React.Component<
   }
 }
 
-export default ProfilePageWrapper;
+export default ProfilePageWrapperComponent;

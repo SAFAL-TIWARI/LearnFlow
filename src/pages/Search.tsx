@@ -181,7 +181,7 @@ const Search: React.FC = () => {
                   searchResults.map((profile) => (
                     <Link 
                       key={profile.id}
-                      to={`/profile?userId=${profile.id}`}
+                      to={`/profile/${profile.id}`}
                       className="block bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-105"
                     >
                       <div className="p-6 flex flex-col items-center">

@@ -47,7 +47,7 @@ import { AcademicProvider } from './context/AcademicContext';
 import { ThemeProvider } from "./hooks/useTheme";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react"
-import ProfilePageWrapper from './components/ProfilePageWrapper';
+import ProfilePageWrapperComponent from './components/ProfilePageWrapper';
 import AuthTestButton from './components/AuthTestButton';
 // import './App.css';
 
@@ -164,8 +164,9 @@ const App = () => {
                       <Route path="/auth/callback" element={<AuthCallback />} />
                       <Route path="/auth/reset-password" element={<ResetPassword />} />
 
-                      {/* Profile Page */}
-                      <Route path="/profile" element={<ProfilePageWrapper />} />
+                      {/* Profile Pages */}
+                      <Route path="/profile" element={<ProfilePageWrapperComponent />} />
+                      <Route path="/profile/:userId" element={<ProfilePageWrapperComponent />} />
 
                       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                       <Route path="*" element={<NotFound />} />

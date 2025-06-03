@@ -1,9 +1,12 @@
 import { supabase } from './supabaseClient';
 
 /**
- * Supabase storage bucket name (single bucket for free plan)
+ * Supabase storage bucket names
  */
-export const STORAGE_BUCKET = 'resources';
+export const STORAGE_BUCKETS = {
+  RESOURCES: 'resources',
+  USER_FILES: 'user-files'
+};
 
 /**
  * Folder paths within the storage bucket
@@ -28,11 +31,11 @@ export const MATERIAL_TYPES = [
 
 
 /**
- * Creates the storage bucket if it doesn't exist
+ * Creates the storage buckets if they don't exist
  */
-export const createStorageBucket = async () => {
+export const createStorageBuckets = async () => {
   try {
-    // Check if bucket exists
+    // Check if buckets exist
     const { data: buckets, error: listError } = await supabase.storage.listBuckets();
 
     if (listError) {
@@ -40,28 +43,57 @@ export const createStorageBucket = async () => {
       return { error: listError };
     }
 
-    const bucketExists = buckets?.some(bucket => bucket.name === STORAGE_BUCKET);
+    const results = [];
 
-    if (bucketExists) {
-      console.log(`Bucket '${STORAGE_BUCKET}' already exists.`);
-      return { data: { bucketName: STORAGE_BUCKET, exists: true }, error: null };
+    // Create resources bucket if it doesn't exist
+    const resourcesBucketExists = buckets?.some(bucket => bucket.name === STORAGE_BUCKETS.RESOURCES);
+    if (!resourcesBucketExists) {
+      const { data, error } = await supabase.storage.createBucket(STORAGE_BUCKETS.RESOURCES, {
+        public: true,
+        fileSizeLimit: 10 * 1024 * 1024 // 10MB limit to conserve space
+      });
+
+      if (error) {
+        console.error(`Error creating bucket '${STORAGE_BUCKETS.RESOURCES}':`, error);
+        results.push({ bucketName: STORAGE_BUCKETS.RESOURCES, success: false, error });
+      } else {
+        console.log(`Created bucket: '${STORAGE_BUCKETS.RESOURCES}'`);
+        results.push({ bucketName: STORAGE_BUCKETS.RESOURCES, success: true, exists: false });
+      }
+    } else {
+      console.log(`Bucket '${STORAGE_BUCKETS.RESOURCES}' already exists.`);
+      results.push({ bucketName: STORAGE_BUCKETS.RESOURCES, success: true, exists: true });
     }
 
-    // Create bucket
-    const { data, error } = await supabase.storage.createBucket(STORAGE_BUCKET, {
-      public: true,
-      fileSizeLimit: 10 * 1024 * 1024 // 10MB limit to conserve space
-    });
+    // Create user-files bucket if it doesn't exist
+    const userFilesBucketExists = buckets?.some(bucket => bucket.name === STORAGE_BUCKETS.USER_FILES);
+    if (!userFilesBucketExists) {
+      const { data, error } = await supabase.storage.createBucket(STORAGE_BUCKETS.USER_FILES, {
+        public: true,
+        fileSizeLimit: 50 * 1024 * 1024 // 50MB limit for user files
+      });
 
-    if (error) {
-      console.error(`Error creating bucket '${STORAGE_BUCKET}':`, error);
-      return { error };
+      if (error) {
+        console.error(`Error creating bucket '${STORAGE_BUCKETS.USER_FILES}':`, error);
+        results.push({ bucketName: STORAGE_BUCKETS.USER_FILES, success: false, error });
+      } else {
+        console.log(`Created bucket: '${STORAGE_BUCKETS.USER_FILES}'`);
+        results.push({ bucketName: STORAGE_BUCKETS.USER_FILES, success: true, exists: false });
+      }
+    } else {
+      console.log(`Bucket '${STORAGE_BUCKETS.USER_FILES}' already exists.`);
+      results.push({ bucketName: STORAGE_BUCKETS.USER_FILES, success: true, exists: true });
     }
 
-    console.log(`Created bucket: '${STORAGE_BUCKET}'`);
-    return { data: { bucketName: STORAGE_BUCKET, exists: false }, error: null };
+    // Check if any bucket creation failed
+    const anyFailed = results.some(result => !result.success);
+    
+    return { 
+      data: results, 
+      error: anyFailed ? new Error('One or more buckets failed to create') : null 
+    };
   } catch (error) {
-    console.error('Error creating storage bucket:', error);
+    console.error('Error creating storage buckets:', error);
     return { error };
   }
 };
@@ -71,22 +103,22 @@ export const createStorageBucket = async () => {
 /**
  * Gets the public URL for a file in the Supabase storage bucket
  */
-export const getPublicUrl = (filePath: string) => {
-  const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(filePath);
+export const getPublicUrl = (filePath: string, bucketName: string = STORAGE_BUCKETS.RESOURCES) => {
+  const { data } = supabase.storage.from(bucketName).getPublicUrl(filePath);
   return data.publicUrl;
 };
 
 /**
  * Lists files in a folder in the Supabase storage bucket
  */
-export const listFiles = async (folderPath: string) => {
+export const listFiles = async (folderPath: string, bucketName: string = STORAGE_BUCKETS.RESOURCES) => {
   try {
     const { data, error } = await supabase.storage
-      .from(STORAGE_BUCKET)
+      .from(bucketName)
       .list(folderPath);
 
     if (error) {
-      console.error(`Error listing files in ${STORAGE_BUCKET}/${folderPath}:`, error);
+      console.error(`Error listing files in ${bucketName}/${folderPath}:`, error);
       return { data: null, error };
     }
 
@@ -100,14 +132,14 @@ export const listFiles = async (folderPath: string) => {
 /**
  * Downloads a file from the Supabase storage bucket
  */
-export const downloadFile = async (filePath: string) => {
+export const downloadFile = async (filePath: string, bucketName: string = STORAGE_BUCKETS.RESOURCES) => {
   try {
     const { data, error } = await supabase.storage
-      .from(STORAGE_BUCKET)
+      .from(bucketName)
       .download(filePath);
 
     if (error) {
-      console.error(`Error downloading file from ${STORAGE_BUCKET}/${filePath}:`, error);
+      console.error(`Error downloading file from ${bucketName}/${filePath}:`, error);
       return { data: null, error };
     }
 
@@ -121,14 +153,14 @@ export const downloadFile = async (filePath: string) => {
 /**
  * Deletes a file from the Supabase storage bucket
  */
-export const deleteFile = async (filePath: string) => {
+export const deleteFile = async (filePath: string, bucketName: string = STORAGE_BUCKETS.RESOURCES) => {
   try {
     const { data, error } = await supabase.storage
-      .from(STORAGE_BUCKET)
+      .from(bucketName)
       .remove([filePath]);
 
     if (error) {
-      console.error(`Error deleting file from ${STORAGE_BUCKET}/${filePath}:`, error);
+      console.error(`Error deleting file from ${bucketName}/${filePath}:`, error);
       return { error };
     }
 
