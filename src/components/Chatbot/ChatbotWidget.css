@@ -9,6 +9,107 @@
   user-select: none; /* Prevent text selection outside the chatbox */
 }
 
+/* Notification Bubble */
+.chat-notification {
+  position: absolute;
+  top: -65px;
+  right: 5px;
+  background-color: #0050fc;
+  color: white;
+  padding: 10px 10px;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  font-weight: 600;
+  font-size: 16px;
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+  animation: 
+    slideIn 0.8s ease-out forwards, 
+    bounce 1s 0.8s ease-in-out, 
+    pulseGlow 2s 1.5s infinite,
+    slideOutIn 10s 5s ease-in-out infinite;
+  z-index: 9998;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+  will-change: opacity, transform;
+}
+
+/* Slide down animation class */
+.chat-notification.slide-down {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
+  animation: none; /* Stop other animations when sliding down */
+}
+
+/* Slide in animation - smoother with easing */
+@keyframes slideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  70% {
+    opacity: 0.9;
+    transform: translateY(-3px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Continuous slide out and in animation */
+@keyframes slideOutIn {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  45% {
+    transform: translateY(-8px);
+  }
+  55% {
+    transform: translateY(-8px);
+  }
+}
+
+/* Bounce effect animation - smoother with better timing */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-12px);
+  }
+  60% {
+    transform: translateY(-10px);
+  }
+  80% {
+    transform: translateY(-5px);
+  }
+}
+
+/* Pulse/glow effect animation - enhanced with multiple layers */
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 0 0 5px rgba(0, 80, 252, 0.5);
+    filter: brightness(1);
+  }
+  25% {
+    box-shadow: 0 0 10px rgba(0, 80, 252, 0.6), 0 0 15px rgba(0, 80, 252, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(0, 80, 252, 0.8), 0 0 25px rgba(0, 80, 252, 0.6), 0 0 35px rgba(0, 80, 252, 0.3);
+    filter: brightness(1.1);
+  }
+  75% {
+    box-shadow: 0 0 10px rgba(0, 80, 252, 0.6), 0 0 15px rgba(0, 80, 252, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(0, 80, 252, 0.5);
+    filter: brightness(1);
+  }
+}
+
 /* Toggle Button */
 .chat-toggle-btn {
   min-width: 60px;
@@ -449,6 +550,40 @@
   border-color: #6b7280;
 }
 
+.dark-theme .chat-notification {
+  background-color: #2563eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+@keyframes pulseGlowDark {
+  0% {
+    box-shadow: 0 0 5px rgba(37, 99, 235, 0.5);
+    filter: brightness(1);
+  }
+  25% {
+    box-shadow: 0 0 10px rgba(37, 99, 235, 0.6), 0 0 15px rgba(37, 99, 235, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(37, 99, 235, 0.8), 0 0 25px rgba(37, 99, 235, 0.6), 0 0 35px rgba(37, 99, 235, 0.3);
+    filter: brightness(1.15);
+  }
+  75% {
+    box-shadow: 0 0 10px rgba(37, 99, 235, 0.6), 0 0 15px rgba(37, 99, 235, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(37, 99, 235, 0.5);
+    filter: brightness(1);
+  }
+}
+
+.dark-theme .chat-notification {
+  animation: 
+    slideIn 0.8s ease-out forwards, 
+    bounce 1s 0.8s ease-in-out, 
+    pulseGlowDark 2s 1.5s infinite,
+    slideOutIn 10s 5s ease-in-out infinite;
+}
+
 /* Responsive Design */
 @media (max-width: 480px) {
   .chat-window {
@@ -473,6 +608,13 @@
   
   .chat-toggle-btn .chat-label {
     font-size: 14px;
+  }
+  
+  .chat-notification {
+    top: -50px;
+    right: 0;
+    padding: 8px 14px;
+    font-size: 13px;
   }
 }
 

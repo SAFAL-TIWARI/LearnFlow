@@ -44,8 +44,11 @@ const ChatbotWidget: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
+  const [isNotificationLeaving, setIsNotificationLeaving] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const notificationTimerRef = useRef<NodeJS.Timeout | null>(null);
   const { theme } = useTheme();
 
   const [serverAvailable, setServerAvailable] = useState<boolean | null>(null);
@@ -124,12 +127,69 @@ const ChatbotWidget: React.FC = () => {
     }
   }, [isOpen]);
 
-  // Clean up body style when component unmounts
+  // Clean up body style and timers when component unmounts
   useEffect(() => {
     return () => {
       document.body.style.overflow = '';
+      // Clear any timers to prevent memory leaks
+      if (notificationTimerRef.current) {
+        clearTimeout(notificationTimerRef.current);
+      }
     };
   }, []);
+  
+  // Notification timer effect
+  useEffect(() => {
+    let notificationInterval: NodeJS.Timeout | null = null;
+    let hideTimeout: NodeJS.Timeout | null = null;
+    
+    const showAndHideNotification = () => {
+      // Only show notification if chat is closed
+      if (!isOpen) {
+        // Reset leaving state and show notification
+        setIsNotificationLeaving(false);
+        setShowNotification(true);
+        
+        // Hide notification after 5 seconds (full display time)
+        if (hideTimeout) clearTimeout(hideTimeout);
+        hideTimeout = setTimeout(() => {
+          // Start slide down animation
+          setIsNotificationLeaving(true);
+          
+          // Actually hide the notification after animation completes
+          setTimeout(() => {
+            setShowNotification(false);
+            setIsNotificationLeaving(false);
+          }, 800); // Match the slide down animation duration
+        }, 5000);
+      }
+    };
+    
+    // Start interval when chat is closed
+    if (!isOpen) {
+      // Show notification immediately on close
+      showAndHideNotification();
+      
+      // Set interval to show notification every 20 seconds
+      // (5 seconds display + 15 seconds pause between notifications)
+      notificationInterval = setInterval(showAndHideNotification, 20000);
+    } else {
+      // If chat is open, hide notification with slide down animation
+      if (showNotification) {
+        setIsNotificationLeaving(true);
+        setTimeout(() => {
+          setShowNotification(false);
+          setIsNotificationLeaving(false);
+        }, 800);
+      }
+    }
+    
+    // Cleanup function
+    return () => {
+      if (notificationInterval) clearInterval(notificationInterval);
+      if (hideTimeout) clearTimeout(hideTimeout);
+    };
+  }, [isOpen]);
 
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
@@ -472,6 +532,13 @@ Always provide helpful, accurate, and educational responses.`
 
   return (
     <div className={`chatbot-container ${theme === 'dark' ? 'dark-theme' : 'light-theme'}`}>
+      {/* Notification bubble */}
+      {showNotification && !isOpen && (
+        <div className={`chat-notification ${isNotificationLeaving ? 'slide-down' : ''}`}>
+          Need Help
+        </div>
+      )}
+      
       {/* Chat toggle button */}
       <button
         className="chat-toggle-btn"
