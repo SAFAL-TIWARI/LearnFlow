@@ -2,10 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase, supabaseUrl } from '../lib/supabase';
 import { branchSubjects, Subject } from '../data/academicData';
 import BackButton from '../components/BackButton';
-import SubjectFilesDisplay from '../components/SubjectFilesDisplay';
-import FileViewerModal from '../components/FileViewerModal';
 import '../styles/animations.css';
-import { ProfilePageErrorFallback } from './ProfilePageWrapper';
 
 interface UserProfilePageProps {
   userId: string;
@@ -45,8 +42,6 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ userId }) => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [dropdownTimeouts, setDropdownTimeouts] = useState<Record<string, NodeJS.Timeout>>({});
   const [isMobile, setIsMobile] = useState(false);
-  const [isFileViewerOpen, setIsFileViewerOpen] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<FileUpload | null>(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -370,20 +365,6 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ userId }) => {
     });
   };
   
-  // Handle file selection for viewing
-  const handleFileSelect = (file: FileUpload) => {
-    setSelectedFile(file);
-    setIsFileViewerOpen(true);
-  };
-  
-  // Close the file viewer modal
-  const handleCloseFileViewer = () => {
-    setIsFileViewerOpen(false);
-    // We keep the selected file in state for a moment to avoid UI flicker during the closing animation
-    setTimeout(() => {
-      setSelectedFile(null);
-    }, 300);
-  };
 
   // Effect to log when selected subject changes
   useEffect(() => {
@@ -610,15 +591,7 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ userId }) => {
           </div>
         </div>
 
-        {/* Subject Files Section */}
-        {userData?.year && userData?.semester && userData?.branch && (
-          <SubjectFilesDisplay
-            year={userData.year}
-            semester={userData.semester}
-            branch={userData.branch}
-          />
-        )}
-
+       
         {/* User Uploads Section */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden mb-8 transition-all duration-300 hover:shadow-xl">
           <div className="p-6">
