@@ -255,79 +255,145 @@ const OwnerProfilePage: React.FC = () => {
                 .eq('user_id', userId);
 
             if (error) {
-                console.error('Error fetching user files:', error);
-                return;
+                console.error('Error fetching user files from database:', error);
+                
+                // If the table doesn't exist, we'll try to get files from storage directly
+                if (error.code === '42P01') {
+                    console.log('user_files table does not exist, trying to fetch from storage directly');
+                } else {
+                    // For other errors, we'll also try storage as a fallback
+                    console.log('Falling back to storage API to fetch files');
+                }
+            } else {
+                console.log('User files from database:', data);
+
+                if (data && data.length > 0) {
+                    // Process the files to add public URLs
+                    const processedFiles = data.map((file: any) => {
+                        // Create a public URL for the file
+                        let publicUrl = '';
+
+                        if (file.file_path) {
+                            // If we have a file_path, use it to construct the URL
+                            const bucketName = 'user-files';
+                            publicUrl = `${supabaseUrl}/storage/v1/object/public/${bucketName}/${file.file_path}`;
+                        } else {
+                            // Otherwise, construct from bucket and filename
+                            const bucketName = 'user-files';
+                            const filePath = `${userId}/${file.name}`;
+                            publicUrl = `${supabaseUrl}/storage/v1/object/public/${bucketName}/${filePath}`;
+                        }
+
+                        return {
+                            ...file,
+                            publicUrl
+                        };
+                    });
+
+                    setUserFiles(processedFiles);
+                    return; // Exit early if we found files in the database
+                }
             }
 
-            console.log('User files:', data);
+            // If we reach here, either there was an error or no files were found in the database
+            // Try to get files from storage directly
+            try {
+                console.log('Fetching files from storage directly...');
+                const bucketName = 'user-files';
+                
+                // First check if the bucket exists
+                const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
+                
+                if (bucketsError) {
+                    console.error('Error checking buckets:', bucketsError);
+                    setUserFiles([]);
+                    return;
+                }
+                
+                const bucketExists = buckets?.some(bucket => bucket.name === bucketName);
+                console.log(`Bucket '${bucketName}' exists:`, bucketExists);
+                
+                if (!bucketExists) {
+                    console.log('No bucket found, no files to display');
+                    setUserFiles([]);
+                    return;
+                }
+                
+                // Try to list files in the user's folder
+                const { data: storageData, error: storageError } = await supabase.storage
+                    .from(bucketName)
+                    .list(userId);
 
-            if (data && data.length > 0) {
-                // Process the files to add public URLs
-                const processedFiles = data.map((file: any) => {
-                    // Create a public URL for the file
-                    let publicUrl = '';
-
-                    if (file.file_path) {
-                        // If we have a file_path, use it to construct the URL
-                        const bucketName = 'user-files';
-                        publicUrl = `${supabaseUrl}/storage/v1/object/public/${bucketName}/${file.file_path}`;
-                    } else {
-                        // Otherwise, construct from bucket and filename
-                        const bucketName = 'user-files';
-                        const filePath = `${userId}/${file.name}`;
-                        publicUrl = `${supabaseUrl}/storage/v1/object/public/${bucketName}/${filePath}`;
-                    }
-
-                    return {
-                        ...file,
-                        publicUrl
-                    };
-                });
-
-                setUserFiles(processedFiles);
-            } else {
-                // If no files found in user_files table, try to get from storage directly
-                try {
-                    const bucketName = 'user-files';
-                    const { data: storageData, error: storageError } = await supabase.storage
-                        .from(bucketName)
-                        .list(userId);
-
-                    if (storageError) {
-                        console.error('Error listing files from storage:', storageError);
-                        return;
-                    }
-
-                    if (storageData && storageData.length > 0) {
-                        console.log('Files found in storage:', storageData);
-
-                        // Convert storage files to our FileUpload format
-                        const storageFiles = storageData.map((file: any) => {
-                            const publicUrl = `${supabaseUrl}/storage/v1/object/public/${bucketName}/${userId}/${file.name}`;
-
-                            return {
-                                id: file.id || Math.random().toString(36).substring(2),
-                                name: file.name,
-                                url: publicUrl,
-                                publicUrl: publicUrl,
-                                type: file.metadata?.mimetype || 'application/octet-stream',
-                                created_at: file.created_at || new Date().toISOString(),
-                                category: 'notes', // Default category
-                                file_path: `${bucketName}/${userId}/${file.name}`
-                            };
-                        });
-
-                        setUserFiles(storageFiles);
-                    } else {
-                        console.log('No files found for user');
+                if (storageError) {
+                    console.error('Error listing files from storage:', storageError);
+                    
+                    // If the folder doesn't exist, it's not necessarily an error
+                    if (storageError.message.includes('not found')) {
+                        console.log(`Folder '${userId}' not found in bucket '${bucketName}'`);
                         setUserFiles([]);
                     }
-                } catch (storageError) {
-                    console.error('Error accessing storage:', storageError);
+                    return;
                 }
+
+                if (storageData && storageData.length > 0) {
+                    console.log('Files found in storage:', storageData);
+
+                    // Convert storage files to our FileUpload format
+                    const storageFiles = storageData.map((file: any) => {
+                        const publicUrl = `${supabaseUrl}/storage/v1/object/public/${bucketName}/${userId}/${file.name}`;
+
+                        return {
+                            id: file.id || Math.random().toString(36).substring(2),
+                            name: file.name,
+                            url: publicUrl,
+                            publicUrl: publicUrl,
+                            type: file.metadata?.mimetype || 'application/octet-stream',
+                            created_at: file.created_at || new Date().toISOString(),
+                            category: 'notes', // Default category
+                            file_path: `${userId}/${file.name}`,
+                            bucket_id: bucketName
+                        };
+                    });
+
+                    setUserFiles(storageFiles);
+                    
+                    // Try to save these files to the user_files table for future reference
+                    try {
+                        console.log('Saving storage files to user_files table...');
+                        for (const file of storageFiles) {
+                            const { error: insertError } = await supabase
+                                .from('user_files')
+                                .insert([{
+                                    user_id: userId,
+                                    name: file.name,
+                                    file_name: file.name,
+                                    file_path: file.file_path,
+                                    type: file.type,
+                                    file_type: file.type,
+                                    url: file.url,
+                                    is_public: true,
+                                    bucket_id: bucketName,
+                                    category: file.category
+                                }]);
+                                
+                            if (insertError && insertError.code !== '23505') { // Ignore unique constraint violations
+                                console.error('Error saving file to user_files table:', insertError);
+                            }
+                        }
+                    } catch (insertError) {
+                        console.error('Error saving storage files to database:', insertError);
+                    }
+                } else {
+                    console.log('No files found for user in storage');
+                    setUserFiles([]);
+                }
+            } catch (storageError) {
+                console.error('Error accessing storage:', storageError);
+                setUserFiles([]);
             }
         } catch (error) {
             console.error('Error in fetchUserFiles:', error);
+            setUserFiles([]);
         }
     };
 
@@ -342,20 +408,55 @@ const OwnerProfilePage: React.FC = () => {
         setUploadProgress(0);
 
         try {
-            const userId = supabaseUser?.id;
-
-            if (!userId) {
-                console.error('User ID not available');
+            // Get the current authenticated user
+            const { data: authData, error: authError } = await supabase.auth.getUser();
+            
+            if (authError) {
+                console.error('Error getting authenticated user:', authError);
                 setIsUploading(false);
                 return;
             }
+            
+            if (!authData || !authData.user) {
+                console.error('No authenticated user found');
+                setIsUploading(false);
+                return;
+            }
+            
+            const userId = authData.user.id;
+            console.log('Uploading files for user ID:', userId);
 
             const bucketName = 'user-files';
+            
+            // Check if the bucket exists
+            const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
+            
+            if (bucketsError) {
+                console.error('Error checking buckets:', bucketsError);
+            } else {
+                const bucketExists = buckets?.some(bucket => bucket.name === bucketName);
+                console.log(`Bucket '${bucketName}' exists:`, bucketExists);
+                
+                if (!bucketExists) {
+                    console.log(`Creating bucket '${bucketName}'...`);
+                    const { data: createData, error: createError } = await supabase.storage.createBucket(bucketName, {
+                        public: true
+                    });
+                    
+                    if (createError) {
+                        console.error(`Error creating bucket '${bucketName}':`, createError);
+                    } else {
+                        console.log(`Bucket '${bucketName}' created successfully:`, createData);
+                    }
+                }
+            }
+
             const totalFiles = files.length;
             let uploadedFiles = 0;
 
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
+                console.log('Processing file:', file.name);
 
                 // Create organized file path based on category and subject
                 let filePath = '';
@@ -367,8 +468,11 @@ const OwnerProfilePage: React.FC = () => {
                     // Default path if no category or subject is selected
                     filePath = `${userId}/${file.name}`;
                 }
+                
+                console.log('File path:', filePath);
 
                 // Upload file to storage
+                console.log('Uploading file to storage...');
                 const { data: uploadData, error: uploadError } = await supabase.storage
                     .from(bucketName)
                     .upload(filePath, file, {
@@ -389,30 +493,42 @@ const OwnerProfilePage: React.FC = () => {
                     .getPublicUrl(filePath);
 
                 const publicUrl = publicUrlData?.publicUrl || '';
+                console.log('Public URL:', publicUrl);
 
                 // Save file metadata to user_files table
                 try {
+                    console.log('Saving file metadata to user_files table...');
+                    const fileMetadata = {
+                        user_id: userId,
+                        name: file.name,
+                        file_name: file.name,
+                        type: file.type,
+                        file_type: file.type,
+                        category: category,
+                        url: publicUrl,
+                        file_path: filePath,
+                        subject_code: selectedSubject?.code || null,
+                        subject_name: selectedSubject?.name || null,
+                        material_type: category,
+                        is_public: true, // Default to public
+                        bucket_id: bucketName
+                    };
+                    
+                    console.log('File metadata:', fileMetadata);
+                    
                     const { data: fileData, error: fileError } = await supabase
                         .from('user_files')
-                        .insert([
-                            {
-                                user_id: userId,
-                                name: file.name,
-                                file_name: file.name,
-                                type: file.type,
-                                file_type: file.type,
-                                category: category,
-                                url: publicUrl,
-                                file_path: filePath,
-                                subject_code: selectedSubject?.code || null,
-                                subject_name: selectedSubject?.name || null,
-                                material_type: category,
-                                is_public: true // Default to public
-                            }
-                        ]);
+                        .insert([fileMetadata]);
 
                     if (fileError) {
                         console.error('Error saving file metadata:', fileError);
+                        
+                        // If the table doesn't exist, we'll log it but continue
+                        if (fileError.code === '42P01') {
+                            console.error('The user_files table does not exist. Please run the SQL script to create it.');
+                        }
+                    } else {
+                        console.log('File metadata saved successfully:', fileData);
                     }
                 } catch (metadataError) {
                     console.error('Error in metadata save:', metadataError);
@@ -423,6 +539,7 @@ const OwnerProfilePage: React.FC = () => {
             }
 
             // Refresh the file list
+            console.log('Refreshing file list...');
             await fetchUserFiles(userId);
 
             // Reset upload state
@@ -433,6 +550,8 @@ const OwnerProfilePage: React.FC = () => {
             if (fileInputRef.current) {
                 fileInputRef.current.value = '';
             }
+            
+            console.log('File upload process completed successfully.');
         } catch (error) {
             console.error('Error in file upload:', error);
             setIsUploading(false);
