@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase, supabaseUrl } from '../lib/supabase';
-import { branchSubjects, Subject } from '../data/academicData';
+import { branchSubjects, Subject, materialTypes } from '../data/academicData';
 import FileViewerModal from './FileViewerModal';
 
 interface SubjectFilesDisplayProps {
@@ -19,6 +19,7 @@ interface SubjectFile {
   category?: string;
   subject_code?: string;
   user_id?: string;
+  material_type?: string;
 }
 
 const SubjectFilesDisplay: React.FC<SubjectFilesDisplayProps> = ({ year, semester, branch }) => {
@@ -28,19 +29,21 @@ const SubjectFilesDisplay: React.FC<SubjectFilesDisplayProps> = ({ year, semeste
   const [expandedSubject, setExpandedSubject] = useState<string | null>(null);
   const [isFileViewerOpen, setIsFileViewerOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<SubjectFile | null>(null);
+  const [selectedMaterialType, setSelectedMaterialType] = useState<string | null>(null);
 
   // Get subjects based on year, semester, and branch
   useEffect(() => {
     if (year && semester && branch) {
       const yearNum = parseInt(year, 10);
       const semesterNum = parseInt(semester, 10);
+      const branchId = branch.toLowerCase();
 
       if (!isNaN(yearNum) && !isNaN(semesterNum) &&
         branchSubjects[yearNum] &&
         branchSubjects[yearNum][semesterNum] &&
-        branchSubjects[yearNum][semesterNum][branch]) {
+        branchSubjects[yearNum][semesterNum][branchId]) {
         // Access the subjects for this specific branch, year, and semester
-        setSubjects(branchSubjects[yearNum][semesterNum][branch]);
+        setSubjects(branchSubjects[yearNum][semesterNum][branchId]);
       } else {
         setSubjects([]);
       }
@@ -88,17 +91,14 @@ const SubjectFilesDisplay: React.FC<SubjectFilesDisplayProps> = ({ year, semeste
       }
 
       // Also try to fetch files directly from storage for each material type
-      const materialTypes = ['Syllabus', 'assignments', 'practicals', 'labwork', 'pyq'];
+      const materialTypeIds = materialTypes.map(mt => mt.id);
       let storageFiles: any[] = [];
 
-      console.log(`Checking storage for subject ${subjectCode} in material types:`, materialTypes);
+      console.log(`Checking storage for subject ${subjectCode} in material types:`, materialTypeIds);
 
-      // Convert 'Syllabus' to lowercase for storage path
-      for (const materialType of materialTypes) {
-        const storagePath = materialType === 'Syllabus' ? 'syllabus' : materialType;
-        
+      for (const materialType of materialTypeIds) {
         try {
-          const path = `${storagePath}/${subjectCode}`;
+          const path = `${materialType}/${subjectCode}`;
           console.log(`Checking storage path: ${path}`);
           
           // Check if files exist in the organized path structure
@@ -109,7 +109,7 @@ const SubjectFilesDisplay: React.FC<SubjectFilesDisplayProps> = ({ year, semeste
           if (!storageError && storageData && storageData.length > 0) {
             // Process storage files
             const processedStorageFiles = storageData.map((file: any) => {
-              const filePath = `${storagePath}/${subjectCode}/${file.name}`;
+              const filePath = `${materialType}/${subjectCode}/${file.name}`;
               const publicUrl = `${supabaseUrl}/storage/v1/object/public/user-files/${filePath}`;
               
               return {
@@ -122,6 +122,8 @@ const SubjectFilesDisplay: React.FC<SubjectFilesDisplayProps> = ({ year, semeste
                 created_at: file.created_at || new Date().toISOString(),
                 is_public: true,
                 publicUrl: publicUrl,
+                url: publicUrl,
+                category: materialType,
                 bucket_id: 'user-files'
               };
             });
@@ -129,7 +131,7 @@ const SubjectFilesDisplay: React.FC<SubjectFilesDisplayProps> = ({ year, semeste
             storageFiles = [...storageFiles, ...processedStorageFiles];
           }
         } catch (storageError) {
-          console.error(`Error fetching storage files for ${subjectCode}/${storagePath}:`, storageError);
+          console.error(`Error fetching storage files for ${subjectCode}/${materialType}:`, storageError);
         }
       }
 
@@ -157,7 +159,9 @@ const SubjectFilesDisplay: React.FC<SubjectFilesDisplayProps> = ({ year, semeste
           return {
             ...file,
             name: file.file_name || file.name || 'Unknown File',
-            publicUrl
+            publicUrl,
+            url: publicUrl,
+            category: file.material_type || 'other'
           };
         });
         
@@ -187,8 +191,10 @@ const SubjectFilesDisplay: React.FC<SubjectFilesDisplayProps> = ({ year, semeste
   const toggleSubject = (subjectCode: string) => {
     if (expandedSubject === subjectCode) {
       setExpandedSubject(null);
+      setSelectedMaterialType(null);
     } else {
       setExpandedSubject(subjectCode);
+      setSelectedMaterialType(null);
       fetchSubjectFiles(subjectCode);
     }
   };
@@ -206,6 +212,42 @@ const SubjectFilesDisplay: React.FC<SubjectFilesDisplayProps> = ({ year, semeste
     setTimeout(() => {
       setSelectedFile(null);
     }, 300);
+  };
+
+  // Toggle material type filter
+  const toggleMaterialType = (materialType: string) => {
+    if (selectedMaterialType === materialType) {
+      setSelectedMaterialType(null);
+    } else {
+      setSelectedMaterialType(materialType);
+    }
+  };
+
+  // Get material type name from ID
+  const getMaterialTypeName = (materialTypeId: string) => {
+    const materialType = materialTypes.find(mt => mt.id === materialTypeId);
+    return materialType ? materialType.name : materialTypeId;
+  };
+
+  // Group files by material type
+  const getFilesByMaterialType = (files: SubjectFile[]) => {
+    const groupedFiles: Record<string, SubjectFile[]> = {};
+    
+    // Initialize with all material types
+    materialTypes.forEach(mt => {
+      groupedFiles[mt.id] = [];
+    });
+    
+    // Add files to their respective groups
+    files.forEach(file => {
+      const materialType = file.material_type || file.category || 'other';
+      if (!groupedFiles[materialType]) {
+        groupedFiles[materialType] = [];
+      }
+      groupedFiles[materialType].push(file);
+    });
+    
+    return groupedFiles;
   };
 
   if (subjects.length === 0) {
@@ -262,46 +304,148 @@ const SubjectFilesDisplay: React.FC<SubjectFilesDisplayProps> = ({ year, semeste
                     <>
                       {subjectFiles[subject.code] && subjectFiles[subject.code].length > 0 ? (
                         <div>
-                          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Available files:</h4>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {subjectFiles[subject.code].map((file) => (
-                              <div 
-                                key={file.id} 
-                                className="flex items-start p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer group"
-                                onClick={() => handleFileSelect(file)}
+                          {/* Material Type Filters */}
+                          <div className="mb-4 flex flex-wrap gap-2">
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300 mr-2 pt-1">
+                              Filter by section:
+                            </span>
+                            {materialTypes.map((materialType) => {
+                              const filesCount = subjectFiles[subject.code].filter(
+                                file => file.material_type === materialType.id || file.category === materialType.id
+                              ).length;
+                              
+                              if (filesCount === 0) return null;
+                              
+                              return (
+                                <button
+                                  key={materialType.id}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleMaterialType(materialType.id);
+                                  }}
+                                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                                    selectedMaterialType === materialType.id
+                                      ? 'bg-learnflow-600 text-white'
+                                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                                  }`}
+                                >
+                                  {materialType.name} ({filesCount})
+                                </button>
+                              );
+                            })}
+                            {selectedMaterialType && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedMaterialType(null);
+                                }}
+                                className="px-3 py-1 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-800/30 transition-colors"
                               >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-learnflow-500 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                                <div className="flex-1 min-w-0">
-                                  <div className="text-sm font-medium text-learnflow-600 dark:text-learnflow-400 hover:underline block truncate">
-                                    {file.name}
-                                  </div>
-                                  <div className="flex items-center mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                    <span>Uploaded: {new Date(file.created_at).toLocaleDateString()}</span>
-                                    {file.category && (
-                                      <span className="ml-2 px-2 py-0.5 bg-gray-100 dark:bg-gray-600 rounded-full">
-                                        {file.category}
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                                <div className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <a 
-                                    href={file.publicUrl} 
-                                    download={file.name}
-                                    onClick={(e) => e.stopPropagation()}
-                                    className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 inline-flex"
-                                    title="Download file"
-                                  >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                    </svg>
-                                  </a>
-                                </div>
-                              </div>
-                            ))}
+                                Clear filter
+                              </button>
+                            )}
                           </div>
+
+                          {/* Files Display */}
+                          {selectedMaterialType ? (
+                            // Display files for selected material type
+                            <div>
+                              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                                {getMaterialTypeName(selectedMaterialType)} files:
+                              </h4>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                {subjectFiles[subject.code]
+                                  .filter(file => file.material_type === selectedMaterialType || file.category === selectedMaterialType)
+                                  .map((file) => (
+                                    <div 
+                                      key={file.id} 
+                                      className="flex items-start p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer group"
+                                      onClick={() => handleFileSelect(file)}
+                                    >
+                                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-learnflow-500 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                      </svg>
+                                      <div className="flex-1 min-w-0">
+                                        <div className="text-sm font-medium text-learnflow-600 dark:text-learnflow-400 hover:underline block truncate">
+                                          {file.name}
+                                        </div>
+                                        <div className="flex items-center mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                          <span>Uploaded: {new Date(file.created_at).toLocaleDateString()}</span>
+                                        </div>
+                                      </div>
+                                      <div className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <a 
+                                          href={file.publicUrl} 
+                                          download={file.name}
+                                          onClick={(e) => e.stopPropagation()}
+                                          className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 inline-flex"
+                                          title="Download file"
+                                        >
+                                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                          </svg>
+                                        </a>
+                                      </div>
+                                    </div>
+                                  ))}
+                              </div>
+                            </div>
+                          ) : (
+                            // Display files grouped by material type
+                            <div>
+                              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Available files by section:</h4>
+                              <div className="space-y-6">
+                                {Object.entries(getFilesByMaterialType(subjectFiles[subject.code]))
+                                  .filter(([_, files]) => files.length > 0)
+                                  .map(([materialType, files]) => (
+                                    <div key={materialType} className="border-t border-gray-200 dark:border-gray-700 pt-4 first:border-t-0 first:pt-0">
+                                      <h5 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center">
+                                        <span className="bg-learnflow-100 dark:bg-learnflow-900/30 text-learnflow-800 dark:text-learnflow-300 px-2 py-0.5 rounded text-xs mr-2">
+                                          {getMaterialTypeName(materialType)}
+                                        </span>
+                                        <span className="text-gray-500 dark:text-gray-400 text-xs">
+                                          ({files.length} {files.length === 1 ? 'file' : 'files'})
+                                        </span>
+                                      </h5>
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        {files.map((file) => (
+                                          <div 
+                                            key={file.id} 
+                                            className="flex items-start p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer group"
+                                            onClick={() => handleFileSelect(file)}
+                                          >
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-learnflow-500 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            <div className="flex-1 min-w-0">
+                                              <div className="text-sm font-medium text-learnflow-600 dark:text-learnflow-400 hover:underline block truncate">
+                                                {file.name}
+                                              </div>
+                                              <div className="flex items-center mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                                <span>Uploaded: {new Date(file.created_at).toLocaleDateString()}</span>
+                                              </div>
+                                            </div>
+                                            <div className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                              <a 
+                                                href={file.publicUrl} 
+                                                download={file.name}
+                                                onClick={(e) => e.stopPropagation()}
+                                                className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 inline-flex"
+                                                title="Download file"
+                                              >
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                                </svg>
+                                              </a>
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       ) : (
                         <p className="text-sm text-gray-600 dark:text-gray-400">No files available for this subject.</p>

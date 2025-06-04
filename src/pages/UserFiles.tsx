@@ -71,8 +71,12 @@ const UserFiles: React.FC = () => {
       console.log('Attempting to download file:', file.file_name, 'from path:', file.file_path);
       console.log('File details:', file);
       
-      // Get file from storage, passing the bucket_id if available
-      const fileData = await downloadFile(file.file_path, (file as any).bucket_id);
+      // Get file from storage, ensuring bucket_id is passed
+      if (!file.bucket_id) {
+        console.warn('File is missing bucket_id, will attempt to find it from database');
+      }
+      
+      const fileData = await downloadFile(file.file_path, file.bucket_id);
       if (!fileData) {
         throw new Error('Failed to download file');
       }

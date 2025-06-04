@@ -31,6 +31,31 @@ export const MATERIAL_TYPES = [
 
 
 /**
+ * Checks if a storage bucket exists
+ */
+export const checkBucketExists = async (bucketName: string) => {
+  try {
+    if (!bucketName) {
+      console.error('Error: bucketName is required');
+      return { exists: false, error: new Error('bucketName is required') };
+    }
+    
+    const { data: buckets, error: listError } = await supabase.storage.listBuckets();
+
+    if (listError) {
+      console.error('Error listing buckets:', listError);
+      return { exists: false, error: listError };
+    }
+    
+    const exists = buckets?.some(bucket => bucket.name === bucketName);
+    return { exists, error: null };
+  } catch (error) {
+    console.error('Error checking bucket existence:', error);
+    return { exists: false, error };
+  }
+};
+
+/**
  * Creates the storage buckets if they don't exist
  */
 export const createStorageBuckets = async () => {
@@ -113,12 +138,23 @@ export const getPublicUrl = (filePath: string, bucketName: string = STORAGE_BUCK
  */
 export const listFiles = async (folderPath: string, bucketName: string = STORAGE_BUCKETS.RESOURCES) => {
   try {
+    // Validate bucket name is provided
+    if (!bucketName) {
+      console.error('Error: bucketId is required for listing files');
+      return { data: null, error: new Error('bucketId is required') };
+    }
+
+    // Ensure folderPath is a string (empty string is valid for root folder)
+    const path = folderPath || '';
+    
+    console.log(`Listing files in bucket: ${bucketName}, folder: ${path}`);
+    
     const { data, error } = await supabase.storage
       .from(bucketName)
-      .list(folderPath);
+      .list(path);
 
     if (error) {
-      console.error(`Error listing files in ${bucketName}/${folderPath}:`, error);
+      console.error(`Error listing files in ${bucketName}/${path}:`, error);
       return { data: null, error };
     }
 

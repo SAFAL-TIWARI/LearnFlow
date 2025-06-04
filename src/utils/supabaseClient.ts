@@ -45,15 +45,15 @@ export interface UserFile {
 export async function searchUsers(query: string) {
   try {
     console.log('Searching for users with query:', query);
-    
+
     // First, check if the search_users function exists
     const { data: functionExists, error: functionCheckError } = await supabase
       .rpc('search_users', { search_query: 'test' })
       .limit(1);
-      
+
     if (functionCheckError) {
       console.error('Error checking search_users function:', functionCheckError);
-      
+
       // If the RPC function doesn't exist, try a direct query as fallback
       console.log('Trying direct query as fallback...');
       const { data: directData, error: directError } = await supabase
@@ -61,25 +61,25 @@ export async function searchUsers(query: string) {
         .select('id, username, full_name, branch, year, semester, profile_picture_url, is_public')
         .or(`username.ilike.%${query}%,full_name.ilike.%${query}%,branch.ilike.%${query}%,semester.ilike.%${query}%`)
         .eq('is_public', true);
-        
+
       if (directError) {
         console.error('Error with direct query fallback:', directError);
         throw directError;
       }
-      
+
       console.log('Direct query results:', directData);
       return directData as UserProfile[];
     }
-    
+
     // If the function check passed, use the RPC function
     const { data, error } = await supabase
       .rpc('search_users', { search_query: query });
-    
+
     if (error) {
       console.error('Error using search_users RPC:', error);
       throw error;
     }
-    
+
     console.log('Search results:', data);
     return data as UserProfile[];
   } catch (error) {
@@ -92,30 +92,30 @@ export async function searchUsers(query: string) {
 export async function getUserProfile(userId: string) {
   try {
     console.log('Fetching profile for user ID:', userId);
-    
+
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', userId)
       .single();
-    
+
     if (error) {
       console.error('Error fetching user profile:', error);
       throw error;
     }
-    
+
     console.log('Profile data retrieved:', data);
-    
+
     // Check if profile is public or if the current user is the owner
     const { data: { user } } = await supabase.auth.getUser();
     const isPublic = data.is_public === true;
     const isOwner = user && user.id === data.id;
-    
+
     if (!isPublic && !isOwner) {
       console.log('Profile is not public and user is not the owner');
       throw new Error('Profile is not accessible');
     }
-    
+
     return data as UserProfile;
   } catch (error) {
     console.error('Error fetching user profile:', error);
@@ -128,7 +128,7 @@ export async function getAccessibleFiles(userId: string) {
   try {
     const { data, error } = await supabase
       .rpc('get_accessible_files', { user_uuid: userId });
-    
+
     if (error) throw error;
     return data as UserFile[];
   } catch (error) {
@@ -146,9 +146,9 @@ export async function getUserFiles(ownerId: string, currentUserId: string) {
       .select('*, profiles!user_files_user_id_fkey(full_name)')
       .eq('user_id', ownerId)
       .eq('is_public', true);
-    
+
     if (publicError) throw publicError;
-    
+
     // If the current user is the owner, get all their files
     if (ownerId === currentUserId) {
       return publicFiles.map(file => ({
@@ -156,25 +156,25 @@ export async function getUserFiles(ownerId: string, currentUserId: string) {
         owner_name: file.profiles?.full_name
       })) as UserFile[];
     }
-    
+
     // Get files specifically shared with the current user
     const { data: sharedFiles, error: sharedError } = await supabase
       .from('user_files')
       .select('*, profiles!user_files_user_id_fkey(full_name), file_shares!inner(*)')
       .eq('user_id', ownerId)
       .eq('file_shares.shared_with_id', currentUserId);
-    
+
     if (sharedError) throw sharedError;
-    
+
     // Combine public and shared files, removing duplicates
     const allFiles = [...publicFiles];
-    
+
     sharedFiles.forEach(sharedFile => {
       if (!allFiles.some(file => file.id === sharedFile.id)) {
         allFiles.push(sharedFile);
       }
     });
-    
+
     return allFiles.map(file => ({
       ...file,
       owner_name: file.profiles?.full_name
@@ -187,26 +187,27 @@ export async function getUserFiles(ownerId: string, currentUserId: string) {
 
 // Upload a file
 export async function uploadFile(
-  file: File, 
-  userId: string, 
-  description: string = '', 
+  file: File,
+  userId: string,
+  description: string = '',
   isPublic: boolean = false,
   subjectCode: string = '',
-  materialType: string = ''
+  materialType: string = '',
+  onProgress?: (progress: number) => void
 ) {
   try {
     // Validate inputs
     if (!file) {
       throw new Error('File is required');
     }
-    
+
     if (!userId) {
       throw new Error('User ID is required');
     }
-    
+
     // Create a properly organized file path based on material type and subject code
     let filePath = '';
-    
+
     if (materialType && subjectCode) {
       // If both material type and subject code are provided, organize files accordingly
       // Format: [materialType]/[subjectCode]/[userId]_[timestamp]_[filename]
@@ -215,114 +216,243 @@ export async function uploadFile(
       // Default path if no material type or subject code is provided
       filePath = `${userId}/${Date.now()}_${file.name}`;
     }
-    
+
     console.log('Uploading file to path:', filePath);
-    
+
     // Always use the 'user-files' bucket (with hyphen)
     const bucketName = 'user-files';
-    
+
     // Check if the bucket exists
     const { data: buckets, error: bucketError } = await supabase.storage.listBuckets();
-    
+
     if (bucketError) {
       console.error('Error listing buckets:', bucketError);
       throw bucketError;
     }
-    
+
     const bucketExists = buckets.some(bucket => bucket.name === bucketName);
-    
+
     if (!bucketExists) {
       console.error('The user-files bucket does not exist');
       throw new Error('Storage bucket not found. Please contact support.');
     }
-    
+
     console.log(`Using bucket: ${bucketName}`);
-    
-    // Upload file to storage
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from(bucketName)
-      .upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: false
+
+    // Upload file to storage with progress tracking
+    let uploadOptions = {
+      cacheControl: '3600',
+      upsert: false
+    };
+
+    // If progress callback is provided, use XMLHttpRequest for upload with progress
+    if (onProgress && file.size > 0) {
+      // Create a custom upload with progress tracking
+      return new Promise<any>((resolve, reject) => {
+        // First get an upload URL from Supabase
+        supabase.storage.from(bucketName).createSignedUploadUrl(filePath)
+          .then(({ data, error }) => {
+            if (error) {
+              console.error('Error creating signed URL:', error);
+              reject(error);
+              return;
+            }
+
+            // Use XMLHttpRequest for progress tracking
+            const xhr = new XMLHttpRequest();
+            xhr.open('PUT', data.signedUrl);
+
+            // Set up progress tracking
+            xhr.upload.onprogress = (event) => {
+              if (event.lengthComputable && onProgress) {
+                const percentComplete = (event.loaded / event.total) * 100;
+                onProgress(percentComplete);
+              }
+            };
+
+            // Handle completion
+            xhr.onload = async () => {
+              if (xhr.status >= 200 && xhr.status < 300) {
+                console.log('File uploaded successfully to storage');
+
+                // Create file record in database
+                try {
+                  const fileRecord = {
+                    user_id: userId,
+                    file_name: file.name,
+                    file_path: filePath,
+                    file_type: file.type,
+                    file_size: file.size,
+                    description,
+                    is_public: isPublic,
+                    subject_code: subjectCode || null,
+                    material_type: materialType || null,
+                    bucket_id: bucketName
+                  };
+
+                  console.log('Inserting file record into database:', fileRecord);
+
+                  const { data: fileData, error: fileError } = await supabase
+                    .from('user_files')
+                    .insert([fileRecord])
+                    .select()
+                    .single();
+
+                  if (fileError) {
+                    console.error('Database insert error:', fileError);
+
+                    // Try with a more minimal set of required columns
+                    console.log('First insert attempt failed, trying with minimal columns');
+                    const minimalRecord = {
+                      user_id: userId,
+                      file_name: file.name,
+                      file_path: filePath,
+                      is_public: isPublic,
+                      subject_code: subjectCode || null,
+                      material_type: materialType || null,
+                      bucket_id: bucketName
+                    };
+
+                    const { data: minimalData, error: minimalError } = await supabase
+                      .from('user_files')
+                      .insert([minimalRecord])
+                      .select()
+                      .single();
+
+                    if (minimalError) {
+                      console.error('Database insert error (minimal):', minimalError);
+                      reject(minimalError);
+                      return;
+                    }
+
+                    console.log('File record created in database with minimal fields');
+                    resolve(minimalData);
+                    return;
+                  }
+
+                  console.log('File record created in database');
+                  resolve(fileData);
+                } catch (dbError) {
+                  console.error('All database insert attempts failed:', dbError);
+
+                  // Even if DB insert fails, the file is still in storage
+                  // Return a basic object with the file path so it can still be accessed
+                  resolve({
+                    id: 'unknown',
+                    user_id: userId,
+                    file_path: filePath,
+                    file_name: file.name,
+                    is_public: isPublic,
+                    subject_code: subjectCode || null,
+                    material_type: materialType || null,
+                    bucket_id: bucketName
+                  });
+                }
+              } else {
+                console.error('Upload failed with status:', xhr.status);
+                reject(new Error(`Upload failed with status: ${xhr.status}`));
+              }
+            };
+
+            // Handle errors
+            xhr.onerror = () => {
+              console.error('XHR error during upload');
+              reject(new Error('Network error during upload'));
+            };
+
+            // Send the file
+            xhr.setRequestHeader('Content-Type', file.type);
+            xhr.send(file);
+          })
+          .catch(error => {
+            console.error('Error in signed URL upload:', error);
+            reject(error);
+          });
       });
-    
-    if (uploadError) {
-      console.error('Storage upload error:', uploadError);
-      throw uploadError;
-    }
-    
-    console.log('File uploaded successfully to storage');
-    
-    // Create file record in database with all necessary fields
-    try {
-      const fileRecord = {
-        user_id: userId,
-        file_name: file.name,
-        file_path: filePath,
-        file_type: file.type,
-        file_size: file.size,
-        description,
-        is_public: isPublic,
-        subject_code: subjectCode || null,
-        material_type: materialType || null,
-        bucket_id: bucketName
-      };
-      
-      console.log('Inserting file record into database:', fileRecord);
-      
-      const { data: fileData, error: fileError } = await supabase
-        .from('user_files')
-        .insert([fileRecord])
-        .select()
-        .single();
-      
-      if (fileError) {
-        console.error('Database insert error:', fileError);
-        
-        // Try with a more minimal set of required columns
-        console.log('First insert attempt failed, trying with minimal columns');
-        const minimalRecord = {
+    } else {
+      // Standard upload without progress tracking
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from(bucketName)
+        .upload(filePath, file, uploadOptions);
+
+      if (uploadError) {
+        console.error('Storage upload error:', uploadError);
+        throw uploadError;
+      }
+
+      console.log('File uploaded successfully to storage');
+
+      // Create file record in database with all necessary fields
+      try {
+        const fileRecord = {
           user_id: userId,
           file_name: file.name,
           file_path: filePath,
+          file_type: file.type,
+          file_size: file.size,
+          description,
           is_public: isPublic,
           subject_code: subjectCode || null,
           material_type: materialType || null,
           bucket_id: bucketName
         };
-        
-        const { data: minimalData, error: minimalError } = await supabase
+
+        console.log('Inserting file record into database:', fileRecord);
+
+        const { data: fileData, error: fileError } = await supabase
           .from('user_files')
-          .insert([minimalRecord])
+          .insert([fileRecord])
           .select()
           .single();
-        
-        if (minimalError) {
-          console.error('Database insert error (minimal):', minimalError);
-          throw minimalError;
+
+        if (fileError) {
+          console.error('Database insert error:', fileError);
+
+          // Try with a more minimal set of required columns
+          console.log('First insert attempt failed, trying with minimal columns');
+          const minimalRecord = {
+            user_id: userId,
+            file_name: file.name,
+            file_path: filePath,
+            is_public: isPublic,
+            subject_code: subjectCode || null,
+            material_type: materialType || null,
+            bucket_id: bucketName
+          };
+
+          const { data: minimalData, error: minimalError } = await supabase
+            .from('user_files')
+            .insert([minimalRecord])
+            .select()
+            .single();
+
+          if (minimalError) {
+            console.error('Database insert error (minimal):', minimalError);
+            throw minimalError;
+          }
+
+          console.log('File record created in database with minimal fields');
+          return minimalData;
         }
-        
-        console.log('File record created in database with minimal fields');
-        return minimalData;
+
+        console.log('File record created in database');
+        return fileData;
+      } catch (dbError) {
+        console.error('All database insert attempts failed:', dbError);
+
+        // Even if DB insert fails, the file is still in storage
+        // Return a basic object with the file path so it can still be accessed
+        return {
+          id: 'unknown',
+          user_id: userId,
+          file_path: filePath,
+          file_name: file.name,
+          is_public: isPublic,
+          subject_code: subjectCode || null,
+          material_type: materialType || null,
+          bucket_id: bucketName
+        };
       }
-      
-      console.log('File record created in database');
-      return fileData;
-    } catch (dbError) {
-      console.error('All database insert attempts failed:', dbError);
-      
-      // Even if DB insert fails, the file is still in storage
-      // Return a basic object with the file path so it can still be accessed
-      return {
-        id: 'unknown',
-        user_id: userId,
-        file_path: filePath,
-        file_name: file.name,
-        is_public: isPublic,
-        subject_code: subjectCode || null,
-        material_type: materialType || null,
-        bucket_id: bucketName
-      };
     }
   } catch (error) {
     console.error('Error uploading file:', error);
@@ -342,7 +472,7 @@ export async function shareFile(fileId: string, ownerId: string, sharedWithId: s
           shared_with_id: sharedWithId
         }
       ]);
-    
+
     if (error) throw error;
     return true;
   } catch (error) {
@@ -359,28 +489,45 @@ export async function downloadFile(filePath: string, bucketId?: string) {
       console.error('Invalid file path: Path is empty');
       throw new Error('Invalid file path: Path is empty');
     }
-    
-    console.log('Downloading file from path:', filePath);
-    
-    // Use the provided bucket ID or default to 'user-files'
-    const bucketName = bucketId || 'user-files';
-    
+
+    // Validate bucket ID
+    if (!bucketId) {
+      console.log('No bucket ID provided, attempting to find bucket ID from database');
+
+      // Try to get the file info from the database to find the bucket ID
+      const { data: fileData, error: fileError } = await supabase
+        .from('user_files')
+        .select('bucket_id')
+        .eq('file_path', filePath)
+        .single();
+
+      if (!fileError && fileData && fileData.bucket_id) {
+        console.log(`Found bucket ID in database: ${fileData.bucket_id}`);
+        bucketId = fileData.bucket_id;
+      } else {
+        console.log('Could not find bucket ID in database, using default');
+        bucketId = 'user-files';
+      }
+    }
+
+    console.log(`Downloading file from bucket: ${bucketId}, path: ${filePath}`);
+
     // Try to download from the specified bucket
     let result = await supabase.storage
-      .from(bucketName)
+      .from(bucketId)
       .download(filePath);
-    
+
     // If that fails and we're using the default bucket, try with the underscore version
-    if (result.error && !bucketId && result.error.message.includes('bucket')) {
+    if (result.error && bucketId === 'user-files' && result.error.message.includes('bucket')) {
       console.log('Trying alternate bucket name with underscore');
       result = await supabase.storage
         .from('user_files') // Try with underscore as fallback
         .download(filePath);
     }
-    
+
     if (result.error) {
       console.error('Error downloading file:', result.error);
-      
+
       // If the file path includes a subject code and material type, try to fetch it directly
       // This handles cases where the file might be in a different structure
       const pathParts = filePath.split('/');
@@ -391,13 +538,13 @@ export async function downloadFile(filePath: string, bucketId?: string) {
           .select('*')
           .eq('file_path', filePath)
           .single();
-          
+
         if (!fileError && fileData && fileData.bucket_id) {
           console.log(`Found file in database, trying bucket: ${fileData.bucket_id}`);
           result = await supabase.storage
             .from(fileData.bucket_id)
             .download(filePath);
-            
+
           if (result.error) {
             console.error('Error downloading file from database bucket:', result.error);
             throw result.error;
@@ -409,7 +556,7 @@ export async function downloadFile(filePath: string, bucketId?: string) {
         throw result.error;
       }
     }
-    
+
     console.log('File downloaded successfully');
     return result.data;
   } catch (error) {
@@ -427,7 +574,7 @@ export async function updateUserProfile(profile: Partial<UserProfile>) {
       .eq('id', profile.id)
       .select()
       .single();
-    
+
     if (error) throw error;
     return data as UserProfile;
   } catch (error) {
@@ -445,51 +592,51 @@ export async function syncUserDataToProfile(userId: string) {
       console.error('No authenticated user found');
       return false;
     }
-    
+
     const email = user.email;
     if (!email) {
       console.error('User has no email');
       return false;
     }
-    
+
     // Try to get user data from users table
     const { data: userData, error: userError } = await supabase
       .from('users')
       .select('*')  // Select all columns to see what's available
       .eq('email', email)
       .single();
-    
+
     // Also get user metadata from auth
     const { data: authUser, error: authError } = await supabase.auth.getUser();
-    
+
     if (authError) {
       console.error('Error fetching auth user:', authError);
     }
-    
+
     // Prepare update data with priority to user table data, then auth metadata
     let updateData: any = {
       updated_at: new Date().toISOString()
     };
-    
+
     // If we have user data from the users table
     if (userData && !userError) {
       console.log('Found user data in users table:', userData);
-      
+
       // Check for branch in users table
       if (userData.branch) {
         updateData.branch = userData.branch;
       }
-      
+
       // Check for year in users table
       if (userData.year) {
         updateData.year = userData.year;
       }
-      
+
       // Check for semester in users table
       if (userData.semester) {
         updateData.semester = userData.semester;
       }
-      
+
       // Check for name in users table
       if (userData.name) {
         updateData.full_name = userData.name;
@@ -497,34 +644,34 @@ export async function syncUserDataToProfile(userId: string) {
     } else {
       console.log('No user data found in users table or error occurred:', userError);
     }
-    
+
     // If we have auth metadata, use it as fallback
     if (authUser?.user?.user_metadata) {
       const metadata = authUser.user.user_metadata;
       console.log('Found auth metadata:', metadata);
-      
+
       // Use auth metadata as fallback
       if (!updateData.branch && metadata.branch) {
         updateData.branch = metadata.branch;
       }
-      
+
       if (!updateData.year && metadata.year) {
         updateData.year = metadata.year;
       }
-      
+
       if (!updateData.semester && metadata.semester) {
         updateData.semester = metadata.semester;
       }
-      
+
       if (!updateData.full_name && metadata.full_name) {
         updateData.full_name = metadata.full_name;
       }
     }
-    
+
     // Only update if we have data to update
     if (Object.keys(updateData).length > 1) { // More than just updated_at
       console.log('Updating profile with data:', updateData);
-      
+
       // Update profile with collected data
       const { data: updatedProfile, error: updateError } = await supabase
         .from('profiles')
@@ -532,12 +679,12 @@ export async function syncUserDataToProfile(userId: string) {
         .eq('id', userId)
         .select()
         .single();
-        
+
       if (updateError) {
         console.error('Error updating profile with user data:', updateError);
         return false;
       }
-      
+
       console.log('Successfully synced user data to profile:', updatedProfile);
       return true;
     } else {
@@ -559,31 +706,31 @@ export async function deleteFile(fileId: string) {
       .select('*')
       .eq('id', fileId)
       .single();
-    
+
     if (fileError) {
       console.error('Error fetching file details:', fileError);
       throw fileError;
     }
-    
+
     if (!fileData) {
       throw new Error('File not found');
     }
-    
+
     console.log('File to delete:', fileData);
-    
+
     // Get the file path and bucket ID
     const filePath = fileData.file_path;
     const bucketId = fileData.bucket_id || 'user-files';
-    
+
     if (!filePath) {
       throw new Error('File path is missing');
     }
-    
+
     // First delete the file from storage
     const { error: storageError } = await supabase.storage
       .from(bucketId)
       .remove([filePath]);
-    
+
     if (storageError) {
       console.error('Error deleting file from storage:', storageError);
       // Continue with database deletion even if storage deletion fails
@@ -591,18 +738,18 @@ export async function deleteFile(fileId: string) {
     } else {
       console.log('File deleted from storage successfully');
     }
-    
+
     // Then delete the record from the database
     const { error: dbError } = await supabase
       .from('user_files')
       .delete()
       .eq('id', fileId);
-    
+
     if (dbError) {
       console.error('Error deleting file record from database:', dbError);
       throw dbError;
     }
-    
+
     console.log('File record deleted from database successfully');
     return true;
   } catch (error) {

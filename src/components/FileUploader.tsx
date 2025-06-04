@@ -22,28 +22,71 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileUploaded }) => {
   const [selectedSubject, setSelectedSubject] = useState<string>('');
   const [selectedMaterialType, setSelectedMaterialType] = useState<string>('');
   const [availableSubjects, setAvailableSubjects] = useState<Subject[]>([]);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
 
-  // Fetch available subjects when component mounts
+  // Fetch user profile and available subjects when component mounts
   useEffect(() => {
-    // Combine all subjects from all branches, years, and semesters
-    const allSubjects: Subject[] = [];
-    
-    // Iterate through all years, semesters, and branches to collect subjects
-    Object.keys(branchSubjects).forEach(year => {
-      Object.keys(branchSubjects[parseInt(year)]).forEach(semester => {
-        Object.keys(branchSubjects[parseInt(year)][parseInt(semester)]).forEach(branch => {
-          branchSubjects[parseInt(year)][parseInt(semester)][branch].forEach(subject => {
-            // Check if subject already exists in the array
-            if (!allSubjects.some(s => s.code === subject.code)) {
-              allSubjects.push(subject);
+    const fetchUserProfile = async () => {
+      if (user) {
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+            
+          if (error) {
+            console.error('Error fetching user profile:', error);
+            return;
+          }
+          
+          setUserProfile(data);
+          
+          // If user has year, semester, and branch, filter subjects accordingly
+          if (data.year && data.semester && data.branch) {
+            const yearNum = parseInt(data.year);
+            const semesterNum = parseInt(data.semester);
+            const branchId = data.branch.toLowerCase();
+            
+            if (!isNaN(yearNum) && !isNaN(semesterNum) &&
+              branchSubjects[yearNum] &&
+              branchSubjects[yearNum][semesterNum] &&
+              branchSubjects[yearNum][semesterNum][branchId]) {
+              // Get subjects for this specific branch, year, and semester
+              const userSubjects = branchSubjects[yearNum][semesterNum][branchId];
+              setSubjects(userSubjects);
             }
+          }
+        } catch (err) {
+          console.error('Error in fetchUserProfile:', err);
+        }
+      }
+    };
+    
+    // Combine all subjects from all branches, years, and semesters
+    const getAllSubjects = () => {
+      const allSubjects: Subject[] = [];
+      
+      // Iterate through all years, semesters, and branches to collect subjects
+      Object.keys(branchSubjects).forEach(year => {
+        Object.keys(branchSubjects[parseInt(year)]).forEach(semester => {
+          Object.keys(branchSubjects[parseInt(year)][parseInt(semester)]).forEach(branch => {
+            branchSubjects[parseInt(year)][parseInt(semester)][branch].forEach(subject => {
+              // Check if subject already exists in the array
+              if (!allSubjects.some(s => s.code === subject.code)) {
+                allSubjects.push(subject);
+              }
+            });
           });
         });
       });
-    });
+      
+      setAvailableSubjects(allSubjects);
+    };
     
-    setAvailableSubjects(allSubjects);
-  }, []);
+    fetchUserProfile();
+    getAllSubjects();
+  }, [user]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -78,6 +121,12 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileUploaded }) => {
     try {
       setIsUploading(true);
       setError(null);
+      setUploadProgress(0);
+      
+      // Create a progress handler
+      const handleProgress = (progress: number) => {
+        setUploadProgress(progress);
+      };
       
       const result = await uploadFile(
         file, 
@@ -85,7 +134,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileUploaded }) => {
         description, 
         isPublic, 
         selectedSubject,
-        selectedMaterialType
+        selectedMaterialType,
+        handleProgress
       );
       
       if (!result) {
@@ -113,7 +163,16 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileUploaded }) => {
       setError('Failed to upload file. Please try again.');
     } finally {
       setIsUploading(false);
+      setUploadProgress(0);
     }
+  };
+
+  // Filter subjects based on user profile if available
+  const getFilteredSubjects = () => {
+    if (userProfile && userProfile.year && userProfile.semester && userProfile.branch && subjects.length > 0) {
+      return subjects;
+    }
+    return availableSubjects;
   };
 
   return (
@@ -154,7 +213,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileUploaded }) => {
         {/* Material Type Selection */}
         <div className="mb-4">
           <label className="block text-gray-700 dark:text-gray-300 mb-2">
-            Material Type
+            Section (Material Type)
           </label>
           <select
             value={selectedMaterialType}
@@ -163,7 +222,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileUploaded }) => {
             disabled={isUploading}
             required
           >
-            <option value="">Select Material Type</option>
+            <option value="">Select Section</option>
             {materialTypes.map((material) => (
               <option key={material.id} value={material.id}>
                 {material.name}
@@ -185,12 +244,17 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileUploaded }) => {
             required
           >
             <option value="">Select Subject</option>
-            {availableSubjects.map((subject) => (
+            {getFilteredSubjects().map((subject) => (
               <option key={subject.code} value={subject.code}>
                 {subject.code} - {subject.name}
               </option>
             ))}
           </select>
+          {userProfile && userProfile.year && userProfile.semester && userProfile.branch && (
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              Showing subjects for {userProfile.branch}, Year {userProfile.year}, Semester {userProfile.semester}
+            </p>
+          )}
         </div>
         
         <div className="mb-4">
@@ -219,6 +283,20 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFileUploaded }) => {
             Make this file public (visible to all users)
           </label>
         </div>
+        
+        {isUploading && uploadProgress > 0 && (
+          <div className="mb-4">
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+              <div 
+                className="bg-learnflow-600 h-2.5 rounded-full transition-all duration-300" 
+                style={{ width: `${uploadProgress}%` }}
+              ></div>
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-right">
+              {uploadProgress.toFixed(0)}% uploaded
+            </p>
+          </div>
+        )}
         
         <button
           type="submit"
