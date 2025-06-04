@@ -37,6 +37,8 @@ export interface UserFile {
   created_at: string;
   subject_code?: string;
   subject_name?: string;
+  material_type?: string;
+  bucket_id?: string;
 }
 
 // Search for users
@@ -207,7 +209,7 @@ export async function uploadFile(
     
     if (materialType && subjectCode) {
       // If both material type and subject code are provided, organize files accordingly
-      // Format: user-files/[materialType]/[subjectCode]/[userId]_[timestamp]_[filename]
+      // Format: [materialType]/[subjectCode]/[userId]_[timestamp]_[filename]
       filePath = `${materialType}/${subjectCode}/${userId}_${Date.now()}_${file.name}`;
     } else {
       // Default path if no material type or subject code is provided
@@ -216,7 +218,10 @@ export async function uploadFile(
     
     console.log('Uploading file to path:', filePath);
     
-    // Check if buckets exist
+    // Always use the 'user-files' bucket (with hyphen)
+    const bucketName = 'user-files';
+    
+    // Check if the bucket exists
     const { data: buckets, error: bucketError } = await supabase.storage.listBuckets();
     
     if (bucketError) {
@@ -224,18 +229,10 @@ export async function uploadFile(
       throw bucketError;
     }
     
-    // Check for both hyphen and underscore versions of the bucket
-    const hyphenBucketExists = buckets.some(bucket => bucket.name === 'user-files');
-    const underscoreBucketExists = buckets.some(bucket => bucket.name === 'user_files');
+    const bucketExists = buckets.some(bucket => bucket.name === bucketName);
     
-    let bucketName = '';
-    
-    if (hyphenBucketExists) {
-      bucketName = 'user-files';
-    } else if (underscoreBucketExists) {
-      bucketName = 'user_files';
-    } else {
-      console.error('Neither user-files nor user_files bucket exists');
+    if (!bucketExists) {
+      console.error('The user-files bucket does not exist');
       throw new Error('Storage bucket not found. Please contact support.');
     }
     
@@ -256,41 +253,47 @@ export async function uploadFile(
     
     console.log('File uploaded successfully to storage');
     
-    // Create file record in database - try to handle different column names
+    // Create file record in database with all necessary fields
     try {
-      // First try with standard column names
+      const fileRecord = {
+        user_id: userId,
+        file_name: file.name,
+        file_path: filePath,
+        file_type: file.type,
+        file_size: file.size,
+        description,
+        is_public: isPublic,
+        subject_code: subjectCode || null,
+        material_type: materialType || null,
+        bucket_id: bucketName
+      };
+      
+      console.log('Inserting file record into database:', fileRecord);
+      
       const { data: fileData, error: fileError } = await supabase
         .from('user_files')
-        .insert([
-          {
-            user_id: userId,
-            file_name: file.name,
-            file_path: filePath,
-            file_type: file.type,
-            file_size: file.size,
-            description,
-            is_public: isPublic,
-            subject_code: subjectCode || null,
-            material_type: materialType || null  // Store the material type in the database
-          }
-        ])
+        .insert([fileRecord])
         .select()
         .single();
       
       if (fileError) {
-        // If that fails, try with a more minimal set of columns
+        console.error('Database insert error:', fileError);
+        
+        // Try with a more minimal set of required columns
         console.log('First insert attempt failed, trying with minimal columns');
+        const minimalRecord = {
+          user_id: userId,
+          file_name: file.name,
+          file_path: filePath,
+          is_public: isPublic,
+          subject_code: subjectCode || null,
+          material_type: materialType || null,
+          bucket_id: bucketName
+        };
+        
         const { data: minimalData, error: minimalError } = await supabase
           .from('user_files')
-          .insert([
-            {
-              user_id: userId,
-              file_path: filePath,
-              is_public: isPublic,
-              subject_code: subjectCode || null,
-              material_type: materialType || null  // Store the material type in the database
-            }
-          ])
+          .insert([minimalRecord])
           .select()
           .single();
         
@@ -317,7 +320,8 @@ export async function uploadFile(
         file_name: file.name,
         is_public: isPublic,
         subject_code: subjectCode || null,
-        material_type: materialType || null
+        material_type: materialType || null,
+        bucket_id: bucketName
       };
     }
   } catch (error) {
@@ -348,7 +352,7 @@ export async function shareFile(fileId: string, ownerId: string, sharedWithId: s
 }
 
 // Download a file
-export async function downloadFile(filePath: string) {
+export async function downloadFile(filePath: string, bucketId?: string) {
   try {
     // Validate the file path
     if (!filePath || filePath.trim() === '') {
@@ -358,13 +362,16 @@ export async function downloadFile(filePath: string) {
     
     console.log('Downloading file from path:', filePath);
     
-    // First try with the hyphenated bucket name
+    // Use the provided bucket ID or default to 'user-files'
+    const bucketName = bucketId || 'user-files';
+    
+    // Try to download from the specified bucket
     let result = await supabase.storage
-      .from('user-files') // Use hyphen to match the existing bucket name
+      .from(bucketName)
       .download(filePath);
     
-    // If that fails, try with the underscore version
-    if (result.error && result.error.message.includes('bucket')) {
+    // If that fails and we're using the default bucket, try with the underscore version
+    if (result.error && !bucketId && result.error.message.includes('bucket')) {
       console.log('Trying alternate bucket name with underscore');
       result = await supabase.storage
         .from('user_files') // Try with underscore as fallback
@@ -373,7 +380,34 @@ export async function downloadFile(filePath: string) {
     
     if (result.error) {
       console.error('Error downloading file:', result.error);
-      throw result.error;
+      
+      // If the file path includes a subject code and material type, try to fetch it directly
+      // This handles cases where the file might be in a different structure
+      const pathParts = filePath.split('/');
+      if (pathParts.length >= 3) {
+        // Try to get the file info from the database
+        const { data: fileData, error: fileError } = await supabase
+          .from('user_files')
+          .select('*')
+          .eq('file_path', filePath)
+          .single();
+          
+        if (!fileError && fileData && fileData.bucket_id) {
+          console.log(`Found file in database, trying bucket: ${fileData.bucket_id}`);
+          result = await supabase.storage
+            .from(fileData.bucket_id)
+            .download(filePath);
+            
+          if (result.error) {
+            console.error('Error downloading file from database bucket:', result.error);
+            throw result.error;
+          }
+        } else {
+          throw result.error;
+        }
+      } else {
+        throw result.error;
+      }
     }
     
     console.log('File downloaded successfully');

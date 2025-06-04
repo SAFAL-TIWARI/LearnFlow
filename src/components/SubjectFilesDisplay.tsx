@@ -73,6 +73,19 @@ const SubjectFilesDisplay: React.FC<SubjectFilesDisplayProps> = ({ year, semeste
       
       console.log(`Found ${data?.length || 0} files for subject ${subjectCode} in database`);
       
+      // Try to use the RPC function if available
+      let rpcData = null;
+      try {
+        const { data: rpcResult, error: rpcError } = await supabase
+          .rpc('get_subject_files', { subject_code_param: subjectCode });
+          
+        if (!rpcError && rpcResult) {
+          rpcData = rpcResult;
+          console.log(`Found ${rpcData.length} files using RPC function`);
+        }
+      } catch (rpcErr) {
+        console.log('RPC function not available, using direct query instead');
+      }
 
       // Also try to fetch files directly from storage for each material type
       const materialTypes = ['Syllabus', 'assignments', 'practicals', 'labwork', 'pyq'];
@@ -108,7 +121,8 @@ const SubjectFilesDisplay: React.FC<SubjectFilesDisplayProps> = ({ year, semeste
                 material_type: materialType,
                 created_at: file.created_at || new Date().toISOString(),
                 is_public: true,
-                publicUrl: publicUrl
+                publicUrl: publicUrl,
+                bucket_id: 'user-files'
               };
             });
             
@@ -122,23 +136,27 @@ const SubjectFilesDisplay: React.FC<SubjectFilesDisplayProps> = ({ year, semeste
       // Combine database files and storage files
       let allFiles = [];
       
-      if (data && data.length > 0) {
+      // Use RPC data if available, otherwise use direct query data
+      const dbData = rpcData || data;
+      
+      if (dbData && dbData.length > 0) {
         // Process database files to add public URLs
-        const processedDbFiles = data.map((file: any) => {
+        const processedDbFiles = dbData.map((file: any) => {
           let publicUrl = '';
+          const bucketId = file.bucket_id || 'user-files';
 
           if (file.file_path) {
             // If we have a file_path, use it to construct the URL
-            publicUrl = `${supabaseUrl}/storage/v1/object/public/user-files/${file.file_path}`;
+            publicUrl = `${supabaseUrl}/storage/v1/object/public/${bucketId}/${file.file_path}`;
           } else {
             // Otherwise, construct from bucket and filename
-            const bucketName = 'user-files';
-            const filePath = `${file.user_id}/${file.name}`;
-            publicUrl = `${supabaseUrl}/storage/v1/object/public/${bucketName}/${filePath}`;
+            const filePath = `${file.user_id}/${file.file_name || 'unknown'}`;
+            publicUrl = `${supabaseUrl}/storage/v1/object/public/${bucketId}/${filePath}`;
           }
 
           return {
             ...file,
+            name: file.file_name || file.name || 'Unknown File',
             publicUrl
           };
         });
