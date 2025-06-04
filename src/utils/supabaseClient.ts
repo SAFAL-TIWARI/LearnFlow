@@ -549,3 +549,64 @@ export async function syncUserDataToProfile(userId: string) {
     return false;
   }
 }
+
+// Delete a file
+export async function deleteFile(fileId: string) {
+  try {
+    // First get the file details to get the file_path and bucket_id
+    const { data: fileData, error: fileError } = await supabase
+      .from('user_files')
+      .select('*')
+      .eq('id', fileId)
+      .single();
+    
+    if (fileError) {
+      console.error('Error fetching file details:', fileError);
+      throw fileError;
+    }
+    
+    if (!fileData) {
+      throw new Error('File not found');
+    }
+    
+    console.log('File to delete:', fileData);
+    
+    // Get the file path and bucket ID
+    const filePath = fileData.file_path;
+    const bucketId = fileData.bucket_id || 'user-files';
+    
+    if (!filePath) {
+      throw new Error('File path is missing');
+    }
+    
+    // First delete the file from storage
+    const { error: storageError } = await supabase.storage
+      .from(bucketId)
+      .remove([filePath]);
+    
+    if (storageError) {
+      console.error('Error deleting file from storage:', storageError);
+      // Continue with database deletion even if storage deletion fails
+      console.log('Continuing with database deletion despite storage error');
+    } else {
+      console.log('File deleted from storage successfully');
+    }
+    
+    // Then delete the record from the database
+    const { error: dbError } = await supabase
+      .from('user_files')
+      .delete()
+      .eq('id', fileId);
+    
+    if (dbError) {
+      console.error('Error deleting file record from database:', dbError);
+      throw dbError;
+    }
+    
+    console.log('File record deleted from database successfully');
+    return true;
+  } catch (error) {
+    console.error('Error deleting file:', error);
+    return false;
+  }
+}

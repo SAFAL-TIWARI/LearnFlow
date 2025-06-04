@@ -6,7 +6,7 @@ import { useAuth } from '../context/SupabaseAuthContext';
 import PageFadeSection from '../components/PageFadeSection';
 import SEOStructuredData from '../components/SEOStructuredData';
 import { ThemeProvider } from '../hooks/useTheme';
-import { getUserProfile, getUserFiles, downloadFile, UserFile, UserProfile } from '../utils/supabaseClient';
+import { getUserProfile, getUserFiles, downloadFile, deleteFile, UserFile, UserProfile } from '../utils/supabaseClient';
 import { supabase } from '../utils/supabaseClient';
 
 const UserFiles: React.FC = () => {
@@ -17,6 +17,7 @@ const UserFiles: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [downloadingFileId, setDownloadingFileId] = useState<string | null>(null);
+  const [deletingFileId, setDeletingFileId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -94,6 +95,47 @@ const UserFiles: React.FC = () => {
       alert('Failed to download file: ' + (err instanceof Error ? err.message : 'Unknown error'));
     } finally {
       setDownloadingFileId(null);
+    }
+  };
+
+  // Handle file deletion
+  const handleDelete = async (file: UserFile) => {
+    if (!user) {
+      alert('Please log in to delete files');
+      return;
+    }
+
+    // Check if the current user is the owner of the file
+    if (user.id !== file.owner_id) {
+      alert('You can only delete your own files');
+      return;
+    }
+
+    // Confirm deletion
+    if (!window.confirm(`Are you sure you want to delete "${file.file_name}"?`)) {
+      return;
+    }
+
+    try {
+      setDeletingFileId(file.id);
+      
+      console.log('Attempting to delete file:', file.file_name);
+      
+      // Call the deleteFile function
+      const success = await deleteFile(file.id);
+      
+      if (success) {
+        console.log('File deleted successfully');
+        // Remove the file from the state
+        setFiles(prevFiles => prevFiles.filter(f => f.id !== file.id));
+      } else {
+        throw new Error('Failed to delete file');
+      }
+    } catch (err) {
+      console.error('Error deleting file:', err);
+      alert('Failed to delete file: ' + (err instanceof Error ? err.message : 'Unknown error'));
+    } finally {
+      setDeletingFileId(null);
     }
   };
 
@@ -259,23 +301,46 @@ const UserFiles: React.FC = () => {
                               )}
                             </div>
                           </div>
-                          <button
-                            onClick={() => handleDownload(file)}
-                            disabled={downloadingFileId === file.id}
-                            className="ml-4 bg-learnflow-600 hover:bg-learnflow-700 text-white px-3 py-1.5 rounded-lg transition-colors duration-300 flex items-center text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            {downloadingFileId === file.id ? (
-                              <>
-                                <span className="mr-2">Downloading</span>
-                                <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
-                              </>
-                            ) : (
-                              <>
-                                <DownloadIcon className="mr-1.5" />
-                                Download
-                              </>
+                          <div className="flex ml-4 space-x-2">
+                            <button
+                              onClick={() => handleDownload(file)}
+                              disabled={downloadingFileId === file.id}
+                              className="bg-learnflow-600 hover:bg-learnflow-700 text-white px-3 py-1.5 rounded-lg transition-colors duration-300 flex items-center text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {downloadingFileId === file.id ? (
+                                <>
+                                  <span className="mr-2">Downloading</span>
+                                  <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                                </>
+                              ) : (
+                                <>
+                                  <DownloadIcon className="mr-1.5" />
+                                  Download
+                                </>
+                              )}
+                            </button>
+                            
+                            {/* Only show delete button if the current user is the owner */}
+                            {user && user.id === file.owner_id && (
+                              <button
+                                onClick={() => handleDelete(file)}
+                                disabled={deletingFileId === file.id}
+                                className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg transition-colors duration-300 flex items-center text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                {deletingFileId === file.id ? (
+                                  <>
+                                    <span className="mr-2">Deleting</span>
+                                    <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                                  </>
+                                ) : (
+                                  <>
+                                    <TrashIcon className="mr-1.5" />
+                                    Delete
+                                  </>
+                                )}
+                              </button>
                             )}
-                          </button>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -347,6 +412,12 @@ const ZipIcon = () => (
 const DownloadIcon = ({ className = "" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 ${className}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+  </svg>
+);
+
+const TrashIcon = ({ className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 ${className}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
   </svg>
 );
 
