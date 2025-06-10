@@ -9,42 +9,18 @@ interface MonkeyAvatarProps {
 
 const MonkeyAvatar: React.FC<MonkeyAvatarProps> = ({ showPassword, passwordFieldRef, emailFieldRef }) => {
   const monkeyRef = useRef<HTMLDivElement>(null);
-  const [eyePosition, setEyePosition] = useState({ x: 0, y: 0 });
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [isTouchDevice, setIsTouchDevice] = useState(false);
-  const [isBlinking, setIsBlinking] = useState(false);
+  const eyeLeftRef = useRef<SVGEllipseElement>(null);
+  const eyeRightRef = useRef<SVGEllipseElement>(null);
   const [isPasswordFieldFocused, setIsPasswordFieldFocused] = useState(false);
   const [isEmailFieldFocused, setIsEmailFieldFocused] = useState(false);
-  const [focusedField, setFocusedField] = useState<'email' | 'password' | null>(null);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   // Check if device is touch-enabled
   useEffect(() => {
     setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
   }, []);
-
-  // Function to calculate eye position based on pointer coordinates
-  const calculateEyePosition = (clientX: number, clientY: number) => {
-    if (monkeyRef.current) {
-      const monkeyRect = monkeyRef.current.getBoundingClientRect();
-      const monkeyCenter = {
-        x: monkeyRect.left + monkeyRect.width / 2,
-        y: monkeyRect.top + monkeyRect.height / 2,
-      };
-
-      // Calculate the angle between pointer and monkey center
-      const angle = Math.atan2(clientY - monkeyCenter.y, clientX - monkeyCenter.x);
-
-      // Limit eye movement range (max 5px in any direction)
-      const maxEyeMove = 5;
-      const eyeX = Math.cos(angle) * maxEyeMove;
-      const eyeY = Math.sin(angle) * maxEyeMove;
-
-      // Add a small delay for more natural movement
-      setTimeout(() => {
-        setEyePosition({ x: eyeX, y: eyeY });
-      }, 50);
-    }
-  };
 
   // Track password field focus
   useEffect(() => {
@@ -54,71 +30,22 @@ const MonkeyAvatar: React.FC<MonkeyAvatarProps> = ({ showPassword, passwordField
 
     const handleFocus = () => {
       setIsPasswordFieldFocused(true);
-      setFocusedField('password');
     };
 
     const handleBlur = () => {
       setIsPasswordFieldFocused(false);
-      setFocusedField(null);
-    };
-
-    const handleInput = () => {
-      if (isPasswordFieldFocused && passwordField) {
-        // Get caret position and field position
-        const caretPosition = passwordField.selectionStart || 0;
-        const fieldRect = passwordField.getBoundingClientRect();
-
-        // Calculate approximate x position of caret
-        // This is an approximation as exact caret position is hard to determine
-        const charWidth = 8; // Approximate width of a character in pixels
-        const paddingLeft = 12; // Approximate padding from CSS
-
-        // Adjust for password field (dots/asterisks have consistent width)
-        const effectivePosition = showPassword ? caretPosition : Math.min(caretPosition, 8);
-
-        // Calculate position with a slight randomization for more natural movement
-        const randomOffset = Math.random() * 2 - 1; // Between -1 and 1
-        const caretX = fieldRect.left + paddingLeft + (effectivePosition * charWidth) + randomOffset;
-        const caretY = fieldRect.top + (fieldRect.height / 2);
-
-        // Make eyes look at caret position
-        calculateEyePosition(caretX, caretY);
-      }
     };
 
     passwordField.addEventListener('focus', handleFocus);
     passwordField.addEventListener('blur', handleBlur);
-    passwordField.addEventListener('input', handleInput);
-    passwordField.addEventListener('click', handleInput);
-    passwordField.addEventListener('keyup', handleInput);
-    passwordField.addEventListener('keydown', handleInput);
-    passwordField.addEventListener('select', handleInput);
-    passwordField.addEventListener('selectionchange', handleInput);
-
-    // Set up an interval to track cursor position while field is focused
-    let cursorTrackingInterval: number | null = null;
-
-    if (isPasswordFieldFocused) {
-      cursorTrackingInterval = window.setInterval(handleInput, 100);
-    }
 
     return () => {
       passwordField.removeEventListener('focus', handleFocus);
       passwordField.removeEventListener('blur', handleBlur);
-      passwordField.removeEventListener('input', handleInput);
-      passwordField.removeEventListener('click', handleInput);
-      passwordField.removeEventListener('keyup', handleInput);
-      passwordField.removeEventListener('keydown', handleInput);
-      passwordField.removeEventListener('select', handleInput);
-      passwordField.removeEventListener('selectionchange', handleInput);
-
-      if (cursorTrackingInterval) {
-        clearInterval(cursorTrackingInterval);
-      }
     };
-  }, [passwordFieldRef, isPasswordFieldFocused]);
+  }, [passwordFieldRef]);
 
-  // Track email field focus and cursor position
+  // Track email field focus
   useEffect(() => {
     if (!emailFieldRef?.current) return;
 
@@ -126,96 +53,20 @@ const MonkeyAvatar: React.FC<MonkeyAvatarProps> = ({ showPassword, passwordField
 
     const handleFocus = () => {
       setIsEmailFieldFocused(true);
-      setFocusedField('email');
     };
 
     const handleBlur = () => {
       setIsEmailFieldFocused(false);
-      setFocusedField(null);
-    };
-
-    const handleInput = () => {
-      if (isEmailFieldFocused && emailField) {
-        // Get caret position and field position
-        const caretPosition = emailField.selectionStart || 0;
-        const fieldRect = emailField.getBoundingClientRect();
-
-        // Calculate approximate x position of caret
-        const charWidth = 8; // Approximate width of a character in pixels
-        const paddingLeft = 12; // Approximate padding from CSS
-
-        // Calculate position with a slight randomization for more natural movement
-        const randomOffset = Math.random() * 2 - 1; // Between -1 and 1
-        const caretX = fieldRect.left + paddingLeft + (caretPosition * charWidth) + randomOffset;
-        const caretY = fieldRect.top + (fieldRect.height / 2);
-
-        // Make eyes look at caret position
-        calculateEyePosition(caretX, caretY);
-      }
     };
 
     emailField.addEventListener('focus', handleFocus);
     emailField.addEventListener('blur', handleBlur);
-    emailField.addEventListener('input', handleInput);
-    emailField.addEventListener('click', handleInput);
-    emailField.addEventListener('keyup', handleInput);
-    emailField.addEventListener('keydown', handleInput);
-    emailField.addEventListener('select', handleInput);
-    emailField.addEventListener('selectionchange', handleInput);
-
-    // Set up an interval to track cursor position while field is focused
-    let cursorTrackingInterval: number | null = null;
-
-    if (isEmailFieldFocused) {
-      cursorTrackingInterval = window.setInterval(handleInput, 100);
-    }
 
     return () => {
       emailField.removeEventListener('focus', handleFocus);
       emailField.removeEventListener('blur', handleBlur);
-      emailField.removeEventListener('input', handleInput);
-      emailField.removeEventListener('click', handleInput);
-      emailField.removeEventListener('keyup', handleInput);
-      emailField.removeEventListener('keydown', handleInput);
-      emailField.removeEventListener('select', handleInput);
-      emailField.removeEventListener('selectionchange', handleInput);
-
-      if (cursorTrackingInterval) {
-        clearInterval(cursorTrackingInterval);
-      }
     };
-  }, [emailFieldRef, isEmailFieldFocused]);
-
-  // Track mouse movement
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      // Only follow mouse if no input field is focused
-      if (!isPasswordFieldFocused && !isEmailFieldFocused) {
-        calculateEyePosition(e.clientX, e.clientY);
-      }
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      if (e.touches.length > 0 && !isPasswordFieldFocused && !isEmailFieldFocused) {
-        calculateEyePosition(e.touches[0].clientX, e.touches[0].clientY);
-      }
-    };
-
-    // Add appropriate event listeners based on device type
-    if (isTouchDevice) {
-      window.addEventListener('touchmove', handleTouchMove);
-    } else {
-      window.addEventListener('mousemove', handleMouseMove);
-    }
-
-    return () => {
-      if (isTouchDevice) {
-        window.removeEventListener('touchmove', handleTouchMove);
-      } else {
-        window.removeEventListener('mousemove', handleMouseMove);
-      }
-    };
-  }, [isTouchDevice, isPasswordFieldFocused, isEmailFieldFocused]);
+  }, [emailFieldRef]);
 
   // Handle password visibility change animation
   useEffect(() => {
@@ -227,114 +78,140 @@ const MonkeyAvatar: React.FC<MonkeyAvatarProps> = ({ showPassword, passwordField
     return () => clearTimeout(timer);
   }, [showPassword]);
 
-  // Random blinking effect
+  // Track mouse movement for eye following
   useEffect(() => {
-    const blinkRandomly = () => {
-      // Random time between 2 and 6 seconds
-      const nextBlinkTime = 2000 + Math.random() * 4000;
+    if (isTouchDevice) return; // Skip for touch devices
 
-      const blinkTimer = setTimeout(() => {
-        if (showPassword) { // Only blink when eyes are covered (reversed logic)
-          // Don't blink when hands are covering eyes
-        } else {
-          setIsBlinking(true);
-          setTimeout(() => setIsBlinking(false), 200); // Blink duration
-        }
-        blinkRandomly(); // Schedule next blink
-      }, nextBlinkTime);
-
-      return blinkTimer;
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
     };
 
-    const blinkTimerId = blinkRandomly();
-    return () => clearTimeout(blinkTimerId);
-  }, [showPassword]);
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, [isTouchDevice]);
+
+  // Update eye position based on mouse coordinates
+  useEffect(() => {
+    if (isTouchDevice || isPasswordFieldFocused || isEmailFieldFocused) return; // Skip when text inputs are focused or on touch devices
+    
+    if (eyeLeftRef.current && eyeRightRef.current && monkeyRef.current) {
+      const monkeyRect = monkeyRef.current.getBoundingClientRect();
+      const monkeyCenter = {
+        x: monkeyRect.left + monkeyRect.width / 2,
+        y: monkeyRect.top + monkeyRect.height / 2
+      };
+      
+      // Calculate direction vector from monkey to cursor
+      const dx = mousePosition.x - monkeyCenter.x;
+      const dy = mousePosition.y - monkeyCenter.y;
+      
+      // Limit the eye movement (1.5px maximum displacement)
+      const maxEyeMovement = 1.5;
+      // Normalize and scale the movement
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      const normalizedDx = distance > 0 ? (dx / distance) * maxEyeMovement : 0;
+      const normalizedDy = distance > 0 ? (dy / distance) * maxEyeMovement : 0;
+      
+      // Apply the transformation to eyes
+      eyeLeftRef.current.style.transform = `translate(${normalizedDx}px, ${normalizedDy}px)`;
+      eyeRightRef.current.style.transform = `translate(${normalizedDx}px, ${normalizedDy}px)`;
+    }
+  }, [mousePosition, isTouchDevice, isPasswordFieldFocused, isEmailFieldFocused]);
+
+  // Determine CSS classes based on state
+  const containerClasses = [
+    styles.monkeyContainer,
+    (isPasswordFieldFocused || isEmailFieldFocused) ? styles.inputFocused : '',
+    showPassword ? styles.showPassword : ''
+  ].filter(Boolean).join(' ');
 
   return (
-    <div ref={monkeyRef} className={styles.monkeyContainer}>
-      {/* Circular background */}
-      <div className={styles.monkeyBackground}></div>
-
-      {/* Monkey face */}
-      <div className={styles.monkeyFace}></div>
-
-      {/* Ears */}
-      <div className={`${styles.ear} ${styles.earLeft}`}></div>
-      <div className={`${styles.ear} ${styles.earRight}`}></div>
-
-      {/* Inner ears */}
-      <div className={`${styles.innerEar} ${styles.innerEarLeft}`}></div>
-      <div className={`${styles.innerEar} ${styles.innerEarRight}`}></div>
-
-      {/* Eyes container */}
-      <div className={styles.eyesContainer}>
-        <div className={styles.eyes}>
-          {/* Left eye */}
-          <div className={isBlinking ? styles.eyeBlinking : styles.eye}>
-            <div
-              className={styles.pupil}
-              style={{
-                top: `calc(50% + ${eyePosition.y}px - 6px)`,
-                left: `calc(50% + ${eyePosition.x}px - 6px)`,
-                opacity: isBlinking ? 0 : 1
-              }}
-            ></div>
-          </div>
-
-          {/* Right eye */}
-          <div className={isBlinking ? styles.eyeBlinking : styles.eye}>
-            <div
-              className={styles.pupil}
-              style={{
-                top: `calc(50% + ${eyePosition.y}px - 6px)`,
-                left: `calc(50% + ${eyePosition.x}px - 6px)`,
-                opacity: isBlinking ? 0 : 1
-              }}
-            ></div>
-          </div>
-        </div>
-      </div>
-
-      {/* Muzzle */}
-      <div className={styles.muzzle}></div>
-
-      {/* Mouth */}
-      <div className={styles.mouth}></div>
-
-      {/* Nose */}
-      <div className={styles.nose}></div>
-
-      {/* Hands covering eyes when password is visible */}
-      <div
-        className={styles.handsContainer}
-        style={{ opacity: showPassword ? 1 : 0, transition: 'opacity 0.5s ease' }}
+    <div 
+      ref={monkeyRef} 
+      className={containerClasses}
+    >
+      {/* Monkey SVG */}
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="35"
+        height="35"
+        viewBox="0 0 64 64"
+        className={styles.monkeySvg}
       >
-        {/* Left hand */}
-        <div
-          className={`${styles.hand} ${styles.handLeft}`}
-          style={{
-            transform: showPassword ? 'translateY(0)' : 'translateY(20px)',
-            transition: isAnimating ? 'transform 0.5s ease' : ''
-          }}
-        >
-          <div className={styles.finger1}></div>
-          <div className={styles.finger2}></div>
-          <div className={styles.finger3}></div>
-        </div>
+        <ellipse cx="53.7" cy="33" rx="8.3" ry="8.2" fill="#89664c"></ellipse>
+        <ellipse cx="53.7" cy="33" rx="5.4" ry="5.4" fill="#ffc5d3"></ellipse>
+        <ellipse cx="10.2" cy="33" rx="8.2" ry="8.2" fill="#89664c"></ellipse>
+        <ellipse cx="10.2" cy="33" rx="5.4" ry="5.4" fill="#ffc5d3"></ellipse>
+        <g fill="#89664c">
+          <path
+            d="m43.4 10.8c1.1-.6 1.9-.9 1.9-.9-3.2-1.1-6-1.8-8.5-2.1 1.3-1 2.1-1.3 2.1-1.3-20.4-2.9-30.1 9-30.1 19.5h46.4c-.7-7.4-4.8-12.4-11.8-15.2"
+          ></path>
+          <path
+            d="m55.3 27.6c0-9.7-10.4-17.6-23.3-17.6s-23.3 7.9-23.3 17.6c0 2.3.6 4.4 1.6 6.4-1 2-1.6 4.2-1.6 6.4 0 9.7 10.4 17.6 23.3 17.6s23.3-7.9 23.3-17.6c0-2.3-.6-4.4-1.6-6.4 1-2 1.6-4.2 1.6-6.4"
+          ></path>
+        </g>
+        <path
+          d="m52 28.2c0-16.9-20-6.1-20-6.1s-20-10.8-20 6.1c0 4.7 2.9 9 7.5 11.7-1.3 1.7-2.1 3.6-2.1 5.7 0 6.1 6.6 11 14.7 11s14.7-4.9 14.7-11c0-2.1-.8-4-2.1-5.7 4.4-2.7 7.3-7 7.3-11.7"
+          fill="#e0ac7e"
+        ></path>
+        <g fill="#3b302a" className={styles.monkeyEyeNose}>
+          <path
+            d="m35.1 38.7c0 1.1-.4 2.1-1 2.1-.6 0-1-.9-1-2.1 0-1.1.4-2.1 1-2.1.6.1 1 1 1 2.1"
+          ></path>
+          <path
+            d="m30.9 38.7c0 1.1-.4 2.1-1 2.1-.6 0-1-.9-1-2.1 0-1.1.4-2.1 1-2.1.5.1 1 1 1 2.1"
+          ></path>
+          <ellipse
+            ref={eyeRightRef}
+            cx="40.7"
+            cy="31.7"
+            rx="3.5"
+            ry="4.5"
+            className={styles.monkeyEyeR}
+          ></ellipse>
+          <ellipse
+            ref={eyeLeftRef}
+            cx="23.3"
+            cy="31.7"
+            rx="3.5"
+            ry="4.5"
+            className={styles.monkeyEyeL}
+          ></ellipse>
+        </g>
+      </svg>
 
-        {/* Right hand */}
-        <div
-          className={`${styles.hand} ${styles.handRight}`}
-          style={{
-            transform: showPassword ? 'translateY(0)' : 'translateY(20px)',
-            transition: isAnimating ? 'transform 0.5s ease' : ''
-          }}
-        >
-          <div className={styles.finger1}></div>
-          <div className={styles.finger2}></div>
-          <div className={styles.finger3}></div>
-        </div>
-      </div>
+      {/* Monkey Hands SVG */}
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="35"
+        height="35"
+        viewBox="0 0 64 64"
+        className={styles.monkeyHandsSvg}
+        style={{
+          transition: isAnimating ? 'transform 0.5s ease' : ''
+        }}
+      >
+        <path
+          fill="#89664C"
+          d="M9.4,32.5L2.1,61.9H14c-1.6-7.7,4-21,4-21L9.4,32.5z"
+        ></path>
+        <path
+          fill="#FFD6BB"
+          d="M15.8,24.8c0,0,4.9-4.5,9.5-3.9c2.3,0.3-7.1,7.6-7.1,7.6s9.7-8.2,11.7-5.6c1.8,2.3-8.9,9.8-8.9,9.8
+          s10-8.1,9.6-4.6c-0.3,3.8-7.9,12.8-12.5,13.8C11.5,43.2,6.3,39,9.8,24.4C11.6,17,13.3,25.2,15.8,24.8"
+        ></path>
+        <path
+          fill="#89664C"
+          d="M54.8,32.5l7.3,29.4H50.2c1.6-7.7-4-21-4-21L54.8,32.5z"
+        ></path>
+        <path
+          fill="#FFD6BB"
+          d="M48.4,24.8c0,0-4.9-4.5-9.5-3.9c-2.3,0.3,7.1,7.6,7.1,7.6s-9.7-8.2-11.7-5.6c-1.8,2.3,8.9,9.8,8.9,9.8
+          s-10-8.1-9.7-4.6c0.4,3.8,8,12.8,12.6,13.8c6.6,1.3,11.8-2.9,8.3-17.5C52.6,17,50.9,25.2,48.4,24.8"
+        ></path>
+      </svg>
     </div>
   );
 };

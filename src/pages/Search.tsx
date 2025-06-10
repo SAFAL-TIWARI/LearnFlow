@@ -9,6 +9,7 @@ import { ThemeProvider } from '../hooks/useTheme';
 import { User } from '@supabase/supabase-js';
 import { searchUsers, UserProfile as SupabaseUserProfile } from '../utils/supabaseClient';
 import BackButton from '../components/BackButton';
+import LoadingAnimation from '../components/LoadingAnimation';
 
 // Interface for our component's user profile format
 interface UserProfile {
@@ -313,7 +314,7 @@ const Search: React.FC = () => {
                   </div>
                   {isSearching ? (
                     <div className="absolute right-16 top-1/2 transform -translate-y-1/2">
-                      <div className="animate-spin h-5 w-5 border-t-2 border-b-2 border-learnflow-600 rounded-full"></div>
+                      {/* <LoadingAnimation size="small" /> */}
                     </div>
                   ) : null}
                   <button
@@ -404,7 +405,7 @@ const Search: React.FC = () => {
               >
                 {isSearching ? (
                   <div className="col-span-full flex justify-center items-center py-12">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-learnflow-600"></div>
+                    <LoadingAnimation size="large" />
                   </div>
                 ) : searchQuery && searchResults.length === 0 ? (
                   <div className="col-span-full text-center py-12">

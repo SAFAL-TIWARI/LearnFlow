@@ -1,9 +1,27 @@
+/* From Uiverse.io by ilkhoeri */ 
 .monkeyContainer {
+  --p: 32px;
+  --h-form: auto;
+  --sz-avatar: 166px;
+  --sz-svg: calc(var(--sz-avatar) - 10px);
+  width: var(--sz-avatar);
+  min-width: var(--sz-avatar);
+  max-width: var(--sz-avatar);
+  height: var(--sz-avatar);
+  min-height: var(--sz-avatar);
+  max-height: var(--sz-avatar);
+  border: 1px solid #707070;
+  border-radius: 9999px;
+  overflow: hidden;
+  cursor: pointer;
+  z-index: 2;
+  perspective: 80px;
   position: relative;
-  width: 120px;
-  height: 120px;
   margin: 0 auto;
   margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   animation: bounceIn 0.6s ease-out;
 }
 
@@ -22,292 +40,132 @@
 
 @media (max-width: 640px) {
   .monkeyContainer {
-    width: 100px;
-    height: 100px;
+    --sz-avatar: 130px;
   }
 }
 
-.monkeyFace {
+.monkeyContainer svg {
   position: absolute;
-  inset: 8%;
-  border-radius: 50%;
-  background-color: #d2691e; /* saddle brown */
-  transition: transform 0.3s ease;
-}
-
-.monkeyContainer:hover .monkeyFace {
-  transform: scale(1.02);
-}
-
-.monkeyBackground {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background-color: #f5f5f5; /* light gray border */
-  border: 3px solid #e0e0e0;
-}
-
-.ear {
-  position: absolute;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background-color: #d2691e; /* saddle brown */
-}
-
-.earLeft {
-  left: -8px;
-  top: 8px;
-}
-
-.earRight {
-  right: -8px;
-  top: 8px;
-}
-
-.innerEar {
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background-color: #deb887; /* burlywood */
-}
-
-.innerEarLeft {
-  left: -4px;
-  top: 12px;
-}
-
-.innerEarRight {
-  right: -4px;
-  top: 12px;
-}
-
-.eyesContainer {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.eyes {
-  position: relative;
-  width: 64px;
-  height: 24px;
-  display: flex;
-  justify-content: space-between;
-}
-
-.eye {
-  position: relative;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background-color: white;
-  overflow: hidden;
-  transform: scaleY(1);
-  transition: transform 0.1s ease;
-}
-
-.eyeBlinking {
-  position: relative;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background-color: white;
-  overflow: hidden;
-  transform: scaleY(0.2);
-  transition: transform 0.1s ease;
-}
-
-.pupil {
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background-color: black;
-  transition: transform 0.05s ease-out;
-}
-
-.mouth {
-  position: absolute;
-  bottom: 25px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 20px;
-  height: 10px;
-  background-color: #8b4513; /* saddle brown dark */
-  border-radius: 0 0 10px 10px;
-}
-
-.nose {
-  position: absolute;
-  top: 55%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 8px;
-  height: 6px;
-  background-color: #654321; /* dark brown */
-  border-radius: 50%;
-}
-
-.muzzle {
-  position: absolute;
-  bottom: 15px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 40px;
-  height: 25px;
-  background-color: #deb887; /* burlywood */
-  border-radius: 50%;
-}
-
-.handsContainer {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  transition:
+    transform 0.2s ease-in,
+    opacity 0.1s;
+  transform-origin: 50% 100%;
+  height: var(--sz-svg);
+  width: var(--sz-svg);
   pointer-events: none;
 }
 
-.hand {
+.monkeySvg {
+  z-index: 1;
+}
+
+.monkeyHandsSvg {
+  z-index: 2;
+  transform-style: preserve-3d;
+  transform: translateY(calc(var(--sz-avatar) / 1.25)) rotateX(-21deg);
+}
+
+.monkeyContainer::before {
+  content: "";
+  border-radius: 45%;
+  width: calc(var(--sz-svg) / 3.889);
+  height: calc(var(--sz-svg) / 5.833);
+  border: 0;
+  border-bottom: calc(var(--sz-svg) * (4 / 100)) solid #3c302a;
+  bottom: 20%;
   position: absolute;
-  width: 30px;
-  height: 30px;
-  background-color: #d2691e; /* saddle brown */
+  transition: all 0.2s ease;
+  z-index: 3;
+}
+
+.showPassword .monkeyContainer::before {
+  width: calc(var(--sz-svg) * (9 / 100));
+  height: 0;
   border-radius: 50%;
-  top: 32%;
-  transition: transform 0.5s ease;
+  border-bottom: calc(var(--sz-svg) * (10 / 100)) solid #3c302a;
 }
 
-.handLeft {
-  left: 12px;
+.monkeyEyeR,
+.monkeyEyeL {
+  animation: blink 10s 1s infinite;
+  transition: all 0.2s ease;
+  transform-origin: center;
+  will-change: transform;
 }
 
-.handRight {
-  right: 12px;
+@keyframes blink {
+  0%,
+  2%,
+  4%,
+  26%,
+  28%,
+  71%,
+  73%,
+  100% {
+    ry: 4.5;
+    cy: 31.7;
+  }
+  1%,
+  3%,
+  27%,
+  72% {
+    ry: 0.5;
+    cy: 30;
+  }
 }
 
-/* Realistic hand with fingers */
-.hand::before {
-  content: '';
-  position: absolute;
-  width: 8px;
-  height: 12px;
-  background-color: #d2691e;
-  border-radius: 4px;
-  top: -6px;
-  left: 50%;
-  transform: translateX(-50%);
+.showPassword .monkeyEyeR,
+.showPassword .monkeyEyeL {
+  ry: 0.5;
+  cy: 30;
 }
 
-.hand::after {
-  content: '';
-  position: absolute;
-  width: 6px;
-  height: 10px;
-  background-color: #d2691e;
-  border-radius: 3px;
-  top: -4px;
-  left: 20%;
+.showPassword .monkeyHandsSvg {
+  transform: translate3d(0, 0, 0) rotateX(0deg);
 }
 
-.handLeft::after {
-  left: 20%;
+.monkeySvg,
+.monkeyContainer::before,
+.monkeyEyeNose,
+.monkeyEyeR,
+.monkeyEyeL {
+  transition: all 0.2s ease;
 }
 
-.handRight::after {
-  right: 20%;
-  left: auto;
+.inputFocused .monkeySvg {
+  animation: slick 3s ease infinite 1s;
+  --center: rotateY(0deg);
+  --left: rotateY(-4deg);
+  --right: rotateY(4deg);
 }
 
-/* Additional fingers */
-.finger1, .finger2, .finger3 {
-  position: absolute;
-  background-color: #d2691e;
-  border-radius: 2px;
+.inputFocused .monkeyContainer::before,
+.inputFocused .monkeyEyeNose {
+  animation: slick 3s ease infinite 1s;
+  --center: translateX(0);
+  --left: translateX(-0.5px);
+  --right: translateX(0.5px);
 }
 
-.handLeft .finger1 {
-  width: 4px;
-  height: 8px;
-  top: -5px;
-  left: 8px;
+.inputFocused:not(.showPassword) .monkeyEyeR,
+.inputFocused:not(.showPassword) .monkeyEyeL {
+  ry: 3;
+  cy: 35;
+  animation: slick 3s ease infinite 1s;
+  --center: translateX(0);
+  --left: translateX(-0.5px);
+  --right: translateX(0.5px);
 }
 
-.handLeft .finger2 {
-  width: 4px;
-  height: 9px;
-  top: -6px;
-  left: 14px;
-}
-
-.handLeft .finger3 {
-  width: 4px;
-  height: 7px;
-  top: -4px;
-  left: 20px;
-}
-
-.handRight .finger1 {
-  width: 4px;
-  height: 8px;
-  top: -5px;
-  right: 8px;
-}
-
-.handRight .finger2 {
-  width: 4px;
-  height: 9px;
-  top: -6px;
-  right: 14px;
-}
-
-.handRight .finger3 {
-  width: 4px;
-  height: 7px;
-  top: -4px;
-  right: 20px;
-}
-
-/* Dark mode styles */
-:global(.dark) .monkeyBackground {
-  background-color: #374151; /* gray-700 */
-  border-color: #4b5563; /* gray-600 */
-}
-
-:global(.dark) .monkeyFace {
-  background-color: #a0522d; /* sienna */
-}
-
-:global(.dark) .ear,
-:global(.dark) .hand {
-  background-color: #a0522d; /* sienna */
-}
-
-:global(.dark) .innerEar,
-:global(.dark) .muzzle {
-  background-color: #deb887; /* burlywood */
-}
-
-:global(.dark) .eye {
-  background-color: #f9fafb; /* gray-50 */
-}
-
-:global(.dark) .mouth {
-  background-color: #7c2d12; /* red-900 */
-}
-
-:global(.dark) .nose {
-  background-color: #451a03; /* amber-950 */
-}
-
-:global(.dark) .hand::before,
-:global(.dark) .hand::after,
-:global(.dark) .finger1,
-:global(.dark) .finger2,
-:global(.dark) .finger3 {
-  background-color: #a0522d; /* sienna */
+@keyframes slick {
+  0%,
+  100% {
+    transform: var(--center);
+  }
+  25% {
+    transform: var(--left);
+  }
+  75% {
+    transform: var(--right);
+  }
 }

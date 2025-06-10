@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../../hooks/useTheme';
-import { MessageSquare, Send, X, Loader2, Maximize2, Minimize2 } from 'lucide-react';
+import { MessageSquare, Send, X, Maximize2, Minimize2 } from 'lucide-react';
+import LoadingAnimation from '../LoadingAnimation';
 import './ChatbotWidget.css';
 
 interface Message {
@@ -613,8 +614,8 @@ Always provide helpful, accurate, and educational responses.`
             {isLoading && (
               <div className="message assistant-message">
                 <div className="message-content loading">
-                  <Loader2 className="animate-spin" size={18} />
-                  <span>Thinking...</span>
+                  <LoadingAnimation size="small" />
+                  {/* <span>Thinking...</span> */}
                 </div>
               </div>
             )}
