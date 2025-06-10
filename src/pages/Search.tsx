@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -45,6 +45,7 @@ const Search: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
   const location = useLocation();
   const { user } = useAuth();
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Parse query parameters when the component mounts or location changes
   useEffect(() => {
@@ -55,6 +56,21 @@ const Search: React.FC = () => {
       performSearch(query);
     }
   }, [location]);
+
+  // Debounce function to delay search until user stops typing
+  const debounce = (func: Function, delay: number) => {
+    return (...args: any[]) => {
+      // Clear any existing timeout
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+      
+      // Set a new timeout
+      debounceTimeoutRef.current = setTimeout(() => {
+        func(...args);
+      }, delay);
+    };
+  };
 
   // Perform search when the search query changes
   const performSearch = async (query: string) => {
@@ -113,6 +129,37 @@ const Search: React.FC = () => {
     }
   };
 
+  // Create a debounced version of the search function (300ms delay)
+  const debouncedSearch = useCallback(
+    debounce((query: string) => {
+      performSearch(query);
+      
+      // Update URL with search query
+      const searchParams = new URLSearchParams(location.search);
+      searchParams.set('q', query);
+      window.history.pushState(
+        {},
+        '',
+        `${location.pathname}?${searchParams.toString()}`
+      );
+    }, 300),
+    [location.pathname]
+  );
+
+  // Handle input change with debounced search
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newQuery = e.target.value;
+    setSearchQuery(newQuery);
+    
+    // Trigger debounced search when input changes
+    if (newQuery.trim().length > 0) { // Search from the first character
+      debouncedSearch(newQuery);
+    } else if (newQuery.trim().length === 0) {
+      // Clear results if search is empty
+      setSearchResults([]);
+    }
+  };
+
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     performSearch(searchQuery);
@@ -148,7 +195,7 @@ const Search: React.FC = () => {
                   <input
                     type="text"
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={handleInputChange}
                     placeholder="Search by name, branch, semester, etc..."
                     className="w-full p-4 pl-12 pr-12 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-learnflow-500 focus:border-transparent transition-all duration-300"
                   />
@@ -157,6 +204,11 @@ const Search: React.FC = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                   </div>
+                  {isSearching ? (
+                    <div className="absolute right-16 top-1/2 transform -translate-y-1/2">
+                      <div className="animate-spin h-5 w-5 border-t-2 border-b-2 border-learnflow-600 rounded-full"></div>
+                    </div>
+                  ) : null}
                   <button
                     type="submit"
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-learnflow-600 hover:bg-learnflow-700 text-white px-4 py-2 rounded-lg transition-colors duration-300"
@@ -164,6 +216,9 @@ const Search: React.FC = () => {
                     Search
                   </button>
                 </div>
+                {/* <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 ml-2">
+                  Results will appear as you type. Type at least 2 characters to start searching.
+                </p> */}
               </form>
 
               {/* Search Results */}
