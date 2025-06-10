@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useAuth } from '../context/SupabaseAuthContext';
@@ -39,16 +39,98 @@ const convertSupabaseProfile = (profile: SupabaseUserProfile): UserProfile => {
   };
 };
 
+// Search history item type
+interface SearchHistoryItem {
+  id: string;
+  name: string;
+  username: string;
+  timestamp: number;
+}
+
+// Functions to manage search history
+const getSearchHistory = (): SearchHistoryItem[] => {
+  try {
+    const historyString = localStorage.getItem('learnflow_search_history');
+    return historyString ? JSON.parse(historyString) : [];
+  } catch (error) {
+    console.error('Error getting search history:', error);
+    return [];
+  }
+};
+
+const saveToSearchHistory = (profile: UserProfile) => {
+  try {
+    const history = getSearchHistory();
+    
+    // Check if this profile is already in history
+    const existingIndex = history.findIndex(item => item.id === profile.id);
+    
+    // Create a history item with current timestamp
+    const historyItem: SearchHistoryItem = {
+      id: profile.id,
+      name: profile.name,
+      username: profile.username,
+      timestamp: Date.now()
+    };
+    
+    // If exists, remove it (will be added to the front later)
+    if (existingIndex !== -1) {
+      history.splice(existingIndex, 1);
+    }
+    
+    // Add to the beginning of the array
+    history.unshift(historyItem);
+    
+    // Keep only the latest 10 items
+    const trimmedHistory = history.slice(0, 10);
+    
+    // Save back to localStorage
+    localStorage.setItem('learnflow_search_history', JSON.stringify(trimmedHistory));
+    
+  } catch (error) {
+    console.error('Error saving search history:', error);
+  }
+};
+
+const removeFromSearchHistory = (itemId: string, timestamp: number) => {
+  try {
+    const history = getSearchHistory();
+    
+    // Remove the item with matching id and timestamp
+    const updatedHistory = history.filter(
+      item => !(item.id === itemId && item.timestamp === timestamp)
+    );
+    
+    // Save back to localStorage
+    localStorage.setItem('learnflow_search_history', JSON.stringify(updatedHistory));
+    
+    return updatedHistory;
+  } catch (error) {
+    console.error('Error removing from search history:', error);
+    return getSearchHistory(); // Return original on error
+  }
+};
+
 const Search: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<UserProfile[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [isInputFocused, setIsInputFocused] = useState(false);
+  const [searchHistory, setSearchHistory] = useState<SearchHistoryItem[]>([]);
+  const [dropdownHeight, setDropdownHeight] = useState(0);
   const location = useLocation();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Parse query parameters when the component mounts or location changes
+  // Parse query parameters and load search history when the component mounts
   useEffect(() => {
+    // Load search history from localStorage
+    setSearchHistory(getSearchHistory());
+    
+    // Parse query parameters
     const params = new URLSearchParams(location.search);
     const query = params.get('q');
     if (query) {
@@ -56,6 +138,25 @@ const Search: React.FC = () => {
       performSearch(query);
     }
   }, [location]);
+  
+  // Effect to measure dropdown height when visible
+  useEffect(() => {
+    if (isInputFocused && searchHistory.length > 0 && dropdownRef.current) {
+      const height = dropdownRef.current.getBoundingClientRect().height;
+      setDropdownHeight(height + 10); // Add a little extra space
+    } else {
+      setDropdownHeight(0);
+    }
+  }, [isInputFocused, searchHistory.length]);
+
+  // Handle navigation to a profile and save to history
+  const handleProfileClick = (profile: UserProfile) => {
+    // Save this profile to search history
+    saveToSearchHistory(profile);
+    
+    // Update the search history state
+    setSearchHistory(getSearchHistory());
+  };
 
   // Debounce function to delay search until user stops typing
   const debounce = (func: Function, delay: number) => {
@@ -193,9 +294,15 @@ const Search: React.FC = () => {
               <form onSubmit={handleSearchSubmit} className="mb-8">
                 <div className="relative">
                   <input
+                    ref={inputRef}
                     type="text"
                     value={searchQuery}
                     onChange={handleInputChange}
+                    onFocus={() => setIsInputFocused(true)}
+                    onBlur={() => {
+                      // Longer delay to allow for clicks on history items
+                      setTimeout(() => setIsInputFocused(false), 300);
+                    }}
                     placeholder="Search by name, branch, semester, etc..."
                     className="w-full p-4 pl-12 pr-12 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-learnflow-500 focus:border-transparent transition-all duration-300"
                   />
@@ -215,14 +322,86 @@ const Search: React.FC = () => {
                   >
                     Search
                   </button>
+                  
+                  {/* Search History Dropdown - with ref for height measurement */}
+                  {isInputFocused && searchHistory.length > 0 && (
+                    <div 
+                      ref={dropdownRef}
+                      className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden">
+                      <div className="flex justify-between items-center px-3 py-2 text-xs font-medium text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
+                        <span>Recent Searches</span>
+                      </div>
+                      <ul>
+                        {searchHistory.map((item) => (
+                          <li 
+                            key={`${item.id}-${item.timestamp}`}
+                            className="px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-between"
+                          >
+                            <div 
+                              className="flex-grow flex items-center cursor-pointer"
+                              onClick={() => {
+                                // Set search query to the name
+                                setSearchQuery(item.name);
+                                // Perform search
+                                performSearch(item.name);
+                                // Update URL
+                                const searchParams = new URLSearchParams(location.search);
+                                searchParams.set('q', item.name);
+                                window.history.pushState(
+                                  {},
+                                  '',
+                                  `${location.pathname}?${searchParams.toString()}`
+                                );
+                                // Hide dropdown
+                                setIsInputFocused(false);
+                              }}
+                            >
+                              <div className="mr-3 text-gray-400 dark:text-gray-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                              </div>
+                              <div>
+                                <div className="text-sm font-medium text-gray-900 dark:text-white">{item.name}</div>
+                                {/* <div className="text-xs text-gray-500 dark:text-gray-400">@{item.username}</div> */}
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              className="ml-2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600"
+                              onClick={(e) => {
+                                e.stopPropagation(); // Prevent triggering the parent click
+                                const updatedHistory = removeFromSearchHistory(item.id, item.timestamp);
+                                setSearchHistory(updatedHistory);
+                                // Keep focus on the input to prevent dropdown from closing
+                                if (inputRef.current) {
+                                  inputRef.current.focus();
+                                }
+                              }}
+                              aria-label="Remove from history"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
                 {/* <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 ml-2">
                   Results will appear as you type. Type at least 2 characters to start searching.
                 </p> */}
               </form>
 
-              {/* Search Results */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {/* Search Results - Add margin-top using measured dropdown height */}
+              <div 
+                style={{ 
+                  marginTop: dropdownHeight > 0 ? `${dropdownHeight}px` : undefined 
+                }}
+                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+              >
                 {isSearching ? (
                   <div className="col-span-full flex justify-center items-center py-12">
                     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-learnflow-600"></div>
@@ -237,6 +416,7 @@ const Search: React.FC = () => {
                     <Link 
                       key={profile.id}
                       to={`/profile/${profile.id}`}
+                      onClick={() => handleProfileClick(profile)}
                       className="block bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-105"
                     >
                       <div className="p-6 flex flex-col items-center">
