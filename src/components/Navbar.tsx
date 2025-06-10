@@ -5,6 +5,7 @@ import { Dialog } from '@/components/ui/dialog';
 import { disableScroll, enableScroll } from '../utils/scrollUtils';
 import { Link } from 'react-router-dom';
 import SmartAuthButton from './SmartAuthButton';
+import ThemeToggle from './ThemeToggle/ThemeToggle';
 // import NotificationButton from './NotificationButton';
 
 // Tools data for dropdown
@@ -156,22 +157,13 @@ const Navbar: React.FC = () => {
 
         <div className="flex items-center space-x-4">
           {/* Theme Toggle */}
-          <button
-            onClick={toggleTheme}
-            className="p-2"
+          <div 
+            className="p-0"
             title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
             aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
           >
-            {theme === 'dark' ? (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4V2m0 20v-2m8-8h2M2 12h2m15.536 6.364l1.414 1.414M4.05 4.05l1.414 1.414M19.95 4.05l-1.414 1.414M4.05 19.95l1.414-1.414M12 8a4 4 0 100 8 4 4 0 000-8z" />
-              </svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z" />
-              </svg>
-            )}
-          </button>
+            <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
+          </div>
 
           {/* Auth Button */}
           <div className="hidden md:flex items-center">

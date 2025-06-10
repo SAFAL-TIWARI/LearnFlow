@@ -150,7 +150,7 @@ const StatisticsSection: React.FC = () => {
           </div>
 
           {/* Achievements Section */}
-          <FadeInElement delay={500} direction="up" distance={30} duration={500}>
+          {/* <FadeInElement delay={500} direction="up" distance={30} duration={500}>
             <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-8">
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center font-bodoni">
                 What Makes Us Special
@@ -171,10 +171,10 @@ const StatisticsSection: React.FC = () => {
                 ))}
               </div>
             </div>
-          </FadeInElement>
+          </FadeInElement> */}
 
           {/* Impact Statement */}
-          <FadeInElement delay={500} direction="up" distance={30} duration={500}>
+          {/* <FadeInElement delay={500} direction="up" distance={30} duration={500}>
             <div className="text-center mt-12">
               <div className="bg-gradient-to-r from-learnflow-500 to-blue-600 rounded-xl p-8 text-white">
                 <h3 className="text-2xl font-bold mb-4 font-bodoni">
@@ -200,7 +200,7 @@ const StatisticsSection: React.FC = () => {
                 </div>
               </div>
             </div>
-          </FadeInElement>
+          </FadeInElement> */}
         </div>
       </div>
     </section>

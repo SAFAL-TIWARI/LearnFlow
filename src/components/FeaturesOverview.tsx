@@ -108,7 +108,7 @@ const FeaturesOverview: React.FC = () => {
           </div>
 
           {/* Bottom CTA */}
-          <FadeInElement delay={500} direction="up" distance={30} duration={500}>
+          {/* <FadeInElement delay={500} direction="up" distance={30} duration={500}>
             <div className="text-center mt-12">
               <p className="text-gray-600 dark:text-gray-300 mb-6 text-lg">
                 Ready to transform your learning experience?
@@ -128,7 +128,7 @@ const FeaturesOverview: React.FC = () => {
                 </Link>
               </div>
             </div>
-          </FadeInElement>
+          </FadeInElement> */}
         </div>
       </div>
     </section>
