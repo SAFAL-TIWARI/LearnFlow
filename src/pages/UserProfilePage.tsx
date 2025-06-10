@@ -571,6 +571,7 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ userId }) => {
                                 userData.branch === 'CSE-IOT' ? 'Internet of Things' :
                                   userData.branch === 'IT' ? 'Information Technology' :
                                     userData.branch === 'ECE' ? 'Electronics & Communication' :
+                                      userData.branch === 'EI' ? 'Electronics & Instrumentation' :
                                       userData.branch === 'EE' ? 'Electrical Engineering' :
                                         userData.branch === 'ME' ? 'Mechanical Engineering' :
                                           userData.branch === 'CE' ? 'Civil Engineering' :

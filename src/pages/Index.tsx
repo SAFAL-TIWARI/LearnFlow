@@ -7,7 +7,6 @@ import AcademicResourcesPreview from '../components/AcademicResourcesPreview';
 import StudentToolsShowcase from '../components/StudentToolsShowcase';
 import StatisticsSection from '../components/StatisticsSection';
 import TestimonialsSection from '../components/TestimonialsSection';
-import CallToActionSection from '../components/CallToActionSection';
 import Footer from '../components/Footer';
 import PageFadeSection from '../components/PageFadeSection';
 import LiveAnalyticsBadge from '../components/LiveAnalyticsBadge';
@@ -67,14 +66,6 @@ const Index = () => {
           threshold={0.15}
         >
           <TestimonialsSection />
-        </PageFadeSection>
-
-        {/* Call to Action Section */}
-        <PageFadeSection
-          animationType="fade-up"
-          threshold={0.15}
-        >
-          <CallToActionSection />
         </PageFadeSection>
 
         {/* Footer with a slight delay */}

@@ -36,12 +36,18 @@ const AcademicResourcesPreview: React.FC = () => {
   ];
 
   const branches = [
-    { name: "Computer Science", code: "CSE", students: "1200+" },
-    { name: "Information Technology", code: "IT", students: "800+" },
-    { name: "Electronics & Communication", code: "EC", students: "600+" },
-    { name: "Mechanical Engineering", code: "ME", students: "500+" },
-    { name: "Electrical Engineering", code: "EE", students: "400+" },
-    { name: "Civil Engineering", code: "CE", students: "300+" }
+    { name: "Computer Science", code: "CSE", students: "160+" },
+    { name: "Blockchain Technology", code: "BCT", students: "78+" },
+    { name: "Artificial Intelligence & Data Science", code: "AIADS", students: "75+" },
+    { name: "Artificial Intelligence & Machine Learning", code: "AIML", students: "75+" },
+    { name: "Cyber Security", code: "CS", students: "70+" },
+    { name: "Internet of Things", code: "IoT", students: "75+" },
+    { name: "Information Technology", code: "IT", students: "79+" },
+    { name: "Electronics & Communication", code: "EC", students: "41+" },
+    { name: "Electronics & Instrumentation", code: "EI", students: "4+" },
+    { name: "Electrical Engineering", code: "EE", students: "36+" },
+    { name: "Mechanical Engineering", code: "ME", students: "15+" },
+    { name: "Civil Engineering", code: "CE", students: "36+" },
   ];
 
   return (
