@@ -10,6 +10,7 @@ Welcome to **LearnFlow**, a responsive and dynamic web application designed to s
 - 🎓 **Subject-Specific Learning Materials**: Organized per subject to avoid confusion
 - 🧠 **Branch-Specific Subjects**: Tailored subject lists for each branch and semester
 - 🤖 **AI Chatbot**: Intelligent educational assistant powered by Google's Gemini API
+- 🖱️ **Smooth Cursor Animation**: Interactive cursor with spring physics for enhanced user experience
 
 ## 🏗️ Project Structure
 
@@ -27,11 +28,12 @@ learnflow/
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: React.js, HTML5, CSS3, JavaScript
-- **Authentication**: Firebase Auth (Google Sign-In)
+- **Frontend**: React.js, HTML5, CSS3, JavaScript, TypeScript
+- **Authentication**: Supabase Auth (Google Sign-In And Email Login)
 - **AI Chatbot**: Google's Gemini API
 - **Backend**: Node.js, Express
-- **Deployment**: Vercel
+- **Animations**: Framer Motion
+- **Deployment**: Vercel, Netlify
 
 ## 🔧 Setup and Installation
 
@@ -58,9 +60,9 @@ cd server && npm install && cd ..
 ```json
 {
   "1st": {
-    "2nd": {
-      "CSE (IoT)": [
-        "CHB 101", "ITC 101", "CSL 110", "MAB 102", "HUB 101", "CSA 103"
+    "1st": {
+      "CSE": [
+        "CHB 101", "CSA 101", "CSA 102", "MAB 101", "HUB 101"
       ]
     }
   }

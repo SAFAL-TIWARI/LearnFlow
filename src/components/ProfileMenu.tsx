@@ -98,23 +98,23 @@ export default function ProfileMenu() {
   useEffect(() => {
     const fetchUserData = async () => {
       if (!user) return;
-      
+
       try {
         // Get user email from Supabase auth
         const userEmail = user.email || '';
-        
+
         // Check if user exists in Supabase
         const { data, error } = await supabase
           .from('users')
           .select('name, email')
           .eq('email', userEmail)
           .single();
-          
+
         if (error && error.code !== 'PGRST116') {
           console.error('Error fetching user data:', error);
           return;
         }
-        
+
         if (data) {
           // User exists, use their data
           setUserData(data);
@@ -124,20 +124,20 @@ export default function ProfileMenu() {
         console.error('Error in fetching user profile:', error);
       }
     };
-    
+
     if (user) {
       fetchUserData();
     }
-    
+
     // Listen for profile update events
     const handleProfileUpdate = () => {
       if (user) {
         fetchUserData();
       }
     };
-    
+
     window.addEventListener('profile-updated', handleProfileUpdate);
-    
+
     return () => {
       window.removeEventListener('profile-updated', handleProfileUpdate);
     };
@@ -172,7 +172,7 @@ export default function ProfileMenu() {
     if (!user) return 'bg-gray-500';
 
     // First try to get name from Supabase database
-    const name = userData?.name || 
+    const name = userData?.name ||
       user.user_metadata?.full_name ||
       user.user_metadata?.name ||
       user.user_metadata?.given_name ||
@@ -284,7 +284,7 @@ export default function ProfileMenu() {
                 )}
                 <div>
                   <p className="font-semibold text-gray-800 dark:text-gray-200">
-                    {userData?.name || 
+                    {userData?.name ||
                       user.user_metadata?.full_name ||
                       user.user_metadata?.name ||
                       user.user_metadata?.given_name ||
@@ -349,7 +349,6 @@ export default function ProfileMenu() {
               Help
             </div>
           </Link>
-
           <Link
             to="/feedback"
             className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"

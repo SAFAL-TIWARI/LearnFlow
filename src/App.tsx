@@ -38,12 +38,16 @@ import NoticesPage from "./pages/NoticesPage";
 import ReleaseNotesPage from "./pages/ReleaseNotesPage";
 import Search from "./pages/Search";
 import UserFiles from "./pages/UserFiles";
+// import CursorDemoPage from "./pages/cursor-demo";
+// import CursorSettingsPage from "./pages/CursorSettingsPage";
 import ChatbotWidget from "./components/Chatbot/ChatbotWidget";
 import GoToTopButton from "./components/GoToTopButton";
 import NotificationManager from "./components/NotificationManager";
 import ClickSparkAnimation from "./components/ClickSparkAnimation";
+import { SmartCursor } from "./components/SmartCursor";
 import { AuthProvider } from './context/SupabaseAuthContext';
 import { AcademicProvider } from './context/AcademicContext';
+import { CursorProvider } from './context/CursorContext';
 import { ThemeProvider } from "./hooks/useTheme";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react"
@@ -122,12 +126,13 @@ const App = () => {
         <HelmetProvider>
           <ThemeProvider>
             <AuthProvider>
-              <QueryClientProvider client={queryClient}>
-                <TooltipProvider>
-                  <Toaster />
-                  <Sonner />
-                  <BrowserRouter>
-                  <AcademicProvider>
+              <CursorProvider>
+                <QueryClientProvider client={queryClient}>
+                  <TooltipProvider>
+                    <Toaster />
+                    <Sonner />
+                    <BrowserRouter>
+                    <AcademicProvider>
                     <Routes>
                       <Route path="/" element={<Index />} />
                       <Route path="/tools" element={<Tools />} />
@@ -167,6 +172,10 @@ const App = () => {
                       {/* Profile Pages */}
                       <Route path="/profile" element={<ProfilePageWrapperComponent />} />
                       <Route path="/profile/:userId" element={<ProfilePageWrapperComponent />} />
+                      
+                      {/* Demo Pages */}
+                      {/* <Route path="/cursor-demo" element={<CursorDemoPage />} /> */}
+                      {/* <Route path="/settings/cursor" element={<CursorSettingsPage />} /> */}
 
                       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                       <Route path="*" element={<NotFound />} />
@@ -185,11 +194,15 @@ const App = () => {
                   {/* Click Spark Animation */}
                   <ClickSparkAnimation />
 
+                  {/* Smooth Cursor Animation */}
+                  <SmartCursor />
+
                   {/* Auth Test Button (for development) */}
                   {process.env.NODE_ENV === 'development' && <AuthTestButton />}
                 </BrowserRouter>
-              </TooltipProvider>
-            </QueryClientProvider>
+                </TooltipProvider>
+              </QueryClientProvider>
+            </CursorProvider>
           </AuthProvider>
         </ThemeProvider>
       </HelmetProvider>

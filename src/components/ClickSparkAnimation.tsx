@@ -57,6 +57,14 @@ const ClickSparkAnimation: React.FC = () => {
         // Navbar buttons
         'nav button', // All navbar buttons
 
+        // Theme Toggle - Dark/Light Mode button
+        '.theme-toggle-container',
+        '.theme-toggle-left',
+        '.theme-toggle-right',
+        '.theme-toggle-center',
+        'input.slider',
+        '.switch',
+
         // Social media links with specific URLs
         'a[href*="instagram.com"]',
         'a[href*="linkedin.com"]',
@@ -122,6 +130,12 @@ const ClickSparkAnimation: React.FC = () => {
       '.chatbot-toggle',
       '.notification-button',
       '.theme-toggle',
+      '.theme-toggle-container',
+      '.theme-toggle-left',
+      '.theme-toggle-right',
+      '.theme-toggle-center',
+      'input.slider',
+      '.switch',
       '.mobile-menu-button',
       'button.action-button',
       'a.action-button'
