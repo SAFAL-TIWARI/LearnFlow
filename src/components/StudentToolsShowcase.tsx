@@ -105,61 +105,7 @@ const StudentToolsShowcase: React.FC = () => {
             </div>
           </FadeInElement>
 
-          {/* Tools Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            {tools.map((tool, index) => (
-              <FadeInElement
-                key={index}
-                delay={200 + index * 100}
-                direction="up"
-                distance={30}
-                duration={500}
-              >
-                <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-200 dark:border-gray-700 relative">
-                  {/* Popular Badge */}
-                  {tool.popular && (
-                    <div className="absolute -top-2 -right-2 bg-learnflow-500 text-white text-xs px-3 py-1 rounded-full font-medium">
-                      Popular
-                    </div>
-                  )}
-
-                  {/* Icon */}
-                  <div className="mb-4">
-                    {tool.icon}
-                  </div>
-
-                  {/* Title */}
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3 font-poppins">
-                    {tool.title}
-                  </h3>
-
-                  {/* Description */}
-                  <p className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed text-sm">
-                    {tool.description}
-                  </p>
-
-                  {/* Features */}
-                  <ul className="space-y-1 mb-4">
-                    {tool.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
-                        <div className="w-1 h-1 bg-learnflow-500 rounded-full mr-2"></div>
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-
-                  {/* Link */}
-                  <Link
-                    to={tool.link}
-                    className="inline-flex items-center text-learnflow-600 dark:text-learnflow-400 hover:text-learnflow-700 dark:hover:text-learnflow-300 font-medium transition-colors"
-                  >
-                    Try Tool
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Link>
-                </div>
-              </FadeInElement>
-            ))}
-          </div>
+          {/* Tools Grid Removed from Home Page */}
 
           {/* Stats Section */}
           <FadeInElement delay={500} direction="up" distance={30} duration={500}>

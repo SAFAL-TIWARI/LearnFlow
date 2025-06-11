@@ -76,7 +76,16 @@ export const subjectsByYearAndSemester: Record<
       { code: 'IT 304', name: 'Object-Oriented Programming' },
       { code: 'IT 306', name: 'Internet Programming' },
       { code: 'OE 305 (OE-1A)', name: 'Computer System Organization' },
-      { code: 'MAB 204', name: 'Discrete Mathematics' },
+      { code: 'AI 302', name: 'Artificial Intelligence' },
+      { code: 'AI 303', name: 'Object Oriented Programming With JAVA' },
+      { code: 'AI 304', name: 'Operating Systems' },
+      { code: 'AI 305', name: 'Computer System Organization' },
+      { code: 'AI 306', name: 'Web Application Development' },
+      { code: 'BCC 202', name: 'Analysis & Design of Algorithms' },
+      { code: 'BCC 203', name: 'Object Oriented Programming' },
+      { code: 'BCC 204', name: 'Operating Systems' },
+      { code: 'BCL 206', name: 'Internet Programming' },
+      { code: 'BCO 205 (A)', name: 'Computer System Organization' },
     ],
     4: [
       { code: 'IO 205', name: 'Computer Networks' },
@@ -444,8 +453,122 @@ export const subjectMaterials: Record<string, SubjectMaterials> = {
     ],
   },
 
-  // Other subjects...
-  
+
+  // Artificial Intelligence
+  'AI 302': {
+    assignments: [
+
+    ],
+    practicals: [
+
+    ],
+    labwork: [
+
+    ],
+    syllabus: [
+      {
+        id: 'ai302_syllabus',
+        name: 'Artificial Intelligence',
+        url: 'https://drive.google.com/file/d/1L-cLEPKsmv0zugh1Nwm1YFDZHCyhGfjF/preview',
+        downloadUrl: 'https://drive.google.com/uc?export=download&id=1L-cLEPKsmv0zugh1Nwm1YFDZHCyhGfjF',
+      },
+    ],
+    pyq: [
+    ],
+  },
+
+  // Object Oriented Programming With JAVA
+  'AI 303': {
+    assignments: [
+
+    ],
+    practicals: [
+
+    ],
+    labwork: [
+
+    ],
+    syllabus: [
+      {
+        id: 'ai303_syllabus',
+        name: 'Object Oriented Programming With JAVA',
+        url: 'https://drive.google.com/file/d/1aEDlw92y4igEFuiLcwK7uqJIYbL28J5i/preview',
+        downloadUrl: 'https://drive.google.com/uc?export=download&id=1aEDlw92y4igEFuiLcwK7uqJIYbL28J5i',
+      },
+    ],
+    pyq: [
+    ],
+  },
+
+  // Operating Systems
+  'AI 304': {
+    assignments: [
+
+    ],
+    practicals: [
+
+    ],
+    labwork: [
+
+    ],
+    syllabus: [
+      {
+        id: 'ai304_syllabus',
+        name: 'Operating Systems',
+        url: 'https://drive.google.com/file/d/1uIZn06BJ5YYRdjrlrGPRemJTQ_ZpsO4J/preview',
+        downloadUrl: 'https://drive.google.com/uc?export=download&id=1uIZn06BJ5YYRdjrlrGPRemJTQ_ZpsO4J',
+      },
+    ],
+    pyq: [
+    ],
+  },
+
+  // Computer System Organization
+  'AI 305': {
+    assignments: [
+
+    ],
+    practicals: [
+
+    ],
+    labwork: [
+
+    ],
+    syllabus: [
+      {
+        id: 'ai305_syllabus',
+        name: 'Computer System Organization',
+        url: 'https://drive.google.com/file/d/1wR43yueymrKHqPUHc6IkQrE1ihlmQMT8/preview',
+        downloadUrl: 'https://drive.google.com/uc?export=download&id=1wR43yueymrKHqPUHc6IkQrE1ihlmQMT8',
+      },
+    ],
+    pyq: [
+    ],
+  },
+
+  // Web Application Development
+  'AI 306': {
+    assignments: [
+
+    ],
+    practicals: [
+
+    ],
+    labwork: [
+
+    ],
+    syllabus: [
+      {
+        id: 'ai306_syllabus',
+        name: 'Web Application Development',
+        url: 'https://drive.google.com/file/d/1eSSUcfRuxN7XobU_cReBroED13J7Uh-Z/preview',
+        downloadUrl: 'https://drive.google.com/uc?export=download&id=1eSSUcfRuxN7XobU_cReBroED13J7Uh-Z',
+      },
+    ],
+    pyq: [
+    ],
+  },
+
   // Communication System
   'IT 302': {
     assignments: [
@@ -675,7 +798,121 @@ export const subjectMaterials: Record<string, SubjectMaterials> = {
     pyq: [
     ],
   },
+  // Analysis & Design of Algorithms
+  'BCC 202': {
+    assignments: [
 
+    ],
+    practicals: [
+
+    ],
+    labwork: [
+
+    ],
+    syllabus: [
+      {
+        id: 'bcc202_syllabus',
+        name: 'Analysis & Design of Algorithms',
+        url: 'https://drive.google.com/file/d/16wGBixYcQLY1mmy-qE93Vjs0DLmJoLBN/preview',
+        downloadUrl: 'https://drive.google.com/uc?export=download&id=16wGBixYcQLY1mmy-qE93Vjs0DLmJoLBN',
+      },
+    ],
+    pyq: [
+    ],
+  },
+
+  // Object Oriented Programming
+  'BCC 203': {
+    assignments: [
+
+    ],
+    practicals: [
+
+    ],
+    labwork: [
+
+    ],
+    syllabus: [
+      {
+        id: 'bcc203_syllabus',
+        name: 'Object Oriented Programming',
+        url: 'https://drive.google.com/file/d/1flvnGUW8YUTVeXo5hB9O_pf4V3_F_H6q/preview',
+        downloadUrl: 'https://drive.google.com/uc?export=download&id=1flvnGUW8YUTVeXo5hB9O_pf4V3_F_H6q',
+      },
+    ],
+    pyq: [
+    ],
+  },
+
+  // Operating Systems
+  'BCC 204': {
+    assignments: [
+
+    ],
+    practicals: [
+
+    ],
+    labwork: [
+
+    ],
+    syllabus: [
+      {
+        id: 'bcc204_syllabus',
+        name: 'Operating Systems',
+        url: 'https://drive.google.com/file/d/1gOnmqa9UPfJ4LleqalJApmMyOQ6hxcs9/preview',
+        downloadUrl: 'https://drive.google.com/uc?export=download&id=1gOnmqa9UPfJ4LleqalJApmMyOQ6hxcs9',
+      },
+    ],
+    pyq: [
+    ],
+  },
+
+  // Internet Programming
+  'BCL 206': {
+    assignments: [
+
+    ],
+    practicals: [
+
+    ],
+    labwork: [
+
+    ],
+    syllabus: [
+      {
+        id: 'bcl206_syllabus',
+        name: 'Internet Programming',
+        url: 'https://drive.google.com/file/d/1y7ZV1WR5YKFCedD8zmgRJjCSYrLroQog/preview',
+        downloadUrl: 'https://drive.google.com/uc?export=download&id=1y7ZV1WR5YKFCedD8zmgRJjCSYrLroQog',
+      },
+    ],
+    pyq: [
+    ],
+  },
+
+  // Computer System Organization
+  'BCO 205 (A)': {
+    assignments: [
+
+    ],
+    practicals: [
+
+    ],
+    labwork: [
+
+    ],
+    syllabus: [
+      {
+        id: 'bco205a_syllabus',
+        name: 'Computer System Organization',
+        url: 'https://drive.google.com/file/d/11qUqBH8adxZciYxi_cgZpZUlfLBPrbOb/preview',
+        downloadUrl: 'https://drive.google.com/uc?export=download&id=11qUqBH8adxZciYxi_cgZpZUlfLBPrbOb',
+      },
+    ],
+    pyq: [
+    ],
+  },
+  // Other subjects...
 };
 
 // Legacy resource files (for backward compatibility or fallback)
@@ -891,27 +1128,21 @@ export const branchSubjects: Record<
         { code: 'OE 305 (OE-1A)', name: 'Computer System Organization' },
         { code: 'MAB 204', name: 'Discrete Mathematics' },
       ],
-      'cse-iot': [
-        { code: 'IO 302', name: 'Analysis & Design of Algorithms' },
-        { code: 'IO 303', name: 'Object Oriented Programming' },
-        { code: 'IO 304', name: 'Electronic Devices & Circuits' },
-        { code: 'IO 306', name: 'Internet Programming' },
-        { code: 'OE 305 (OE-1A)', name: 'Computer System Organization' },
-        { code: 'IO 305 (OE-1B)', name: 'Data Structures' },
-      ],
       'blockchain': [
-        { code: 'MAB 101', name: 'Engineering Mathematics I' },
-        { code: 'CSA 102', name: 'Digital Electronics' },
-        { code: 'CSA 101', name: 'Computer Fundamentals' },
-        { code: 'HUB 101', name: 'Communication Skills' },
-        { code: 'PYB 101', name: 'Engineering Physics' },
+        { code: 'BCC 202', name: 'Analysis & Design of Algorithms' },
+        { code: 'BCC 203', name: 'Object Oriented Programming' },
+        { code: 'BCC 204', name: 'Operating Systems' },
+        { code: 'BCL 206', name: 'Internet Programming' },
+        { code: 'BCO 205 (A)', name: 'Computer System Organization' },
+        { code: 'MAB 204', name: 'Discrete Mathematics' },
       ],
       'aiads': [
-        { code: 'MAB 101', name: 'Engineering Mathematics I' },
-        { code: 'CHB 101', name: 'Engineering Chemistry' },
-        { code: 'CSA 101', name: 'Computer Fundamentals' },
-        { code: 'HUB 101', name: 'Communication Skills' },
-        { code: 'AIADS 101', name: 'Data Science' },
+        { code: 'AI 302', name: 'Artificial Intelligence' },
+        { code: 'AI 303', name: 'Object Oriented Programming With JAVA' },
+        { code: 'AI 304', name: 'Operating Systems' },
+        { code: 'AI 305', name: 'Computer System Organization' },
+        { code: 'AI 306', name: 'Web Application Development' },
+        { code: 'MAB 204', name: 'Discrete Mathematics' },
       ],
       'aiaml': [
         { code: 'MAB 101', name: 'Engineering Mathematics I' },
@@ -919,6 +1150,14 @@ export const branchSubjects: Record<
         { code: 'CSA 101', name: 'Computer Fundamentals' },
         { code: 'HUB 101', name: 'Communication Skills' },
         { code: 'AIADS 101', name: 'Data Science' },
+      ],
+      'cse-iot': [
+        { code: 'IO 302', name: 'Analysis & Design of Algorithms' },
+        { code: 'IO 303', name: 'Object Oriented Programming' },
+        { code: 'IO 304', name: 'Electronic Devices & Circuits' },
+        { code: 'IO 306', name: 'Internet Programming' },
+        { code: 'OE 305 (OE-1A)', name: 'Computer System Organization' },
+        { code: 'IO 305 (OE-1B)', name: 'Data Structures' },
       ],
       'it': [
         { code: 'IT 302', name: 'Communication System' },

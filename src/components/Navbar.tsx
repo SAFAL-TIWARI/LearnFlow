@@ -80,10 +80,10 @@ const Navbar: React.FC = () => {
   }, [aboutDialogOpen]);
 
   return (
-    <nav className="bg-white dark:bg-gray-800 shadow-md py-4">
+    <nav className="bg-white dark:bg-gray-800 shadow-md py-5">
       <div className="container mx-auto px-4 flex justify-between items-center">
         <div className="flex items-center">
-          <Link to="/" className="text-2xl font-bold text-learnflow-600 dark:text-learnflow-300 mr-8 font-teko tracking-wide">
+          <Link to="/" className="text-3xl font-bold text-learnflow-600 dark:text-learnflow-300 mr-10 font-teko tracking-wide">
             LearnFlow
           </Link>
 

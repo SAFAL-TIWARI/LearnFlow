@@ -27,7 +27,7 @@ const Hero: React.FC = () => {
           <FadeInElement delay={50} direction="up" distance={20} duration={600}>
             <div className="inline-flex items-center bg-learnflow-100 dark:bg-learnflow-900/30 text-learnflow-700 dark:text-learnflow-300 px-4 py-2 rounded-full text-sm font-medium mb-6 border border-learnflow-200 dark:border-learnflow-800">
               <span className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
-              {isLoading ? '15,000+' : liveStats.totalVisitors.toLocaleString() + '+'} Students Already Learning
+              {isLoading ? '1000+' : liveStats.totalVisitors.toLocaleString() + '+'} Students Already Learning
             </div>
           </FadeInElement>
 
@@ -60,7 +60,7 @@ const Hero: React.FC = () => {
               </div>
               <div className="flex items-center text-gray-600 dark:text-gray-400">
                 <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                50+ Tools
+                20+ Tools
               </div>
               <div className="flex items-center text-gray-600 dark:text-gray-400">
                 <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
@@ -68,7 +68,7 @@ const Hero: React.FC = () => {
               </div>
               <div className="flex items-center text-gray-600 dark:text-gray-400">
                 <div className="w-2 h-2 bg-orange-500 rounded-full mr-2 animate-pulse"></div>
-                {isLoading ? '150+' : liveStats.onlineUsers.toLocaleString() + '+'} Online Now
+                {isLoading ? '50+' : liveStats.onlineUsers.toLocaleString() + '+'} Online Now
               </div>
             </div>
           </FadeInElement>
@@ -81,6 +81,7 @@ const Hero: React.FC = () => {
                 className="group"
                 color="#0c8ee0" // Using learnflow-500 color
                 speed="2s"
+                enableModeTransition={true}
                 title="Access academic resources and study materials"
                 aria-label="Get started with LearnFlow resources"
               >
@@ -96,6 +97,7 @@ const Hero: React.FC = () => {
                 className="group"
                 color="#f59e0b" // Using amber-500 color
                 speed="2s"
+                enableModeTransition={true}
                 title="Find and connect with other students"
                 aria-label="Search for people on LearnFlow"
               >
@@ -113,6 +115,7 @@ const Hero: React.FC = () => {
                 className="group"
                 color="#7c5cfc" // Using learnflow-purple color
                 speed="2s"
+                enableModeTransition={true}
                 title="Discover student tools and utilities"
                 aria-label="Explore LearnFlow student tools"
               >

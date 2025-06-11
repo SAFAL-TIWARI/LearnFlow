@@ -7,6 +7,7 @@ type StarBorderProps<T extends React.ElementType> =
     children?: React.ReactNode;
     color?: string;
     speed?: React.CSSProperties['animationDuration'];
+    enableModeTransition?: boolean;
   }
 
 const StarBorder = <T extends React.ElementType = "button">({
@@ -14,12 +15,13 @@ const StarBorder = <T extends React.ElementType = "button">({
   className = "",
   color = "white",
   speed = "6s",
+  enableModeTransition = true,
   children,
   ...rest
 }: StarBorderProps<T>) => {
   const Component = as || "button";
   return (
-    <Component className={`relative inline-block py-[3px] overflow-hidden rounded-[20px] transition-transform duration-200 hover:scale-105 ${className}`} {...rest}>
+    <Component className={`relative inline-block py-[3px] overflow-hidden rounded-[20px] transition-transform duration-200 hover:scale-105 ${enableModeTransition ? 'mode-transition-btn' : ''} ${className}`} {...rest}>
       <div
         className="absolute w-[300%] h-[50%] opacity-70 bottom-[-11px] right-[-250%] rounded-full animate-star-movement-bottom z-0"
         style={{
@@ -34,7 +36,10 @@ const StarBorder = <T extends React.ElementType = "button">({
           animationDuration: speed,
         }}
       ></div>
-      <div className="relative z-1 bg-gradient-to-b from-gray-500 to-black dark:from-white-800 dark:to-white border border-gray-700 dark:border-gray-800 dark:text-gray-900 font-bold text-white text-center text-[16px] py-[16px] px-[26px] rounded-[20px] shadow-md">
+      {enableModeTransition && (
+        <div className="mode-transition-overlay rounded-[20px]"></div>
+      )}
+      <div className="relative z-[5] bg-gradient-to-b from-gray-500 to-black dark:from-white-800 dark:to-white border border-gray-700 dark:border-gray-800 dark:text-gray-900 font-bold text-white text-center text-[16px] py-[16px] px-[26px] rounded-[20px] shadow-md">
         {children}
       </div>
     </Component>

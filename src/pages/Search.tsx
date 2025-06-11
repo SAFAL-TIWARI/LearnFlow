@@ -284,7 +284,7 @@ const Search: React.FC = () => {
 
         <main className="flex-grow container mx-auto px-4 py-8">
           <PageFadeSection animationType="fade-in" threshold={0.05}>
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-1xl mx-auto">
               <div className="flex items-center mb-6">
                 <BackButton className="mr-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" />
                 <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white font-bodoni">
@@ -405,7 +405,7 @@ const Search: React.FC = () => {
               >
                 {isSearching ? (
                   <div className="col-span-full flex justify-center items-center py-12">
-                    <LoadingAnimation size="large" />
+                    <LoadingAnimation size="medium" />
                   </div>
                 ) : searchQuery && searchResults.length === 0 ? (
                   <div className="col-span-full text-center py-12">

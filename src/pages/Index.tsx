@@ -5,12 +5,12 @@ import Hero from '../components/Hero';
 import FeaturesOverview from '../components/FeaturesOverview';
 import AcademicResourcesPreview from '../components/AcademicResourcesPreview';
 import StudentToolsShowcase from '../components/StudentToolsShowcase';
-import StatisticsSection from '../components/StatisticsSection';
+// import StatisticsSection from '../components/StatisticsSection';
 import TestimonialsSection from '../components/TestimonialsSection';
 import Footer from '../components/Footer';
 import PageFadeSection from '../components/PageFadeSection';
 import LiveAnalyticsBadge from '../components/LiveAnalyticsBadge';
-import AnalyticsStatus from '../components/AnalyticsStatus';
+// import AnalyticsStatus from '../components/AnalyticsStatus';
 import SEOStructuredData from '../components/SEOStructuredData';
 import { ThemeProvider } from '../hooks/useTheme';
 
@@ -52,13 +52,13 @@ const Index = () => {
 
 
 
-        {/* Statistics Section */}
+        {/* Statistics Section
         <PageFadeSection
           animationType="fade-up"
           threshold={0.15}
         >
           <StatisticsSection />
-        </PageFadeSection>
+        </PageFadeSection> */}
 
         {/* Testimonials Section */}
         <PageFadeSection

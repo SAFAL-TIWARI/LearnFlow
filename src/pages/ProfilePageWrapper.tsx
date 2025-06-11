@@ -37,12 +37,14 @@ export const ProfilePageErrorFallback = () => {
               Back to Home
             </button>            <button
               onClick={() => window.open('/login', '_blank', 'width=500,height=600,menubar=no,toolbar=no,location=no,status=no')}
-              className="flex items-center justify-center px-5 py-3 bg-learnflow-500 text-white rounded-lg hover:bg-learnflow-600 transition-all duration-300 hover:shadow-md transform hover:scale-105 w-full"
+              className="btn-animated bg-learnflow-500 text-white w-full"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 21h2a2 2 0 002-2V5a2 2 0 00-2-2h-2m-4 14l5-5m0 0l-5-5m5 5H3" />
-              </svg>
-              Login
+              <span className="flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 21h2a2 2 0 002-2V5a2 2 0 00-2-2h-2m-4 14l5-5m0 0l-5-5m5 5H3" />
+                </svg>
+                Login
+              </span>
             </button>
           </div>
         </div>

@@ -28,10 +28,21 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, []);
 
   const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-    document.documentElement.classList.toggle('dark', newTheme === 'dark');
+    // First, add the theme-changing class to trigger animations before the theme actually changes
+    document.documentElement.classList.add('theme-changing');
+    
+    // Slight delay to ensure animation starts before theme changes
+    setTimeout(() => {
+      const newTheme = theme === 'light' ? 'dark' : 'light';
+      setTheme(newTheme);
+      localStorage.setItem('theme', newTheme);
+      document.documentElement.classList.toggle('dark', newTheme === 'dark');
+      
+      // Remove the animation class after it completes
+      setTimeout(() => {
+        document.documentElement.classList.remove('theme-changing');
+      }, 800); // Match this with the animation duration
+    }, 50); // Small delay for better visual effect
   };
 
   return (

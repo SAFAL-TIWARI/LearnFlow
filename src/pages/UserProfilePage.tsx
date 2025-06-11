@@ -3,6 +3,7 @@ import { supabase, supabaseUrl } from '../lib/supabase';
 import { branchSubjects, Subject } from '../data/academicData';
 import BackButton from '../components/BackButton';
 import '../styles/animations.css';
+import '../styles/pan-loader.css';
 
 interface UserProfilePageProps {
   userId: string;
@@ -401,10 +402,16 @@ const UserProfilePage: React.FC<UserProfilePageProps> = ({ userId }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-learnflow-500 mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading profile...</p>
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-1">
+        <div className="loader">
+          <div className="panWrapper">
+            <div className="pan">
+              <div className="food"></div>
+              <div className="panBase"></div>
+              <div className="panHandle"></div>
+            </div>
+            <div className="panShadow"></div>
+          </div>
         </div>
       </div>
     );

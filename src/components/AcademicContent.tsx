@@ -13,9 +13,9 @@ const AcademicContent: React.FC = () => {
   const { state, resetSelections } = useAcademic();
   
   return (
-    <div id="academic-resources" className="py-16 bg-gray-50 dark:bg-gray-900 min-h-[600px] scroll-mt-16">
+    <div id="academic-resources" className="py-16 bg-gray-50 dark:bg-gray-900 min-h-[600px] scroll-mt-16000000000000000">
       <div className="container mx-auto px-4">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-1xl mx-auto">
           <div className="mb-6">
             <FadeInElement delay={50} direction="up" distance={20} duration={600}>
               <h1 className="text-3xl font-bold mb-2 text-gray-800 dark:text-gray-100">Academic Resources</h1>

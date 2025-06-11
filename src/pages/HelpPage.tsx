@@ -373,7 +373,7 @@ const HelpPage: React.FC = () => {
       animate="visible"
       variants={containerVariants}
     >
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-1xl mx-auto">
         <div className="flex items-center mb-6">
           <BackButton />
         </div>
@@ -399,7 +399,7 @@ const HelpPage: React.FC = () => {
           className="mb-10 relative"
           variants={itemVariants}
         >
-          <div className="relative max-w-2xl mx-auto">
+          <div className="relative max-w-1xl mx-auto">
             <input
               ref={searchInputRef}
               type="text"
