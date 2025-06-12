@@ -23,6 +23,74 @@ const toolsData = [
   { name: "Quick Tools", route: "/tools/quick-tools" }
 ];
 
+const navbarConfig = {
+  // Font sizes
+  fontSize: {
+    // Logo/Brand text
+    logo: {
+      desktop: "text-1xl", // You can adjust this (text-xs, text-sm, text-base, text-lg, text-xl, text-2xl, text-3xl, text-4xl, etc.)
+      mobile: "text-3xl"    // You can adjust this independently
+    },
+    // Main navigation links (Tools, Resources, Search, About Us)
+    navLinks: {
+      desktop: "text-lg", // You can adjust this
+      mobile: "text-lg"     // You can adjust this independently
+    },
+    // Dropdown menu items
+    dropdownItems: {
+      desktop: "text-sm",   // You can adjust this
+      mobile: "text-base"   // You can adjust this independently
+    }
+  },
+
+  // Spacing and positioning
+  spacing: {
+    // Logo margin from navigation links
+    logoMargin: {
+      desktop: "mr-10",     // You can adjust this (mr-2, mr-4, mr-6, mr-8, mr-10, mr-12, etc.)
+      mobile: "mr-12"        // You can adjust this independently
+    },
+    // Space between navigation links
+    navLinksGap: {
+      desktop: "space-x-6", // You can adjust this (space-x-2, space-x-4, space-x-6, space-x-8, etc.)
+      mobile: "space-y-2"   // You can adjust this independently (for mobile vertical menu)
+    },
+    // Right side elements spacing
+    rightSideGap: {
+      desktop: "space-x-4", // You can adjust this (space-x-2, space-x-4, space-x-6, space-x-8, etc.)
+      mobile: "space-x-2"   // You can adjust this independently
+    }
+  },
+
+  // Icon sizes
+  iconSizes: {
+    // Hamburger menu icon
+    hamburgerIcon: {
+      desktop: "h-6 w-6",   // You can adjust this (h-4 w-4, h-5 w-5, h-6 w-6, h-7 w-7, h-8 w-8, etc.)
+      mobile: "h-5 w-5"     // You can adjust this independently
+    }
+  },
+
+  // Layout positioning
+  layout: {
+    // Container padding
+    containerPadding: {
+      desktop: "px-4",      // You can adjust this (px-2, px-4, px-6, px-8, etc.)
+      mobile: "px-4"        // You can adjust this independently
+    },
+    // Navbar vertical padding
+    navbarPadding: {
+      desktop: "py-3",      // You can adjust this (py-1, py-2, py-3, py-4, etc.)
+      mobile: "py-3"        // You can adjust this independently
+    },
+    // Logo container flex properties
+    logoContainer: {
+      desktop: "flex-shrink-0", // Prevents logo from shrinking
+      mobile: "flex-shrink-0"   // Prevents logo from shrinking
+    }
+  }
+};
+
 
 
 const Navbar: React.FC = () => {
@@ -80,15 +148,17 @@ const Navbar: React.FC = () => {
   }, [aboutDialogOpen]);
 
   return (
-    <nav className="bg-white dark:bg-gray-800 shadow-md py-5">
-      <div className="container mx-auto px-4 flex justify-between items-center">
-        <div className="flex items-center">
-          <Link to="/" className="text-3xl font-bold text-learnflow-600 dark:text-learnflow-300 mr-10 font-teko tracking-wide">
-            LearnFlow
-          </Link>
+    <nav className={`bg-white dark:bg-gray-800 shadow-md ${navbarConfig.layout.navbarPadding.mobile} md:${navbarConfig.layout.navbarPadding.desktop}`}>
+      <div className={`container mx-auto ${navbarConfig.layout.containerPadding.mobile} md:${navbarConfig.layout.containerPadding.desktop} flex justify-between items-center`}>
+        <div className="flex items-center min-w-0 flex-1">
+          <div className={`${navbarConfig.layout.logoContainer.mobile} md:${navbarConfig.layout.logoContainer.desktop}`}>
+            <Link to="/" className={`${navbarConfig.fontSize.logo.mobile} md:${navbarConfig.fontSize.logo.desktop} font-bold text-learnflow-600 dark:text-learnflow-300 ${navbarConfig.spacing.logoMargin.mobile} md:${navbarConfig.spacing.logoMargin.desktop} font-teko tracking-wide whitespace-nowrap`}>
+              LearnFlow
+            </Link>
+          </div>
 
           {/* Desktop Nav Links */}
-          <div className="hidden md:flex space-x-6">
+          <div className={`hidden md:flex ${navbarConfig.spacing.navLinksGap.desktop}`}>
             {/* Tools Dropdown */}
             <div
               className="relative"
@@ -97,7 +167,7 @@ const Navbar: React.FC = () => {
             >
               <Link
                 to="/tools"
-                className="text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"
+                className={`${navbarConfig.fontSize.navLinks.desktop} text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya`}
               >
                 Tools
               </Link>
@@ -110,7 +180,7 @@ const Navbar: React.FC = () => {
                       <Link
                         key={index}
                         to={tool.route}
-                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"
+                        className={`block px-4 py-2 ${navbarConfig.fontSize.dropdownItems.desktop} text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya`}
                         onClick={() => setToolsDropdownOpen(false)}
                         title={`Go to ${tool.name}`}
                         aria-label={`Navigate to ${tool.name} tool`}
@@ -126,17 +196,17 @@ const Navbar: React.FC = () => {
             {/* Resources Link */}
             <Link
               to="/resources"
-              className="text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"
+              className={`${navbarConfig.fontSize.navLinks.desktop} text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya`}
               title="Navigate to Resources page"
               aria-label="Navigate to academic resources and materials"
             >
               Resources
             </Link>
-            
+
             {/* Search Button */}
             <Link
               to="/search"
-              className="text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"
+              className={`${navbarConfig.fontSize.navLinks.desktop} text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya`}
               title="Search for people"
               aria-label="Search for people on LearnFlow"
             >
@@ -146,7 +216,7 @@ const Navbar: React.FC = () => {
             {/* <NotificationButton /> */}
             <button
               onClick={() => setAboutDialogOpen(true)}
-              className="text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya"
+              className={`${navbarConfig.fontSize.navLinks.desktop} text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-colors font-alegreya`}
               title="Learn more about LearnFlow"
               aria-label="Open About Us dialog"
             >
@@ -155,9 +225,9 @@ const Navbar: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex items-center space-x-4">
+        <div className={`flex items-center ${navbarConfig.spacing.rightSideGap.mobile} md:${navbarConfig.spacing.rightSideGap.desktop} flex-shrink-0`}>
           {/* Theme Toggle */}
-          <div 
+          <div
             className="p-0"
             title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
             aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
@@ -177,17 +247,17 @@ const Navbar: React.FC = () => {
             title={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
             aria-label={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
           >
-            <div className="relative w-6 h-6">
+            <div className={`relative ${navbarConfig.iconSizes.hamburgerIcon.mobile} md:${navbarConfig.iconSizes.hamburgerIcon.desktop}`}>
               {/* Hamburger Icon */}
               <div className={`absolute inset-0 transition-all duration-300 ease-in-out ${isMenuOpen ? 'opacity-0 rotate-180 scale-75' : 'opacity-100 rotate-0 scale-100'}`}>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className={`${navbarConfig.iconSizes.hamburgerIcon.mobile} md:${navbarConfig.iconSizes.hamburgerIcon.desktop}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </div>
 
               {/* Close Icon */}
               <div className={`absolute inset-0 transition-all duration-300 ease-in-out ${isMenuOpen ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 rotate-180 scale-75'}`}>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className={`${navbarConfig.iconSizes.hamburgerIcon.mobile} md:${navbarConfig.iconSizes.hamburgerIcon.desktop}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </div>
@@ -197,23 +267,20 @@ const Navbar: React.FC = () => {
       </div>
 
       {/* Mobile Menu */}
-      <div className={`md:hidden transition-all duration-300 ease-in-out ${
-        isMenuOpen
-          ? 'max-h-96 opacity-100'
-          : 'max-h-0 opacity-0 overflow-hidden'
-      }`}>
-        <div className={`bg-white dark:bg-gray-800 py-4 px-4 transform transition-all duration-300 ease-in-out ${
-          isMenuOpen
-            ? 'translate-y-0 scale-100'
-            : '-translate-y-4 scale-95'
+      <div className={`md:hidden transition-all duration-300 ease-in-out ${isMenuOpen
+        ? 'max-h-96 opacity-100'
+        : 'max-h-0 opacity-0 overflow-hidden'
         }`}>
-          <div className="flex flex-col space-y-3">
+        <div className={`bg-white dark:bg-gray-800 py-4 px-4 transform transition-all duration-300 ease-in-out ${isMenuOpen
+          ? 'translate-y-0 scale-100'
+          : '-translate-y-4 scale-95'
+          }`}>
+          <div className={`flex flex-col ${navbarConfig.spacing.navLinksGap.mobile}`}>
             <Link
               to="/tools"
               onClick={() => setIsMenuOpen(false)}
-              className={`text-left text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-all duration-300 ease-in-out transform hover:translate-x-2 hover:scale-105 font-alegreya ${
-                isMenuOpen ? 'animate-fade-in-up' : ''
-              }`}
+              className={`${navbarConfig.fontSize.navLinks.mobile} text-left text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-all duration-300 ease-in-out transform hover:translate-x-2 hover:scale-105 font-alegreya ${isMenuOpen ? 'animate-fade-in-up' : ''
+                }`}
               style={{ animationDelay: '100ms' }}
               title="Navigate to Tools page"
               aria-label="Navigate to academic tools and calculators"
@@ -224,22 +291,20 @@ const Navbar: React.FC = () => {
             <Link
               to="/resources"
               onClick={() => setIsMenuOpen(false)}
-              className={`text-left text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-all duration-300 ease-in-out transform hover:translate-x-2 hover:scale-105 font-alegreya ${
-                isMenuOpen ? 'animate-fade-in-up' : ''
-              }`}
+              className={`${navbarConfig.fontSize.navLinks.mobile} text-left text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-all duration-300 ease-in-out transform hover:translate-x-2 hover:scale-105 font-alegreya ${isMenuOpen ? 'animate-fade-in-up' : ''
+                }`}
               style={{ animationDelay: '200ms' }}
               title="Navigate to Resources page"
               aria-label="Navigate to academic resources and materials"
             >
               Resources
             </Link>
-            
+
             <Link
               to="/search"
               onClick={() => setIsMenuOpen(false)}
-              className={`text-left text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-all duration-300 ease-in-out transform hover:translate-x-2 hover:scale-105 font-alegreya ${
-                isMenuOpen ? 'animate-fade-in-up' : ''
-              }`}
+              className={`${navbarConfig.fontSize.navLinks.mobile} text-left text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-all duration-300 ease-in-out transform hover:translate-x-2 hover:scale-105 font-alegreya ${isMenuOpen ? 'animate-fade-in-up' : ''
+                }`}
               style={{ animationDelay: '250ms' }}
               title="Search for people"
               aria-label="Search for people on LearnFlow"
@@ -252,9 +317,8 @@ const Navbar: React.FC = () => {
                 setAboutDialogOpen(true);
                 setIsMenuOpen(false);
               }}
-              className={`text-left text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-all duration-300 ease-in-out transform hover:translate-x-2 hover:scale-105 font-alegreya ${
-                isMenuOpen ? 'animate-fade-in-up' : ''
-              }`}
+              className={`${navbarConfig.fontSize.navLinks.mobile} text-left text-gray-600 dark:text-gray-300 hover:text-learnflow-500 dark:hover:text-learnflow-400 transition-all duration-300 ease-in-out transform hover:translate-x-2 hover:scale-105 font-alegreya ${isMenuOpen ? 'animate-fade-in-up' : ''
+                }`}
               style={{ animationDelay: '300ms' }}
               title="Learn more about LearnFlow"
               aria-label="Open About Us dialog"
@@ -262,10 +326,9 @@ const Navbar: React.FC = () => {
               About Us
             </button>
 
-            <div className={`w-full mt-2 transition-all duration-300 ease-in-out transform ${
-              isMenuOpen ? 'animate-fade-in-up' : ''
-            }`}
-            style={{ animationDelay: '400ms' }}>
+            <div className={`w-full mt-2 transition-all duration-300 ease-in-out transform ${isMenuOpen ? 'animate-fade-in-up' : ''
+              }`}
+              style={{ animationDelay: '400ms' }}>
               <SmartAuthButton />
             </div>
           </div>

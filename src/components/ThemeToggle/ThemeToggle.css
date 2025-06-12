@@ -1,18 +1,18 @@
 /* Responsive toggle sizing */
 .switch {
-  --toggle-size: 0.38; /* Default size (reduced) */
+  --toggle-size: 0.3; /* Default size (reduced) */
 }
 
 /* Responsive sizing for different screen sizes */
 @media (max-width: 768px) {
   .switch {
-    --toggle-size: 0.35; /* Smaller on mobile */
+    --toggle-size: 0.25; /* Smaller on mobile */
   }
 }
 
 @media (min-width: 1024px) {
   .switch {
-    --toggle-size: 0.4; /* Slightly larger on desktop */
+    --toggle-size: 0.3; /* Slightly larger on desktop */
   }
 }
 

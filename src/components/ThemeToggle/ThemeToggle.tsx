@@ -14,8 +14,8 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({
   theme, 
   toggleTheme, 
   position = 'center',
-  horizontalOffset = '30px',
-  verticalOffset = '8px',
+  horizontalOffset = '40px',
+  verticalOffset = '6px',
   className = ''
 }) => {
   // Determine position class based on predefined positions

@@ -80,6 +80,30 @@ const DefaultCursorSVG: FC = () => {
   );
 };
 
+// Function to detect if device is desktop/laptop (has a cursor)
+const isDesktopDevice = () => {
+  if (typeof window === 'undefined') return false;
+  
+  // Check for touch capability - if primary input is touch, it's likely mobile/tablet
+  const hasTouchScreen = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  
+  // Check user agent for mobile/tablet indicators
+  const userAgent = navigator.userAgent.toLowerCase();
+  const isMobileUA = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini|mobile/i.test(userAgent);
+  
+  // Check screen size - tablets and phones typically have smaller screens
+  const isSmallScreen = window.innerWidth < 1024; // Less than typical laptop width
+  
+  // Check for pointer type - 'fine' indicates mouse/trackpad, 'coarse' indicates touch
+  const hasFinePrimaryPointer = window.matchMedia('(pointer: fine)').matches;
+  
+  // Device is considered desktop if:
+  // 1. Has fine pointer (mouse/trackpad) AND
+  // 2. Not identified as mobile in user agent AND
+  // 3. Either has no touch screen OR has large screen (hybrid devices like Surface)
+  return hasFinePrimaryPointer && !isMobileUA && (!hasTouchScreen || !isSmallScreen);
+};
+
 export function SmoothCursor({
   cursor = <DefaultCursorSVG />,
   springConfig = {
@@ -90,6 +114,7 @@ export function SmoothCursor({
   },
 }: SmoothCursorProps) {
   const [isMoving, setIsMoving] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
   const lastMousePos = useRef<Position>({ x: 0, y: 0 });
   const velocity = useRef<Position>({ x: 0, y: 0 });
   const lastUpdateTime = useRef(Date.now());
@@ -110,6 +135,17 @@ export function SmoothCursor({
   });
 
   useEffect(() => {
+    // Check if device is desktop on mount
+    setIsDesktop(isDesktopDevice());
+  }, []);
+
+  useEffect(() => {
+    // If not on desktop device, don't do anything
+    if (!isDesktop) {
+      document.body.style.cursor = "auto";
+      return;
+    }
+    
     const updateVelocity = (currentPos: Position) => {
       const currentTime = Date.now();
       const deltaTime = currentTime - lastUpdateTime.current;
@@ -170,29 +206,20 @@ export function SmoothCursor({
       });
     };
 
-    // Handle touch events for mobile devices
-    const handleTouchMove = (e: TouchEvent) => {
-      if (e.touches.length > 0) {
-        const touch = e.touches[0];
-        const mouseEvent = new MouseEvent('mousemove', {
-          clientX: touch.clientX,
-          clientY: touch.clientY
-        });
-        throttledMouseMove(mouseEvent);
-      }
-    };
-
     document.body.style.cursor = "none";
     window.addEventListener("mousemove", throttledMouseMove);
-    window.addEventListener("touchmove", handleTouchMove);
     
     return () => {
       window.removeEventListener("mousemove", throttledMouseMove);
-      window.removeEventListener("touchmove", handleTouchMove);
       document.body.style.cursor = "auto";
       if (rafId) cancelAnimationFrame(rafId);
     };
-  }, [cursorX, cursorY, rotation, scale]);
+  }, [cursorX, cursorY, rotation, scale, isDesktop]);
+
+  // If not on desktop device, don't render anything
+  if (!isDesktop) {
+    return null;
+  }
 
   return (
     <motion.div
