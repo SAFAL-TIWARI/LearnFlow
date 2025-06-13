@@ -11,12 +11,17 @@ interface RollingGalleryProps {
   autoplay?: boolean;
   pauseOnHover?: boolean;
   items: React.ReactNode[];
+  // Animation speed settings
+  dragSensitivity?: number; // Controls how sensitive drag/scroll is (lower = less sensitive)
+  autoplayDuration?: number; // Duration for one full rotation in seconds
 }
 
 const RollingGallery: React.FC<RollingGalleryProps> = ({
   autoplay = false,
   pauseOnHover = false,
   items = [],
+  dragSensitivity = 0.5, // Reduced from 0.05 for slower, more controlled scrolling
+  autoplayDuration = 25, // Increased from 15 for slower autoplay
 }) => {
   const [screenWidth, setScreenWidth] = useState<number>(
     typeof window !== 'undefined' ? window.innerWidth : 1024
@@ -72,7 +77,7 @@ const RollingGallery: React.FC<RollingGalleryProps> = ({
   const radius: number = (cylinderWidth / (2 * Math.PI)) * radiusAdjustment;
 
   // Framer Motion values and controls
-  const dragFactor: number = 0.05;
+  const dragFactor: number = dragSensitivity;
   const rotation = useMotionValue(0);
   const controls = useAnimation();
 
@@ -86,7 +91,7 @@ const RollingGallery: React.FC<RollingGalleryProps> = ({
     controls.start({
       rotateY: [startAngle, startAngle - 360],
       transition: {
-        duration: 15,
+        duration: autoplayDuration,
         ease: "linear",
         repeat: Infinity,
       },

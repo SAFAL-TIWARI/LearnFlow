@@ -21,6 +21,23 @@ import StarBorder from './StarBorder';
 import RollingGallery from './RollingGallery';
 import ToolCard from './ToolCard';
 
+// ===== ROLLING GALLERY ANIMATION SETTINGS =====
+// Adjust these values to control the animation speed
+const ROLLING_GALLERY_CONFIG = {
+  // Drag sensitivity: Lower values = slower, more controlled scrolling
+  // Recommended range: 0.01 (very slow) to 0.05 (fast)
+  dragSensitivity: 0.005,
+  
+  // Autoplay duration: Time in seconds for one complete rotation
+  // Recommended range: 20 (fast) to 60 (very slow)
+  autoplayDuration: 30,
+  
+  // Enable/disable autoplay and pause on hover
+  autoplay: true,
+  pauseOnHover: true,
+};
+// ===============================================
+
 interface ToolProps {
   name: string;
   description: string;
@@ -159,9 +176,11 @@ const StudentTools: React.FC = () => {
           <FadeInElement delay={100} direction="up" distance={30} duration={800}>
             <div className="mx-auto max-w-[1200px]">
               <RollingGallery
-                autoplay={true}
-                pauseOnHover={true}
+                autoplay={ROLLING_GALLERY_CONFIG.autoplay}
+                pauseOnHover={ROLLING_GALLERY_CONFIG.pauseOnHover}
                 items={toolCards}
+                dragSensitivity={ROLLING_GALLERY_CONFIG.dragSensitivity}
+                autoplayDuration={ROLLING_GALLERY_CONFIG.autoplayDuration}
               />
             </div>
           </FadeInElement>
