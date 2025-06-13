@@ -58,46 +58,58 @@ const FeaturesOverview: React.FC = () => {
     }
   ];
 
+  // Helper function to get SVG icon based on feature title
+  function getSVGIcon(title: string): string {
+    switch (title) {
+      case "Academic Resources":
+        // Enhanced book with graduation cap and academic elements
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path><path d="M12 7v14"></path><circle cx="12" cy="2" r="1.5" fill="#ffffff"></circle><path d="M8.5 0.5l3.5 1.5 3.5-1.5v3l-3.5 1.5-3.5-1.5z" fill="#ffffff"></path><path d="M6 9h4M6 12h4M6 15h4" stroke="#ffffff" stroke-width="1.5"></path></svg>';
+      
+      case "Student Tools":
+        // Enhanced calculator with additional tool elements
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"></rect><rect x="6" y="4" width="12" height="3" rx="1" fill="#ffffff"></rect><circle cx="8" cy="10" r="1" fill="#ffffff"></circle><circle cx="12" cy="10" r="1" fill="#ffffff"></circle><circle cx="16" cy="10" r="1" fill="#ffffff"></circle><circle cx="8" cy="14" r="1" fill="#ffffff"></circle><circle cx="12" cy="14" r="1" fill="#ffffff"></circle><circle cx="16" cy="14" r="1" fill="#ffffff"></circle><rect x="8" y="17" width="8" height="2" rx="1" fill="#ffffff"></rect><path d="M1 8l2 2-2 2M23 8l-2 2 2 2" stroke="#ffffff" stroke-width="1.5"></path></svg>';
+      
+      case "Collaborative Learning":
+        // Enhanced users with connection network
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path><path d="M9 11c2 0 4 1 6 2" stroke-dasharray="2,2" opacity="0.7"></path><path d="M3 13c2-1 4-2 6-2" stroke-dasharray="2,2" opacity="0.7"></path><circle cx="5" cy="16" r="1" fill="#ffffff"></circle><circle cx="19" cy="16" r="1" fill="#ffffff"></circle></svg>';
+      
+      case "Easy Downloads":
+        // Enhanced download with cloud and progress indicator
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29" opacity="0.6"></path><rect x="6" y="19" width="12" height="1" rx="0.5" fill="#ffffff" opacity="0.8"></rect><rect x="6" y="19" width="8" height="1" rx="0.5" fill="#00ff88"></rect></svg>';
+      
+      case "24/7 Access":
+        // Enhanced clock with 24/7 indicator and availability symbols
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline><circle cx="19" cy="5" r="2.5" fill="#00ff88" stroke="#00ff88"></circle><text x="19" y="6" text-anchor="middle" font-size="6" fill="#000" font-weight="bold">24/7</text><path d="M2 2l2 2M2 22l2-2M22 2l-2 2M22 22l-2-2" stroke="#ffffff" stroke-width="1.5" opacity="0.7"></path></svg>';
+      
+      case "Secure & Reliable":
+        // Enhanced shield with security elements and checkmark
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"></path><polyline points="9 12 11 14 15 10" stroke-width="3"></polyline><circle cx="6" cy="8" r="1" fill="#ffffff" opacity="0.6"></circle><circle cx="18" cy="8" r="1" fill="#ffffff" opacity="0.6"></circle><path d="M12 1v4M8 3l8 0" stroke="#ffffff" stroke-width="1.5" opacity="0.7"></path></svg>';
+      
+      default:
+        // Fallback generic icon
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>';
+    }
+  }
+
   // Map the features to gallery items with all the necessary data
   const galleryItems = features.map((feature) => {
-    // Convert the React SVG icon to an SVG string
-    const iconString = renderToSVGString(feature.icon);
-    
     return {
       bgColor: feature.color,
       text: feature.title,
       description: feature.description,
-      icon: iconString,
+      icon: getSVGIcon(feature.title),
       linkText: feature.linkText,
       link: feature.link
     };
   });
-  
-  // Helper function to convert React SVG elements to SVG strings
-  function renderToSVGString(element: React.ReactElement): string {
-    // This is a simplified version that works for our specific icons
-    const icon = element.props.className.includes('BookOpen') ? 
-      '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>' :
-      element.props.className.includes('Calculator') ?
-      '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12a2 2 0 0 1 2 2v18H4V4a2 2 0 0 1 2-2z"></path><path d="M6 12a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-2Z"></path></svg>' :
-      element.props.className.includes('Users') ?
-      '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>' :
-      element.props.className.includes('Download') ?
-      '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>' :
-      element.props.className.includes('Clock') ?
-      '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>' :
-      '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"></path></svg>';
-    
-    return icon;
-  }
 
   return (
-    <section className="py-16 bg-gray-50 dark:bg-gray-900">
+    <section className="py-1 bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
           {/* Section Header */}
           <FadeInElement delay={100} direction="up" distance={30} duration={800}>
-            <div className="text-center mb-12">
+            <div className="text-center mb-1">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4 font-bodoni">
                 Why Choose LearnFlow?
               </h2>
@@ -110,13 +122,13 @@ const FeaturesOverview: React.FC = () => {
 
           {/* Circular Gallery */}
           <FadeInElement delay={200} direction="up" distance={30} duration={800}>
-            <div style={{ height: '600px', position: 'relative' }} className="mb-12">
+            <div style={{ height: '600px', position: 'relative' }} className="mb-1">
               <CircularGallery 
                 items={galleryItems} 
                 bend={3} 
                 textColor="#ffffff" 
                 borderRadius={0.05}
-                font="bold 30px Figtree"
+                font="bold 50px Figtree"
               />
             </div>
           </FadeInElement>

@@ -1,3 +1,24 @@
+/**
+ * CircularGallery Component
+ * 
+ * Features mobile-specific scrolling configuration for better touch experience:
+ * - Vertical scroll gestures control horizontal card rotation on mobile
+ * - Configurable scroll speed multiplier (default: 2.5x faster than desktop)
+ * - Momentum scrolling with customizable decay
+ * - Haptic feedback support
+ * - Scroll threshold to prevent accidental scrolling
+ * 
+ * Usage:
+ * <CircularGallery 
+ *   items={galleryItems}
+ *   mobileScrollConfig={{
+ *     verticalScrollSpeedMultiplier: 3.0, // Custom speed
+ *     enableMomentumScrolling: true,
+ *     enableHapticFeedback: false
+ *   }}
+ * />
+ */
+
 import { useRef, useEffect } from "react";
 import {
   Renderer,
@@ -68,25 +89,122 @@ function createTextTexture(
   return { texture, width: canvas.width, height: canvas.height };
 }
 
-function createCardTexture(
+interface TextPositionSettings {
+  // Icon positioning
+  iconYOffset?: number; // Percentage offset from default position (0.12)
+  iconSize?: number; // Multiplier for icon size (1.0 = default)
+  
+  // Title positioning
+  titleYOffset?: number; // Percentage offset from default position (0.28)
+  titleMaxWidthPercent?: number; // Percentage of card width for title (0.85 = default)
+  titleAlignment?: 'left' | 'center' | 'right';
+  
+  // Description positioning
+  descriptionYOffset?: number; // Percentage offset from default position (0.4)
+  descriptionMaxWidthPercent?: number; // Percentage of card width for description (0.88 = default)
+  descriptionAlignment?: 'left' | 'center' | 'right';
+  descriptionLineHeight?: number; // Multiplier for line height (1.0 = default)
+  descriptionMaxLines?: number; // Override max lines
+  
+  // Link text positioning
+  linkYOffset?: number; // Percentage offset from default position (0.9)
+  linkMaxWidthPercent?: number; // Percentage of card width for link text (0.85 = default)
+  linkAlignment?: 'left' | 'center' | 'right';
+  
+  // General padding
+  horizontalPadding?: number; // Additional horizontal padding multiplier
+  verticalPadding?: number; // Additional vertical padding multiplier
+}
+
+// Mobile-specific scrolling configuration
+interface MobileScrollConfig {
+  // Enable vertical scroll to control horizontal rotation on mobile
+  enableVerticalScroll?: boolean;
+  
+  // Speed multiplier for vertical scroll gesture (higher = faster scrolling)
+  verticalScrollSpeedMultiplier?: number;
+  
+  // Minimum scroll threshold to prevent accidental scrolling
+  scrollThreshold?: number;
+  
+  // Enable momentum scrolling (continues scrolling after gesture ends)
+  enableMomentumScrolling?: boolean;
+  
+  // Momentum decay factor (0-1, lower = longer momentum)
+  momentumDecay?: number;
+  
+  // Maximum momentum speed
+  maxMomentumSpeed?: number;
+  
+  // Enable haptic feedback on supported devices
+  enableHapticFeedback?: boolean;
+  
+  // Scroll direction sensitivity (1 = normal, -1 = inverted)
+  scrollDirectionMultiplier?: number;
+}
+
+// Default mobile scroll configuration
+const DEFAULT_MOBILE_SCROLL_CONFIG: MobileScrollConfig = {
+  enableVerticalScroll: true,
+  verticalScrollSpeedMultiplier: 10, // 2.5x faster than desktop for better mobile experience
+  scrollThreshold: 5, // Minimum pixel movement to register as scroll
+  enableMomentumScrolling: true,
+  momentumDecay: 0.95, // Smooth momentum decay
+  maxMomentumSpeed: 15, // Maximum momentum speed
+  enableHapticFeedback: true,
+  scrollDirectionMultiplier: 1 // Normal direction (positive = right, negative = left)
+};
+
+async function createCardTexture(
   gl: GL,
   title: string,
   description: string,
   iconSvg: string,
   linkText: string,
   bgColor: string = "#ffffff",
-  textColor: string = "#000000"
-): { texture: Texture; width: number; height: number } {
+  textColor: string = "#000000",
+  textSettings: TextPositionSettings = {}
+): Promise<{ texture: Texture; width: number; height: number }>{
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
   if (!context) throw new Error("Could not get 2d context");
 
+  // Extract settings with defaults
+  const {
+    iconYOffset = 0,
+    iconSize = 1.0,
+    titleYOffset = 0,
+    titleMaxWidthPercent = 0.85,
+    titleAlignment = 'center',
+    descriptionYOffset = 0,
+    descriptionMaxWidthPercent = 0.45,
+    descriptionAlignment = 'center',
+    descriptionLineHeight = 1.5,
+    descriptionMaxLines,
+    linkYOffset = 0,
+    linkMaxWidthPercent = 0.85,
+    linkAlignment = 'center',
+    horizontalPadding = 1.0,
+    verticalPadding = 1.0
+  } = textSettings;
+
   // Detect if we're on a mobile device for responsive design
   const isMobile = window.innerWidth <= 768;
   
-  // Set canvas dimensions
-  const width = 800;
-  const height = 600;
+  // Set canvas dimensions with better mobile scaling
+  const isVerySmall = window.innerWidth <= 480;
+  let width, height;
+  
+  if (isVerySmall) {
+    width = 400;
+    height = 350;
+  } else if (isMobile) {
+    width = 480;
+    height = 380;
+  } else {
+    width = 550;
+    height = 550;
+  }
   canvas.width = width;
   canvas.height = height;
 
@@ -94,81 +212,164 @@ function createCardTexture(
   context.fillStyle = bgColor;
   context.fillRect(0, 0, width, height);
 
-  // Draw border radius (optional)
+  // Draw border radius (optional) with better padding
   context.strokeStyle = "rgba(255,255,255,0.2)";
   context.lineWidth = 2;
-  context.strokeRect(10, 10, width - 20, height - 20);
+  const borderPadding = (isVerySmall ? 1 : (isMobile ? 1 : 2)) * horizontalPadding;
+  context.strokeRect(borderPadding, borderPadding, width - borderPadding * 2, height - borderPadding * 2);
 
-  // Convert SVG string to data URL
-  const svgBlob = new Blob([iconSvg], { type: "image/svg+xml" });
-  const svgUrl = URL.createObjectURL(svgBlob);
-  
-  // Create image for icon
-  const iconImg = new Image();
-  iconImg.src = svgUrl;
-  
-  // Create a temporary image to render the SVG, then continue with the rest of the drawing
+  // Draw SVG icon
   const tempImg = new Image();
-  tempImg.onload = () => {
-    // Calculate spacing and sizes for responsive layouts
-    const iconSize = isMobile ? 70 : 80;
-    const iconY = isMobile ? 40 : 60;
-    const titleY = isMobile ? 150 : 180;
-    const descY = isMobile ? 220 : 260;
-    const linkY = isMobile ? height - 60 : height - 80;
-    
-    // Draw icon centered at the top
-    context.drawImage(tempImg, (width - iconSize) / 2, iconY, iconSize, iconSize);
-    URL.revokeObjectURL(svgUrl);
-
-    // Draw title - larger on mobile for better readability
-    const titleFontSize = isMobile ? 36 : 40;
-    context.font = `bold ${titleFontSize}px sans-serif`;
-    context.fillStyle = textColor;
-    context.textAlign = "center";
-    context.textBaseline = "middle";
-    
-    // Limit title length if needed
-    const maxTitleLength = isMobile ? 20 : 25;
-    const displayTitle = title.length > maxTitleLength 
-      ? title.substring(0, maxTitleLength - 3) + "..." 
-      : title;
-    context.fillText(displayTitle, width / 2, titleY);
-
-    // Draw description - adjust font size for mobile
-    const descFontSize = isMobile ? 22 : 24;
-    context.font = `${descFontSize}px sans-serif`;
-    context.fillStyle = textColor;
-    
-    // Use tighter line height on mobile for more text
-    const lineHeight = isMobile ? 28 : 32;
-    const maxWidth = isMobile ? width - 80 : width - 100;
-    
-    // Truncate description if too long for mobile
-    let displayDesc = description;
-    if (isMobile && description.length > 120) {
-      displayDesc = description.substring(0, 117) + "...";
-    }
-    
-    wrapText(context, displayDesc, width / 2, descY, maxWidth, lineHeight);
-
-    // Draw link text - slightly smaller on mobile
-    const linkFontSize = isMobile ? 24 : 28;
-    context.font = `bold ${linkFontSize}px sans-serif`;
-    context.fillStyle = textColor;
-    context.fillText(linkText + " →", width / 2, linkY);
-
-    // Update texture with canvas content
-    if (gl && !gl.isContextLost()) {
-      texture.image = canvas;
-    }
-  };
+  tempImg.src = 'data:image/svg+xml;base64,' + btoa(iconSvg);
   
-  // Set source for the temporary image
-  tempImg.src = svgUrl;
+  // We need to ensure the image is loaded before drawing
+  return new Promise<{ texture: Texture; width: number; height: number }>((resolve) => {
+    tempImg.onload = () => {
+      // Draw icon at the top with responsive sizing and custom positioning
+      const baseIconSize = isVerySmall ? 40 : (isMobile ? 55 : 70);
+      const adjustedIconSize = baseIconSize * iconSize;
+      const iconX = (width - adjustedIconSize) / 2;
+      const baseIconY = height * (isVerySmall ? 0.1 : 0.12);
+      const iconY = baseIconY + (height * iconYOffset * verticalPadding);
+      context.drawImage(tempImg, iconX, iconY, adjustedIconSize, adjustedIconSize);
 
-  const texture = new Texture(gl, { generateMipmaps: false });
-  return { texture, width, height };
+      // Draw title with custom positioning and alignment
+      context.font = isVerySmall ? 'bold 19px Inter' : (isMobile ? 'bold 22px Inter' : 'bold 28px Inter');
+      context.fillStyle = textColor;
+      context.textAlign = titleAlignment;
+      context.textBaseline = 'middle';
+      
+      // Ensure title fits within bounds with custom width
+      const titleMaxWidth = width * titleMaxWidthPercent * horizontalPadding;
+      let titleText = title;
+      const titleMetrics = context.measureText(titleText);
+      if (titleMetrics.width > titleMaxWidth) {
+        // Truncate title if too long
+        while (context.measureText(titleText + '...').width > titleMaxWidth && titleText.length > 0) {
+          titleText = titleText.slice(0, -1);
+        }
+        titleText += '...';
+      }
+      
+      // Calculate title X position based on alignment
+      let titleX = width / 2; // center default
+      if (titleAlignment === 'left') {
+        titleX = borderPadding + (titleMaxWidth * 0.1);
+      } else if (titleAlignment === 'right') {
+        titleX = width - borderPadding - (titleMaxWidth * 0.1);
+      }
+      
+      const baseTitleY = height * (isVerySmall ? 0.28 : 0.30);
+      const titleY = baseTitleY + (height * titleYOffset * verticalPadding);
+      context.fillText(titleText, titleX, titleY);
+
+      // Draw description with custom positioning and alignment
+      context.font = isVerySmall ? '14px Inter' : (isMobile ? '16px Inter' : '21px Inter');
+      context.textAlign = descriptionAlignment;
+      const maxWidth = width * descriptionMaxWidthPercent * horizontalPadding;
+      const baseLineHeight = isVerySmall ? 19 : (isMobile ? 22 : 27);
+      const lineHeight = baseLineHeight * descriptionLineHeight;
+      const words = description.split(' ');
+      let line = '';
+      const baseY = height * (isVerySmall ? 0.38 : 0.4);
+      let y = baseY + (height * descriptionYOffset * verticalPadding);
+      const defaultMaxLines = isVerySmall ? 5 : (isMobile ? 6 : 8);
+      const maxLines = descriptionMaxLines || defaultMaxLines;
+      let lineCount = 0;
+      let wordIndex = 0;
+
+      // Calculate description X position based on alignment
+      let descriptionX = width / 2; // center default
+      if (descriptionAlignment === 'left') {
+        descriptionX = borderPadding + (maxWidth * 0.1);
+      } else if (descriptionAlignment === 'right') {
+        descriptionX = width - borderPadding - (maxWidth * 0.1);
+      }
+
+      while (wordIndex < words.length && lineCount < maxLines) {
+        const word = words[wordIndex];
+        const testLine = line + (line ? ' ' : '') + word;
+        const metrics = context.measureText(testLine);
+        
+        if (metrics.width > maxWidth && line !== '') {
+          // Current line is full, draw it and start a new line
+          context.fillText(line, descriptionX, y);
+          line = word;
+          y += lineHeight;
+          lineCount++;
+          wordIndex++;
+        } else if (metrics.width > maxWidth && line === '') {
+          // Single word is too long, truncate it
+          let truncatedWord = word;
+          while (context.measureText(truncatedWord + '...').width > maxWidth && truncatedWord.length > 0) {
+            truncatedWord = truncatedWord.slice(0, -1);
+          }
+          line = truncatedWord + '...';
+          wordIndex++;
+        } else {
+          // Word fits, add it to current line
+          line = testLine;
+          wordIndex++;
+        }
+      }
+      
+      // Handle the last line
+      if (line.length > 0) {
+        // Check if there are more words that couldn't fit
+        if (wordIndex < words.length && lineCount >= maxLines - 1) {
+          // Need to add ellipsis
+          while (context.measureText(line + '...').width > maxWidth && line.length > 0) {
+            const lineWords = line.split(' ');
+            if (lineWords.length > 1) {
+              lineWords.pop();
+              line = lineWords.join(' ');
+            } else {
+              // Single word, truncate it
+              line = line.slice(0, -1);
+            }
+          }
+          if (line.length > 0) {
+            line += '...';
+          }
+        }
+        context.fillText(line, descriptionX, y);
+      }
+
+      // Draw link text at bottom with custom positioning and alignment
+      context.font = isVerySmall ? 'bold 14px Inter' : (isMobile ? 'bold 15px Inter' : 'bold 22px Inter');
+      context.fillStyle = textColor;
+      context.textAlign = linkAlignment;
+      context.textBaseline = 'middle';
+      
+      // Ensure link text fits within bounds with custom width
+      const linkMaxWidth = width * linkMaxWidthPercent * horizontalPadding;
+      let linkTextDisplay = linkText;
+      const linkMetrics = context.measureText(linkTextDisplay);
+      if (linkMetrics.width > linkMaxWidth) {
+        while (context.measureText(linkTextDisplay + '...').width > linkMaxWidth && linkTextDisplay.length > 0) {
+          linkTextDisplay = linkTextDisplay.slice(0, -1);
+        }
+        linkTextDisplay += '...';
+      }
+      
+      // Calculate link X position based on alignment
+      let linkX = width / 2; // center default
+      if (linkAlignment === 'left') {
+        linkX = borderPadding + (linkMaxWidth * 0.1);
+      } else if (linkAlignment === 'right') {
+        linkX = width - borderPadding - (linkMaxWidth * 0.1);
+      }
+      
+      const baseLinkY = height * (isVerySmall ? 0.92 : 0.9);
+      const linkY = baseLinkY + (height * linkYOffset * verticalPadding);
+      context.fillText(linkTextDisplay, linkX, linkY);
+
+      // Create and return the texture
+      const texture = new Texture(gl, { generateMipmaps: false });
+      texture.image = canvas;
+      resolve({ texture, width: canvas.width, height: canvas.height });
+    };
+  });
 }
 
 // Helper function to wrap text
@@ -310,6 +511,7 @@ interface MediaProps {
   icon?: string;
   linkText?: string;
   bgColor?: string;
+  textSettings?: TextPositionSettings;
 }
 
 class Media {
@@ -333,6 +535,7 @@ class Media {
   borderRadius: number;
   font?: string;
   link?: string;
+  textSettings: TextPositionSettings;
   program!: Program;
   plane!: Mesh;
   title!: Title;
@@ -365,6 +568,7 @@ class Media {
     icon = "",
     linkText = "Learn More",
     bgColor = "#3a3a3a",
+    textSettings = {},
   }: MediaProps) {
     this.geometry = geometry;
     this.gl = gl;
@@ -385,6 +589,7 @@ class Media {
     this.borderRadius = borderRadius;
     this.font = font;
     this.link = link;
+    this.textSettings = textSettings;
     this.createShader();
     this.createMesh();
     this.createTitle();
@@ -454,20 +659,21 @@ class Media {
       },
       transparent: true,
     });
-    
-    // If we have an icon and description, create a rich card texture
+      // If we have an icon and description, create a rich card texture
     if (this.icon && this.description) {
-      const { texture: cardTexture, width, height } = createCardTexture(
+      createCardTexture(
         this.gl,
         this.text,
         this.description,
         this.icon,
         this.linkText,
         this.bgColor,
-        this.textColor
-      );
-      texture.image = cardTexture.image;
-      this.program.uniforms.uImageSizes.value = [width, height];
+        this.textColor,
+        this.textSettings
+      ).then(({ texture: cardTexture, width, height }) => {
+        texture.image = cardTexture.image;
+        this.program.uniforms.uImageSizes.value = [width, height];
+      });
     } 
     // Otherwise use a regular image if provided
     else if (this.image) {
@@ -532,9 +738,15 @@ class Media {
     
     // Determine if we're on a mobile device
     const isMobile = this.screen.width <= 768;
+    const isVerySmall = this.screen.width <= 480;
     
     // Adjust bend factor for mobile to prevent extreme curvature
-    const adjustedBend = isMobile ? Math.min(Math.abs(this.bend), 1.5) * Math.sign(this.bend) : this.bend;
+    let adjustedBend = this.bend;
+    if (isVerySmall) {
+      adjustedBend = Math.min(Math.abs(this.bend), 0.8) * Math.sign(this.bend);
+    } else if (isMobile) {
+      adjustedBend = Math.min(Math.abs(this.bend), 1.2) * Math.sign(this.bend);
+    }
 
     if (adjustedBend === 0) {
       this.plane.position.y = 0;
@@ -546,31 +758,26 @@ class Media {
       const R = (H * H + B_abs * B_abs) / (2 * B_abs);
       
       // Limit how far the cards can go along the x-axis to prevent overlap
-      const effectiveX = Math.min(Math.abs(x), H * (isMobile ? 0.85 : 1.0));
+      const maxXFactor = isVerySmall ? 0.7 : (isMobile ? 0.8 : 1.0);
+      const effectiveX = Math.min(Math.abs(x), H * maxXFactor);
 
       // Calculate vertical position based on circular arc
-      const arc = R - Math.sqrt(R * R - effectiveX * effectiveX);
+      const arc = R - Math.sqrt(Math.max(0, R * R - effectiveX * effectiveX));
       
       if (adjustedBend > 0) {
         // Position cards along the arc with smoother transitions on mobile
         this.plane.position.y = -arc;
         
-        // Rotate cards to follow the circular path
+        // Rotate cards to follow the circular path with reduced rotation on mobile
         const rotationAngle = Math.asin(effectiveX / R);
-        this.plane.rotation.z = -Math.sign(x) * rotationAngle;
+        const rotationFactor = isVerySmall ? 0.4 : (isMobile ? 0.5 : 1.0);
+        this.plane.rotation.z = -Math.sign(x) * rotationAngle * rotationFactor;
         
-        // Additional scaling effect for off-center cards (optional)
-        if (isMobile) {
-          const scaleFactor = 1.0 - (Math.abs(x) / (H * 2)) * 0.3;
-          this.plane.scale.set(
-            this.plane.scale.x * scaleFactor,
-            this.plane.scale.y * scaleFactor,
-            1
-          );
-        }
       } else {
         this.plane.position.y = arc;
-        this.plane.rotation.z = Math.sign(x) * Math.asin(effectiveX / R);
+        const rotationAngle = Math.asin(effectiveX / R);
+        const rotationFactor = isVerySmall ? 0.3 : (isMobile ? 0.5 : 1.0);
+        this.plane.rotation.z = Math.sign(x) * rotationAngle * rotationFactor;
       }
     }
 
@@ -583,7 +790,7 @@ class Media {
     const viewportOffset = this.viewport.width / 2;
     
     // Add a small buffer to prevent cards from disappearing too early
-    const buffer = isMobile ? 0.1 : 0;
+    const buffer = isMobile ? 0.2 : 0;
     this.isBefore = this.plane.position.x + planeOffset < -(viewportOffset + buffer);
     this.isAfter = this.plane.position.x - planeOffset > (viewportOffset + buffer);
     
@@ -612,28 +819,61 @@ class Media {
       }
     }
     
-    // Determine if we're on a mobile device
+    // Determine device type for better responsive handling
     const isMobile = this.screen.width <= 768;
+    const isVerySmall = this.screen.width <= 480;
+    const isTablet = this.screen.width > 768 && this.screen.width <= 1024;
     
-    // Adjust scale based on screen size
-    this.scale = isMobile 
-      ? Math.min(this.screen.height / 1800, this.screen.width / 1200) 
-      : this.screen.height / 1500;
+    // Adjust scale based on screen size with better mobile handling
+    if (isVerySmall) {
+      this.scale = Math.min(this.screen.height / 2200, this.screen.width / 1400);
+    } else if (isMobile) {
+      this.scale = Math.min(this.screen.height / 1900, this.screen.width / 1300);
+    } else if (isTablet) {
+      this.scale = Math.min(this.screen.height / 1600, this.screen.width / 1100);
+    } else {
+      this.scale = this.screen.height / 1500;
+    }
     
-    // Calculate card sizes with responsive adjustments
-    const heightScale = isMobile ? 800 : 900;
-    const widthScale = isMobile ? 550 : 700;
+    // Calculate card sizes with better responsive adjustments
+    let heightScale, widthScale;
+    if (isVerySmall) {
+      heightScale = 100;
+      widthScale = 100;
+    } else if (isMobile) {
+      heightScale = 750;
+      widthScale = 520;
+    } else if (isTablet) {
+      heightScale = 850;
+      widthScale = 650;
+    } else {
+      heightScale = 900;
+      widthScale = 700;
+    }
     
     this.plane.scale.y =
       (this.viewport.height * (heightScale * this.scale)) / this.screen.height;
     this.plane.scale.x =
       (this.viewport.width * (widthScale * this.scale)) / this.screen.width;
     
-    // Ensure minimum size for visibility but prevent overflow
-    if (isMobile) {
-      // Limit maximum size on mobile
-      this.plane.scale.x = Math.min(this.plane.scale.x, this.viewport.width * 0.6);
-      this.plane.scale.y = Math.min(this.plane.scale.y, this.viewport.height * 0.6);
+    // Ensure proper size constraints for different devices
+    if (isVerySmall) {
+      // Very small devices - ensure cards are visible but not too large
+      this.plane.scale.x = Math.min(this.plane.scale.x, this.viewport.width * 0.75);
+      this.plane.scale.y = Math.min(this.plane.scale.y, this.viewport.height * 0.65);
+      // Ensure minimum size for readability
+      this.plane.scale.x = Math.max(this.plane.scale.x, this.viewport.width * 0.4);
+      this.plane.scale.y = Math.max(this.plane.scale.y, this.viewport.height * 0.35);
+    } else if (isMobile) {
+      // Mobile devices
+      this.plane.scale.x = Math.min(this.plane.scale.x, this.viewport.width * 0.7);
+      this.plane.scale.y = Math.min(this.plane.scale.y, this.viewport.height * 0.7);
+      this.plane.scale.x = Math.max(this.plane.scale.x, this.viewport.width * 0.45);
+      this.plane.scale.y = Math.max(this.plane.scale.y, this.viewport.height * 0.4);
+    } else if (isTablet) {
+      // Tablet devices
+      this.plane.scale.x = Math.min(this.plane.scale.x, this.viewport.width * 0.65);
+      this.plane.scale.y = Math.min(this.plane.scale.y, this.viewport.height * 0.75);
     }
     
     this.program.uniforms.uPlaneSizes.value = [
@@ -641,8 +881,17 @@ class Media {
       this.plane.scale.y,
     ];
     
-    // Adjust padding based on screen size
-    this.padding = isMobile ? 1.2 : 2;
+    // Adjust padding based on screen size for better spacing
+    if (isVerySmall) {
+      this.padding = 0.8;
+    } else if (isMobile) {
+      this.padding = 1.0;
+    } else if (isTablet) {
+      this.padding = 1.5;
+    } else {
+      this.padding = 2.0;
+    }
+    
     this.width = this.plane.scale.x + this.padding;
     this.widthTotal = this.width * this.length;
     this.x = this.width * this.index;
@@ -666,6 +915,8 @@ interface AppConfig {
   borderRadius?: number;
   font?: string;
   onItemClick?: (link: string) => void;
+  textSettings?: TextPositionSettings;
+  mobileScrollConfig?: MobileScrollConfig;
 }
 
 class App {
@@ -690,6 +941,7 @@ class App {
   viewport!: { width: number; height: number };
   raf: number = 0;
   onItemClick?: (link: string) => void;
+  mobileScrollConfig: MobileScrollConfig;
 
   boundOnResize: () => void;
   boundOnWheel: (e: WheelEvent) => void;
@@ -700,6 +952,19 @@ class App {
 
   isDown: boolean = false;
   start: number = 0;
+  
+  // Mobile momentum scrolling properties
+  momentum: {
+    velocity: number;
+    isActive: boolean;
+    lastTime: number;
+    lastPosition: number;
+  } = {
+    velocity: 0,
+    isActive: false,
+    lastTime: 0,
+    lastPosition: 0
+  };
 
   constructor(
     container: HTMLElement,
@@ -710,11 +975,20 @@ class App {
       borderRadius = 0,
       font = "bold 30px Figtree",
       onItemClick,
+      mobileScrollConfig,
     }: AppConfig
   ) {
     document.documentElement.classList.remove("no-js");
     this.container = container;
-    this.scroll = { ease: 0.05, current: 0, target: 0, last: 0 };
+    
+    // Initialize mobile scroll configuration with defaults
+    this.mobileScrollConfig = { ...DEFAULT_MOBILE_SCROLL_CONFIG, ...mobileScrollConfig };
+    
+    // Adjust scroll easing based on device type for better mobile experience
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+    const scrollEase = isMobile ? 0.08 : 0.05; // Slightly faster easing on mobile
+    
+    this.scroll = { ease: scrollEase, current: 0, target: 0, last: 0 };
     this.onCheckDebounce = debounce(this.onCheck.bind(this), 200);
     this.onItemClick = onItemClick;
     this.mediasImages = items;
@@ -796,6 +1070,22 @@ class App {
   }
 
   update() {
+    // Handle momentum scrolling on mobile
+    const isMobile = this.screen.width <= 768;
+    if (isMobile && this.momentum.isActive && this.mobileScrollConfig.enableMomentumScrolling) {
+      // Apply momentum velocity to scroll target
+      this.scroll.target += this.momentum.velocity;
+      
+      // Apply momentum decay
+      this.momentum.velocity *= this.mobileScrollConfig.momentumDecay!;
+      
+      // Stop momentum when velocity becomes very small
+      if (Math.abs(this.momentum.velocity) < 0.01) {
+        this.momentum.isActive = false;
+        this.momentum.velocity = 0;
+      }
+    }
+    
     this.scroll.current = lerp(
       this.scroll.current,
       this.scroll.target,
@@ -857,8 +1147,36 @@ class App {
   }
 
   onWheel(e: WheelEvent) {
-    const normalized = e.deltaY / 100;
-    this.scroll.target += normalized;
+    const isMobile = this.screen.width <= 768;
+    
+    if (isMobile && this.mobileScrollConfig.enableVerticalScroll) {
+      // On mobile, use vertical scroll to control horizontal rotation
+      e.preventDefault(); // Prevent default vertical scrolling
+      
+      // Apply mobile-specific scroll configuration
+      const scrollDelta = Math.abs(e.deltaY) > this.mobileScrollConfig.scrollThreshold! 
+        ? e.deltaY 
+        : 0;
+      
+      if (scrollDelta !== 0) {
+        const normalizedDelta = (scrollDelta / 100) * 
+          this.mobileScrollConfig.verticalScrollSpeedMultiplier! * 
+          this.mobileScrollConfig.scrollDirectionMultiplier!;
+        
+        this.scroll.target += normalizedDelta;
+        
+        // Add haptic feedback if supported and enabled
+        if (this.mobileScrollConfig.enableHapticFeedback && 'vibrate' in navigator) {
+          navigator.vibrate(10); // Short vibration
+        }
+      }
+    } else {
+      // Desktop or mobile with vertical scroll disabled - use normal wheel behavior
+      const scrollMultiplier = isMobile ? 0.5 : 1.0;
+      const normalized = (e.deltaY / 100) * scrollMultiplier;
+      this.scroll.target += normalized;
+    }
+    
     this.onCheckDebounce();
   }
 
@@ -866,16 +1184,60 @@ class App {
     this.isDown = true;
     this.scroll.position = this.scroll.current;
     this.start = this.getPositionX(e);
+    
+    // Initialize momentum tracking for mobile
+    const isMobile = this.screen.width <= 768;
+    if (isMobile && this.mobileScrollConfig.enableMomentumScrolling) {
+      this.momentum.isActive = false;
+      this.momentum.velocity = 0;
+      this.momentum.lastTime = Date.now();
+      this.momentum.lastPosition = this.start;
+    }
   }
 
   onTouchMove(e: MouseEvent | TouchEvent) {
     if (!this.isDown) return;
+    
     const x = this.getPositionX(e);
-    const distance = (this.start - x) * 0.01;
-    this.scroll.target = this.scroll.position + distance;
+    const isMobile = this.screen.width <= 768;
+    
+    // Calculate movement distance
+    const distance = this.start - x;
+    
+    // Apply mobile scroll configuration
+    let touchMultiplier = isMobile ? 0.008 : 0.01;
+    if (isMobile && this.mobileScrollConfig.enableVerticalScroll) {
+      touchMultiplier *= this.mobileScrollConfig.verticalScrollSpeedMultiplier! * 0.5; // Reduce for touch
+    }
+    
+    const adjustedDistance = distance * touchMultiplier;
+    this.scroll.target = this.scroll.position + adjustedDistance;
+    
+    // Track momentum for mobile
+    if (isMobile && this.mobileScrollConfig.enableMomentumScrolling) {
+      const currentTime = Date.now();
+      const timeDelta = currentTime - this.momentum.lastTime;
+      
+      if (timeDelta > 0) {
+        const positionDelta = x - this.momentum.lastPosition;
+        this.momentum.velocity = (positionDelta / timeDelta) * touchMultiplier;
+        this.momentum.lastTime = currentTime;
+        this.momentum.lastPosition = x;
+      }
+    }
   }
 
   onTouchUp() {
+    const isMobile = this.screen.width <= 768;
+    
+    // Apply momentum scrolling on mobile
+    if (isMobile && this.mobileScrollConfig.enableMomentumScrolling && Math.abs(this.momentum.velocity) > 0.1) {
+      this.momentum.isActive = true;
+      // Clamp momentum velocity to maximum
+      const maxSpeed = this.mobileScrollConfig.maxMomentumSpeed!;
+      this.momentum.velocity = Math.max(-maxSpeed, Math.min(maxSpeed, this.momentum.velocity));
+    }
+    
     this.isDown = false;
   }
 
@@ -921,20 +1283,28 @@ class App {
   addEventListeners() {
     window.addEventListener("resize", this.boundOnResize);
     
-    // Handle mouse wheel for scrolling
-    this.container.addEventListener("wheel", this.boundOnWheel);
+    // Handle mouse wheel for scrolling with passive option for better performance
+    this.container.addEventListener("wheel", this.boundOnWheel, { passive: false });
     
     // Handle touch/mouse events for dragging
     this.container.addEventListener("mousedown", this.boundOnTouchDown);
     window.addEventListener("mousemove", this.boundOnTouchMove);
     window.addEventListener("mouseup", this.boundOnTouchUp);
     
-    this.container.addEventListener("touchstart", this.boundOnTouchDown);
-    window.addEventListener("touchmove", this.boundOnTouchMove);
-    window.addEventListener("touchend", this.boundOnTouchUp);
+    // Touch events with passive option for better mobile performance
+    this.container.addEventListener("touchstart", this.boundOnTouchDown, { passive: false });
+    window.addEventListener("touchmove", this.boundOnTouchMove, { passive: false });
+    window.addEventListener("touchend", this.boundOnTouchUp, { passive: true });
     
     // Handle clicks for navigation
     this.container.addEventListener("click", this.boundOnClick);
+    
+    // Add orientation change listener for mobile devices
+    window.addEventListener("orientationchange", () => {
+      setTimeout(() => {
+        this.onResize();
+      }, 100);
+    });
   }
 
   removeEventListeners() {
@@ -950,6 +1320,9 @@ class App {
     window.removeEventListener("touchend", this.boundOnTouchUp);
     
     this.container.removeEventListener("click", this.boundOnClick);
+    
+    // Remove orientation change listener
+    window.removeEventListener("orientationchange", this.onResize);
   }
 
   destroy() {
@@ -965,6 +1338,7 @@ interface CircularGalleryProps {
   textColor?: string;
   borderRadius?: number;
   font?: string;
+  mobileScrollConfig?: MobileScrollConfig;
 }
 
 const CircularGallery: React.FC<CircularGalleryProps> = ({
@@ -973,6 +1347,7 @@ const CircularGallery: React.FC<CircularGalleryProps> = ({
   textColor = "#ffffff",
   borderRadius = 0.05,
   font = "bold 30px Figtree",
+  mobileScrollConfig,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<App | null>(null);
@@ -1033,12 +1408,14 @@ const CircularGallery: React.FC<CircularGalleryProps> = ({
 
   // Calculate optimal bend based on screen size
   const getResponsiveBend = () => {
-    // Use less bend on smaller screens
+    // Use less bend on smaller screens for better mobile experience
     if (typeof window !== 'undefined') {
       if (window.innerWidth <= 480) {
-        return Math.min(bend, 1.2); // Much less curve for very small devices
+        return Math.min(bend, 0.8); // Much less curve for very small devices
       } else if (window.innerWidth <= 768) {
-        return Math.min(bend, 2); // Less curve for tablets/mobile
+        return Math.min(bend, 1.2); // Less curve for mobile devices
+      } else if (window.innerWidth <= 1024) {
+        return Math.min(bend, 2.0); // Moderate curve for tablets
       }
     }
     return bend; // Use default for desktop
@@ -1067,6 +1444,7 @@ const CircularGallery: React.FC<CircularGalleryProps> = ({
         textColor,
         borderRadius,
         font: responsiveFont,
+        mobileScrollConfig,
         onItemClick: (link) => {
           window.location.href = link;
         }
@@ -1091,6 +1469,7 @@ const CircularGallery: React.FC<CircularGalleryProps> = ({
             textColor,
             borderRadius,
             font: responsiveFont,
+            mobileScrollConfig,
             onItemClick: (link) => {
               window.location.href = link;
             }
@@ -1109,9 +1488,10 @@ const CircularGallery: React.FC<CircularGalleryProps> = ({
         appRef.current = null;
       }
     };
-  }, [items, bend, textColor, borderRadius, font]);
+  }, [items, bend, textColor, borderRadius, font, mobileScrollConfig]);
 
   return <div ref={containerRef} style={{ width: "100%", height: "100%" }} />;
 };
 
 export default CircularGallery;
+export type { MobileScrollConfig, GalleryItem, TextPositionSettings };
