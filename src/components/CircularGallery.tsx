@@ -917,6 +917,11 @@ interface AppConfig {
   onItemClick?: (link: string) => void;
   textSettings?: TextPositionSettings;
   mobileScrollConfig?: MobileScrollConfig;
+  // Autoplay functionality
+  autoplay?: boolean;
+  autoplaySpeed?: number;
+  pauseOnHover?: boolean;
+  autoplayDirection?: 'left' | 'right';
 }
 
 class App {
@@ -942,6 +947,13 @@ class App {
   raf: number = 0;
   onItemClick?: (link: string) => void;
   mobileScrollConfig: MobileScrollConfig;
+  
+  // Autoplay properties
+  autoplay: boolean = false;
+  autoplaySpeed: number = 2.0;
+  pauseOnHover: boolean = true;
+  autoplayDirection: 'left' | 'right' = 'right';
+  isHovered: boolean = false;
 
   boundOnResize: () => void;
   boundOnWheel: (e: WheelEvent) => void;
@@ -949,6 +961,8 @@ class App {
   boundOnTouchMove: (e: MouseEvent | TouchEvent) => void;
   boundOnTouchUp: () => void;
   boundOnClick: (e: MouseEvent) => void;
+  boundOnMouseEnter: () => void;
+  boundOnMouseLeave: () => void;
 
   isDown: boolean = false;
   start: number = 0;
@@ -976,6 +990,10 @@ class App {
       font = "bold 30px Figtree",
       onItemClick,
       mobileScrollConfig,
+      autoplay = false,
+      autoplaySpeed = 2.0,
+      pauseOnHover = true,
+      autoplayDirection = 'right',
     }: AppConfig
   ) {
     document.documentElement.classList.remove("no-js");
@@ -983,6 +1001,13 @@ class App {
     
     // Initialize mobile scroll configuration with defaults
     this.mobileScrollConfig = { ...DEFAULT_MOBILE_SCROLL_CONFIG, ...mobileScrollConfig };
+    
+    // Initialize autoplay properties
+    this.autoplay = autoplay;
+    this.autoplaySpeed = autoplaySpeed;
+    this.pauseOnHover = pauseOnHover;
+    this.autoplayDirection = autoplayDirection;
+    this.isHovered = false;
     
     // Adjust scroll easing based on device type for better mobile experience
     const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
@@ -1000,6 +1025,8 @@ class App {
     this.boundOnTouchMove = this.onTouchMove.bind(this);
     this.boundOnTouchUp = this.onTouchUp.bind(this);
     this.boundOnClick = this.onClick.bind(this);
+    this.boundOnMouseEnter = this.onMouseEnter.bind(this);
+    this.boundOnMouseLeave = this.onMouseLeave.bind(this);
     
     this.createRenderer();
     this.createCamera();
@@ -1070,6 +1097,24 @@ class App {
   }
 
   update() {
+    // Handle autoplay
+    if (this.autoplay && (!this.pauseOnHover || !this.isHovered)) {
+      const direction = this.autoplayDirection === 'right' ? 1 : -1;
+      this.scroll.target += this.autoplaySpeed * direction;
+      
+      // Debug logging (remove in production)
+      if (Math.random() < 0.001) { // Log occasionally to avoid spam
+        console.log('Autoplay active:', {
+          autoplay: this.autoplay,
+          pauseOnHover: this.pauseOnHover,
+          isHovered: this.isHovered,
+          autoplaySpeed: this.autoplaySpeed,
+          direction: this.autoplayDirection,
+          scrollTarget: this.scroll.target
+        });
+      }
+    }
+    
     // Handle momentum scrolling on mobile
     const isMobile = this.screen.width <= 768;
     if (isMobile && this.momentum.isActive && this.mobileScrollConfig.enableMomentumScrolling) {
@@ -1092,6 +1137,13 @@ class App {
       this.scroll.ease
     );
     this.scroll.current = parseFloat(this.scroll.current.toFixed(2));
+    
+    // Keep scroll values within reasonable bounds for infinite scrolling
+    const maxScroll = this.medias.length * 100; // Arbitrary large number
+    if (Math.abs(this.scroll.current) > maxScroll) {
+      this.scroll.current = this.scroll.current % maxScroll;
+      this.scroll.target = this.scroll.target % maxScroll;
+    }
 
     if (this.scroll.current > this.scroll.last) {
       this.direction = "right";
@@ -1280,6 +1332,14 @@ class App {
     }
   }
 
+  onMouseEnter() {
+    this.isHovered = true;
+  }
+
+  onMouseLeave() {
+    this.isHovered = false;
+  }
+
   addEventListeners() {
     window.addEventListener("resize", this.boundOnResize);
     
@@ -1298,6 +1358,12 @@ class App {
     
     // Handle clicks for navigation
     this.container.addEventListener("click", this.boundOnClick);
+    
+    // Handle mouse enter/leave for autoplay pause functionality
+    if (this.pauseOnHover) {
+      this.container.addEventListener("mouseenter", this.boundOnMouseEnter);
+      this.container.addEventListener("mouseleave", this.boundOnMouseLeave);
+    }
     
     // Add orientation change listener for mobile devices
     window.addEventListener("orientationchange", () => {
@@ -1321,6 +1387,12 @@ class App {
     
     this.container.removeEventListener("click", this.boundOnClick);
     
+    // Remove mouse enter/leave listeners
+    if (this.pauseOnHover) {
+      this.container.removeEventListener("mouseenter", this.boundOnMouseEnter);
+      this.container.removeEventListener("mouseleave", this.boundOnMouseLeave);
+    }
+    
     // Remove orientation change listener
     window.removeEventListener("orientationchange", this.onResize);
   }
@@ -1339,6 +1411,11 @@ interface CircularGalleryProps {
   borderRadius?: number;
   font?: string;
   mobileScrollConfig?: MobileScrollConfig;
+  // Autoplay functionality
+  autoplay?: boolean;
+  autoplaySpeed?: number; // Speed of autoplay (pixels per frame)
+  pauseOnHover?: boolean;
+  autoplayDirection?: 'left' | 'right';
 }
 
 const CircularGallery: React.FC<CircularGalleryProps> = ({
@@ -1348,6 +1425,10 @@ const CircularGallery: React.FC<CircularGalleryProps> = ({
   borderRadius = 0.05,
   font = "bold 30px Figtree",
   mobileScrollConfig,
+  autoplay = false,
+  autoplaySpeed = 2.0,
+  pauseOnHover = true,
+  autoplayDirection = 'right',
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<App | null>(null);
@@ -1445,6 +1526,10 @@ const CircularGallery: React.FC<CircularGalleryProps> = ({
         borderRadius,
         font: responsiveFont,
         mobileScrollConfig,
+        autoplay,
+        autoplaySpeed,
+        pauseOnHover,
+        autoplayDirection,
         onItemClick: (link) => {
           window.location.href = link;
         }
@@ -1470,6 +1555,10 @@ const CircularGallery: React.FC<CircularGalleryProps> = ({
             borderRadius,
             font: responsiveFont,
             mobileScrollConfig,
+            autoplay,
+            autoplaySpeed,
+            pauseOnHover,
+            autoplayDirection,
             onItemClick: (link) => {
               window.location.href = link;
             }
@@ -1488,7 +1577,7 @@ const CircularGallery: React.FC<CircularGalleryProps> = ({
         appRef.current = null;
       }
     };
-  }, [items, bend, textColor, borderRadius, font, mobileScrollConfig]);
+  }, [items, bend, textColor, borderRadius, font, mobileScrollConfig, autoplay, autoplaySpeed, pauseOnHover, autoplayDirection]);
 
   return <div ref={containerRef} style={{ width: "100%", height: "100%" }} />;
 };

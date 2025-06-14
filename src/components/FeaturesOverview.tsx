@@ -106,7 +106,7 @@ const FeaturesOverview: React.FC = () => {
   return (
     <section className="py-1 bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-1xl mx-auto">
           {/* Section Header */}
           <FadeInElement delay={100} direction="up" distance={30} duration={800}>
             <div className="text-center mb-1">
@@ -129,6 +129,10 @@ const FeaturesOverview: React.FC = () => {
                 textColor="#ffffff" 
                 borderRadius={0.05}
                 font="bold 50px Figtree"
+                autoplay={true}
+                autoplaySpeed={0.02}
+                pauseOnHover={true}
+                autoplayDirection="right" 
               />
             </div>
           </FadeInElement>

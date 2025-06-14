@@ -105,7 +105,7 @@ export function VelocityResourceBoxes({
   // Calculate responsive wrap range based on screen size
   const getWrapRange = () => {
     if (screenWidth <= 480) {
-      return -510; // Adjusted range for smaller mobile boxes
+      return -530; // Adjusted range for smaller mobile boxes
     } else if (screenWidth <= 640) {
       return -200; // Medium range for small screens
     } else {
