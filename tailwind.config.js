@@ -80,6 +80,9 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      translate: {
+        '101': '101%',
+      },
       boxShadow: {
         sm: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
         DEFAULT: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
@@ -153,6 +156,10 @@ export default {
           "0%": { transform: "translateY(0) scale(1)", opacity: "1" },
           "100%": { transform: "translateY(-20px) scale(0.95)", opacity: "0" },
         },
+        marquee: {
+          'from': { transform: 'translateX(0%)' },
+          'to': { transform: 'translateX(-50%)' }
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -170,6 +177,7 @@ export default {
         "x-to-hamburger": "x-to-hamburger 0.3s ease-in-out forwards",
         "menu-slide-down": "menu-slide-down 0.3s ease-out forwards",
         "menu-slide-up": "menu-slide-up 0.3s ease-in forwards",
+        marquee: 'marquee 15s linear infinite',
       },
     },
   },

@@ -3,6 +3,7 @@ import { BookOpen, FileText, Download, Users, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import FadeInElement from './FadeInElement';
 import { VelocityResourceBoxes } from './VelocityResourceBoxes';
+import FlowingMenu from './FlowingMenu';
 
 const AcademicResourcesPreview: React.FC = () => {
   
@@ -11,7 +12,7 @@ const AcademicResourcesPreview: React.FC = () => {
     // Box dimensions and spacing
     mobile: {
       minWidth: "180px",     // Box width on mobile (adjust as needed: 160px, 200px, etc.)
-      padding: "p-2",        // Internal padding (p-1, p-2, p-3, etc.)
+      padding: "p-3",        // Internal padding (p-1, p-2, p-3, etc.)
       margin: "mr-2",        // Space between boxes (mr-1, mr-2, mr-3, etc.)
       borderRadius: "rounded-lg", // Corner radius (rounded-sm, rounded-lg, rounded-xl, etc.)
       spacing: "space-x-2"   // Space between icon and text (space-x-1, space-x-2, etc.)
@@ -25,7 +26,7 @@ const AcademicResourcesPreview: React.FC = () => {
     },
     desktop: {
       minWidth: "320px",
-      padding: "md:p-3",
+      padding: "md:p-4",
       margin: "md:mr-5",
       borderRadius: "md:rounded-xl",
       spacing: "md:space-x-4"
@@ -130,19 +131,28 @@ const AcademicResourcesPreview: React.FC = () => {
   ];
 
   const branches = [
-    { name: "Computer Science", code: "CSE", students: "160+" },
-    { name: "Blockchain Technology", code: "BCT", students: "78+" },
-    { name: "Artificial Intelligence & Data Science", code: "AIADS", students: "75+" },
-    { name: "Artificial Intelligence & Machine Learning", code: "AIML", students: "75+" },
-    { name: "Cyber Security", code: "CS", students: "70+" },
-    { name: "Internet of Things", code: "IoT", students: "75+" },
-    { name: "Information Technology", code: "IT", students: "79+" },
-    { name: "Electronics & Communication", code: "EC", students: "41+" },
-    { name: "Electronics & Instrumentation", code: "EI", students: "4+" },
-    { name: "Electrical Engineering", code: "EE", students: "36+" },
-    { name: "Mechanical Engineering", code: "ME", students: "15+" },
-    { name: "Civil Engineering", code: "CE", students: "36+" },
+    { name: "Computer Science", code: "CSE", students: "160+", details: "Core programming, algorithms, software development, and system design" },
+    { name: "Blockchain Technology", code: "BCT", students: "78+", details: "Cryptocurrency, smart contracts, distributed systems, and decentralized applications" },
+    { name: "Artificial Intelligence & Data Science", code: "AIADS", students: "75+", details: "Machine learning, data analytics, neural networks, and predictive modeling" },
+    { name: "Artificial Intelligence & Machine Learning", code: "AIML", students: "75+", details: "Deep learning, computer vision, natural language processing, and AI algorithms" },
+    { name: "Cyber Security", code: "CS", students: "70+", details: "Network security, ethical hacking, cryptography, and digital forensics" },
+    { name: "Internet of Things", code: "IoT", students: "75+", details: "Connected devices, sensor networks, embedded systems, and smart automation" },
+    { name: "Information Technology", code: "IT", students: "79+", details: "System administration, database management, web development, and IT infrastructure" },
+    { name: "Electronics & Communication", code: "EC", students: "41+", details: "Signal processing, telecommunications, embedded systems, and circuit design" },
+    { name: "Electronics & Instrumentation", code: "EI", students: "4+", details: "Control systems, measurement techniques, automation, and industrial instrumentation" },
+    { name: "Electrical Engineering", code: "EE", students: "36+", details: "Power systems, electrical machines, renewable energy, and power electronics" },
+    { name: "Mechanical Engineering", code: "ME", students: "15+", details: "Thermodynamics, manufacturing, robotics, and mechanical system design" },
+    { name: "Civil Engineering", code: "CE", students: "36+", details: "Structural design, construction management, environmental engineering, and infrastructure" },
   ];
+
+  // Transform branches data for FlowingMenu
+  const branchMenuItems = branches.map(branch => ({
+    link: `/resources/${branch.code.toLowerCase()}`,
+    text: branch.name,
+    details: branch.details,
+    students: branch.students,
+    code: branch.code
+  }));
 
   return (
     <section className="py-16 bg-white dark:bg-gray-800">
@@ -224,26 +234,19 @@ const AcademicResourcesPreview: React.FC = () => {
             </VelocityResourceBoxes>
           </div>
 
-          {/* Branches Overview */}
+          {/* Branches Overview with Flowing Menu */}
           <FadeInElement delay={500} direction="up" distance={30} duration={500}>
-            <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-8">
+            <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-8 shadow-lg">
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center font-bodoni">
                 Available for All Engineering Branches
               </h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                {branches.map((branch, index) => (
-                  <div key={index} className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-                    <div className="text-lg font-bold text-learnflow-600 dark:text-learnflow-400 mb-1">
-                      {branch.code}
-                    </div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400 mb-2">
-                      {branch.name}
-                    </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-500">
-                      {branch.students} students
-                    </div>
-                  </div>
-                ))}
+              <p className="text-center text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
+                Explore our comprehensive resources across all engineering disciplines. 
+                {/* <span className="hidden md:inline"> Hover over each branch to see detailed information.</span> */}
+                {/* <span className="md:hidden"> Tap any branch to access resources.</span> */}
+              </p>
+              <div style={{ height: '800px', position: 'relative' }} className="rounded-xl overflow-hidden shadow-lg">
+                <FlowingMenu items={branchMenuItems} />
               </div>
             </div>
           </FadeInElement>
@@ -251,7 +254,7 @@ const AcademicResourcesPreview: React.FC = () => {
           {/* CTA Section */}
           <FadeInElement delay={500} direction="up" distance={30} duration={500}>
             <div className="text-center mt-12">
-              <div className="bg-gradient-to-r from-learnflow-500 to-learnflow-600 rounded-xl p-8 text-white">
+              <div className="bg-gradient-to-r from-red-500 to-purple-500 rounded-xl p-8 text-white">
                 <h3 className="text-2xl font-bold mb-4 font-bodoni">
                   Start Exploring Resources Today
                 </h3>
