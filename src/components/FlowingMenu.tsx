@@ -44,7 +44,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, details, students, code
     return topEdgeDist < bottomEdgeDist ? "top" : "bottom";
   };
 
-  const handleMouseEnter = (ev: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleMouseEnter = (ev: React.MouseEvent<HTMLDivElement>) => {
     if (!itemRef.current || !marqueeRef.current || !marqueeInnerRef.current)
       return;
 
@@ -62,7 +62,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, details, students, code
       .to([marqueeRef.current, marqueeInnerRef.current], { y: "0%" });
   };
 
-  const handleMouseLeave = (ev: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleMouseLeave = (ev: React.MouseEvent<HTMLDivElement>) => {
     if (!itemRef.current || !marqueeRef.current || !marqueeInnerRef.current)
       return;
 
@@ -118,15 +118,14 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, details, students, code
         </div>
       </div>
 
-      {/* Desktop: Show name with hover details */}
-      <a
+      {/* Desktop: Show name with hover details - Clicks temporarily disabled */}
+      <div
         className="hidden md:flex items-center justify-center h-full relative cursor-pointer uppercase no-underline font-semibold text-white text-[4vh] hover:text-[#060010] focus:text-white focus-visible:text-[#060010]"
-        href={link}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
         {text}
-      </a>
+      </div>
       <div
         className="hidden md:block absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none bg-white translate-y-[101%]"
         ref={marqueeRef}
