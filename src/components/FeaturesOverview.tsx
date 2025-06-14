@@ -150,9 +150,15 @@ const FeaturesOverview: React.FC = () => {
                 >
                   Explore Resources
                 </Link>
+                 <Link
+                  to="/search"
+                  className="bg-white dark:bg-gray-800 text-learnflow-600 dark:text-learnflow-400 border-2 border-learnflow-600 dark:border-learnflow-400 hover:bg-gray-300 dark:hover:bg-gray-700 px-8 py-3 rounded-lg font-medium transition-colors shadow-lg hover:shadow-xl font-poppins"
+                >
+                  Search People
+                </Link>
                 <Link
                   to="/tools"
-                  className="bg-white dark:bg-gray-800 text-learnflow-600 dark:text-learnflow-400 border-2 border-learnflow-600 dark:border-learnflow-400 hover:bg-learnflow-50 dark:hover:bg-gray-700 px-8 py-3 rounded-lg font-medium transition-colors shadow-lg hover:shadow-xl font-poppins"
+                  className="bg-red-600 dark:bg-red-500 text-white dark:text-white dark:text-learnflow-100 border-20 border-learnflow-600 dark:border-learnflow-400 hover:bg-red-700 dark:hover:bg-red-700 px-8 py-3 rounded-lg font-medium transition-colors shadow-lg hover:shadow-xl font-poppins"
                 >
                   Try Our Tools
                 </Link>
