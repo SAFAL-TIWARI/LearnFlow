@@ -3,9 +3,11 @@ import { BookOpen, Calculator, Users, Download, Clock, Shield } from 'lucide-rea
 import { Link, useNavigate } from 'react-router-dom';
 import FadeInElement from './FadeInElement';
 import CircularGallery from './CircularGallery';
+import { useTheme } from '../hooks/useTheme';
 
 const FeaturesOverview: React.FC = () => {
   const navigate = useNavigate();
+  const { theme } = useTheme();
   
   const features = [
     {
@@ -113,7 +115,7 @@ const FeaturesOverview: React.FC = () => {
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4 font-bodoni">
                 Why Choose LearnFlow?
               </h2>
-              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto font-isidora">
+              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-6xl mx-auto font-isidora">
                 Discover the features that make LearnFlow the perfect companion for your educational journey. 
                 From comprehensive resources to powerful tools, we've got everything you need to succeed.
               </p>
@@ -126,7 +128,7 @@ const FeaturesOverview: React.FC = () => {
               <CircularGallery 
                 items={galleryItems} 
                 bend={3} 
-                textColor="#ffffff" 
+                textColor={theme === 'light' ? "#000000" : "#ffffff"} 
                 borderRadius={0.05}
                 font="bold 50px Figtree"
                 autoplay={true}
@@ -158,7 +160,7 @@ const FeaturesOverview: React.FC = () => {
                 </Link>
                 <Link
                   to="/tools"
-                  className="bg-red-600 dark:bg-red-500 text-white dark:text-white dark:text-learnflow-100 border-20 border-learnflow-600 dark:border-learnflow-400 hover:bg-red-700 dark:hover:bg-red-700 px-8 py-3 rounded-lg font-medium transition-colors shadow-lg hover:shadow-xl font-poppins"
+                  className="bg-yellow-600 dark:bg-yellow-500 text-white dark:text-white dark:text-learnflow-100 border-20 border-learnflow-600 dark:border-learnflow-400 hover:bg-yellow-700 dark:hover:bg-yellow-700 px-8 py-3 rounded-lg font-medium transition-colors shadow-lg hover:shadow-xl font-poppins"
                 >
                   Try Our Tools
                 </Link>

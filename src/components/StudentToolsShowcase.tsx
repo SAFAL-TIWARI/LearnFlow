@@ -60,12 +60,12 @@ const StudentToolsShowcase: React.FC = () => {
 
   const stats = [
     {
-      number: isLoading ? "10,000+" : liveStats.calculationsPerformed.toLocaleString() + "+",
+      number: isLoading ? "1000+" : liveStats.calculationsPerformed.toLocaleString() + "+",
       label: "Calculations Performed",
       icon: <Calculator className="w-6 h-6" />
     },
     {
-      number: isLoading ? "5,000+" : liveStats.studentsHelped.toLocaleString() + "+",
+      number: isLoading ? "1,000+" : liveStats.studentsHelped.toLocaleString() + "+",
       label: "Students Helped",
       icon: <Target className="w-6 h-6" />
     },
@@ -84,7 +84,7 @@ const StudentToolsShowcase: React.FC = () => {
   return (
     <section className="py-16 bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-1xl mx-auto">
           {/* Section Header with Image */}
           <FadeInElement delay={100} direction="up" distance={30} duration={500}>
             <div className="text-center mb-12">
@@ -92,13 +92,13 @@ const StudentToolsShowcase: React.FC = () => {
                 <img
                   src="/images/student-tools.svg"
                   alt="Student Tools Illustration"
-                  className="w-full max-w-lg h-auto opacity-80"
+                  className="w-full max-w-lg h-auto opacity-100 dark:opacity-100"
                 />
               </div>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4 font-bodoni">
                 Powerful Student Tools
               </h2>
-              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto font-isidora">
+              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-6xl mx-auto font-isidora">
                 Boost your productivity and academic performance with our suite of intelligent tools
                 designed specifically for engineering students.
               </p>
@@ -138,7 +138,7 @@ const StudentToolsShowcase: React.FC = () => {
                 <h3 className="text-2xl font-bold mb-4 font-bodoni">
                   Ready to Boost Your Productivity?
                 </h3>
-                <p className="text-purple-100 mb-6 max-w-2xl mx-auto">
+                <p className="text-purple-100 mb-6 max-w-6xl mx-auto">
                   Join thousands of students who are already using our tools to improve their academic performance
                   and streamline their study process.
                 </p>

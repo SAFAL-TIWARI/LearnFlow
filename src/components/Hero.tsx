@@ -12,7 +12,7 @@ const Hero: React.FC = () => {
   const { liveStats, isLoading } = useAnalytics();
 
   return (
-    <div className="relative bg-gradient-to-br from-gray-50 via-blue-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-800 py-20 md:py-24 lg:py-32 overflow-hidden">
+    <div className="relative bg-gradient-to-br from-gray-50 via-blue-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-800 py-20 md:py-24 lg:py-14 overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5 dark:opacity-10">
         <div className="absolute top-10 left-10 w-20 h-20 bg-learnflow-500 rounded-full blur-xl"></div>
@@ -42,7 +42,7 @@ const Hero: React.FC = () => {
           </FadeInElement>
 
           <FadeInElement delay={300} direction="up" distance={10} duration={800}>
-            <p className="text-xl md:text-2xl lg:text-3xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed font-isidora whitespace-normal hyphens-none max-w-4xl mx-auto">
+            <p className="text-xl md:text-2xl lg:text-3xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed font-isidora whitespace-normal hyphens-none max-w-1xl mx-auto">
               <ProximityTextAnimation
                 text="Access comprehensive academic resources, powerful student tools, and join a thriving community of learners. Everything you need to excel in your engineering studies."
                 sensitivity={.15}
@@ -127,10 +127,10 @@ const Hero: React.FC = () => {
           {/* Trust Indicators */}
           <FadeInElement delay={600} direction="up" distance={20} duration={800}>
             <div className="text-center">
-              <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">
+              <p className="text-gray-500 dark:text-gray-400 text-12xl mb-4">
                 Trusted by students from 100+ engineering colleges
               </p>
-              <div className="flex flex-wrap justify-center gap-2 text-xs text-gray-400 dark:text-gray-500">
+              <div className="flex flex-wrap justify-center gap-2 text-sm text-gray-400 dark:text-gray-500">
                 <span className="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">SATI Vidisha</span>
                 <span className="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">NIT Bhopal</span>
                 <span className="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">IIIT Bhopal</span>

@@ -80,15 +80,15 @@ const TestimonialsSection: React.FC = () => {
   return (
     <section className="py-16 bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-1xl mx-auto">
           {/* Section Header */}
           <FadeInElement delay={100} direction="up" distance={30} duration={500}>
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4 font-bodoni">
                 What Students Say About LearnFlow
               </h2>
-              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto font-isidora">
-                Hear from real students who have transformed their academic journey with LearnFlow. 
+              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-6xl mx-auto font-isidora">
+                Hear from real students who have transformed their academic journey with LearnFlow.
                 Their success stories inspire us to keep improving.
               </p>
             </div>
@@ -159,11 +159,10 @@ const TestimonialsSection: React.FC = () => {
                   <button
                     key={index}
                     onClick={() => setCurrentTestimonial(index)}
-                    className={`w-3 h-3 rounded-full transition-colors ${
-                      index === currentTestimonial
+                    className={`w-3 h-3 rounded-full transition-colors ${index === currentTestimonial
                         ? 'bg-learnflow-500'
                         : 'bg-gray-300 dark:bg-gray-600'
-                    }`}
+                      }`}
                     aria-label={`Go to testimonial ${index + 1}`}
                   />
                 ))}
@@ -212,13 +211,13 @@ const TestimonialsSection: React.FC = () => {
                 <h3 className="text-2xl font-bold mb-4 font-bodoni">
                   Join the Success Stories
                 </h3>
-                <p className="text-green-100 mb-6 max-w-2xl mx-auto">
-                  Become part of our growing community of successful students. Start your journey with LearnFlow today 
+                <p className="text-green-100 mb-1 max-w-6xl mx-auto">
+                  Become part of our growing community of successful students. Start your journey with LearnFlow today
                   and experience the difference quality resources can make.
                 </p>
-                <button className="bg-white text-green-600 px-8 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors shadow-lg font-poppins">
-                  Start Your Success Story
-                </button>
+                {/* <button className="bg-white text-green-600 px-8 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors shadow-lg font-poppins"> */}
+                {/* Start Your Success Story */}
+                {/* </button> */}
               </div>
             </div>
           </FadeInElement>

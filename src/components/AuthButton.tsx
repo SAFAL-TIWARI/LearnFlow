@@ -4,8 +4,18 @@ export default function AuthButton() {
   const { user, loading } = useAuth();
 
   const handleSignIn = () => {
-    // Open login page in a new window
-    const loginWindow = window.open('/login?mode=signin', '_blank', 'width=500,height=600');
+    // Calculate center position for the popup window
+    const width = 500;
+    const height = 600;
+    const left = (window.screen.width / 2) - (width / 2);
+    const top = (window.screen.height / 2) - (height / 2);
+    
+    // Open login page in a new window centered on screen
+    const loginWindow = window.open(
+      '/login?mode=signin', 
+      '_blank', 
+      `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,status=yes`
+    );
     
     // Focus the new window
     if (loginWindow) {

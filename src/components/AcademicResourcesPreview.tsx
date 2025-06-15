@@ -165,13 +165,13 @@ const AcademicResourcesPreview: React.FC = () => {
                 <img
                   src="/images/academic-resources.svg"
                   alt="Academic Resources Illustration"
-                  className="w-full max-w-md h-auto opacity-80"
+                  className="w-full max-w-md h-auto opacity-100"
                 />
               </div>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4 font-bodoni">
                 Comprehensive Academic Resources
               </h2>
-              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto font-isidora">
+              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-6xl mx-auto font-isidora">
                 Access a vast library of educational materials curated specifically for engineering students.
                 Everything you need to excel in your studies, all in one place.
               </p>
