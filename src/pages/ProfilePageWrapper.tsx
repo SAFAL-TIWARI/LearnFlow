@@ -19,7 +19,6 @@ export const ProfilePageErrorFallback = () => {
             </div>
             <h1 className="text-2xl font-bold text-gray-800 dark:text-white ml-4">Profile Error</h1>
           </div>
-
           <p className="text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
             {/* We encountered an issue loading your profile. This could be due to a network issue or a temporary server problem. */}
             Please create account first to view your profile. If you already have an account, try logging in again.
@@ -36,7 +35,13 @@ export const ProfilePageErrorFallback = () => {
               </svg>
               Back to Home
             </button>            <button
-              onClick={() => window.open('/login', '_blank', 'width=500,height=600,menubar=no,toolbar=no,location=no,status=no')}
+              onClick={() => {
+                const width = 500;
+                const height = 600;
+                const left = window.screenX + (window.outerWidth - width) / 2;
+                const top = window.screenY + (window.outerHeight - height) / 2;
+                window.open('/login', '_blank', `width=${width},height=${height},left=${left},top=${top},menubar=no,toolbar=no,location=no,status=no,resizable=yes,scrollbars=yes`);
+              }}
               className="btn-animated bg-learnflow-500 text-white w-full"
             >
               <span className="flex items-center justify-center">

@@ -16,7 +16,9 @@ import {
 import {
   getQueryContext,
   searchResources,
-  extractResourceInfo
+  extractResourceInfo,
+  initializeResourceDatabase,
+  createResourceDirectories
 } from './utils/websiteKnowledgeUtils.js';
 import {
   needsWebSearch,
@@ -82,6 +84,32 @@ app.get('/sitemap.xml', (req, res) => {
 
 // Analytics API routes
 app.use('/api/analytics', analyticsRouter);
+
+// Admin endpoint to create resource directories
+app.post('/api/admin/setup-resources', async (req, res) => {
+  try {
+    const success = await createResourceDirectories();
+    if (success) {
+      // Re-initialize the database after creating directories
+      await initializeResourceDatabase();
+      res.json({
+        success: true,
+        message: 'Resource directories created successfully'
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: 'Failed to create resource directories'
+      });
+    }
+  } catch (error) {
+    console.error('Error setting up resources:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error setting up resources: ' + error.message
+    });
+  }
+});
 
 // Rate limiting configuration
 const rateLimits = {
@@ -400,6 +428,11 @@ if (process.env.NODE_ENV === 'production') {
     res.sendFile(join(__dirname, '../dist/index.html'));
   });
 }
+
+// Initialize resource database (scan existing resources without creating directories)
+initializeResourceDatabase().catch(error => {
+  console.warn('Failed to initialize resource database:', error.message);
+});
 
 // Start the server if not in a serverless environment
 if (process.env.NODE_ENV !== 'production') {

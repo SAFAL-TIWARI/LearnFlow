@@ -178,6 +178,39 @@ export const updateUserProfile = async (userId: string, updates: any) => {
   return { data, error }
 }
 
+export const deleteUserAccount = async () => {
+  try {
+    // Get current user
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return { error: { message: 'No user found' } }
+    }
+
+    // Call the database function to delete the user
+    // This will handle both profile deletion and auth user deletion
+    const { error: deleteError } = await supabase.rpc('delete_user')
+
+    if (deleteError) {
+      console.error('Error deleting user account:', deleteError)
+      return { error: deleteError }
+    }
+
+    // Clear local storage
+    localStorage.removeItem('supabase_user')
+    localStorage.removeItem('auth_completed')
+    localStorage.removeItem('auth_timestamp')
+
+    return { error: null }
+  } catch (error) {
+    console.error('Unexpected error deleting account:', error)
+    return { 
+      error: { 
+        message: error instanceof Error ? error.message : 'Failed to delete account' 
+      } 
+    }
+  }
+}
+
 // Auth state change listener
 export const onAuthStateChange = (callback: (user: User | null) => void) => {
   return supabase.auth.onAuthStateChange((_, session) => {

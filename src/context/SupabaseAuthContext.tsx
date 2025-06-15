@@ -10,7 +10,8 @@ import {
   resetPassword,
   updatePassword,
   getUserProfile,
-  updateUserProfile
+  updateUserProfile,
+  deleteUserAccount
 } from '../lib/supabase'
 import { syncUserDataToProfile } from '../utils/supabaseClient'
 import type { User } from '@supabase/supabase-js'
@@ -19,13 +20,14 @@ interface AuthContextType {
   user: User | null
   loading: boolean
   signIn: (email: string, password: string) => Promise<{ error: any }>
-  signUp: (email: string, password: string) => Promise<{ error: any }>
+  signUp: (email: string, password: string, firstName?: string, lastName?: string) => Promise<{ error: any }>
   signInWithGoogle: () => Promise<{ data?: any, error: any }>
   logout: () => Promise<{ error: any }>
   resetPassword: (email: string) => Promise<{ error: any }>
   updatePassword: (newPassword: string) => Promise<{ error: any }>
   getUserProfile: (userId: string) => Promise<{ data: any, error: any }>
   updateUserProfile: (userId: string, updates: any) => Promise<{ data: any, error: any }>
+  deleteAccount: () => Promise<{ error: any }>
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -38,7 +40,8 @@ const AuthContext = createContext<AuthContextType>({
   resetPassword: async () => ({ error: null }),
   updatePassword: async () => ({ error: null }),
   getUserProfile: async () => ({ data: null, error: null }),
-  updateUserProfile: async () => ({ data: null, error: null })
+  updateUserProfile: async () => ({ data: null, error: null }),
+  deleteAccount: async () => ({ error: null })
 })
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -275,7 +278,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return { error }
   }
 
-  const handleSignUp = async (email: string, password: string) => {
+  const handleSignUp = async (email: string, password: string, firstName?: string, lastName?: string) => {
     const { data, error } = await signUpWithEmail(email, password)
     
     // If signup was successful, create a profile in the profiles table
@@ -285,13 +288,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const userName = email.split('@')[0];
         const username = userName.toLowerCase().replace(/\s+/g, '_') + '_' + Math.floor(Math.random() * 1000);
         
+        // Create full name from first and last name, or fallback to email username
+        const fullName = firstName && lastName 
+          ? `${firstName.trim()} ${lastName.trim()}` 
+          : userName;
+        
         // Create a profile in the profiles table
         const { error: profileError } = await supabase
           .from('profiles')
           .insert([{
             id: userId,
             username: username,
-            full_name: userName,
+            full_name: fullName,
             is_public: true,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
@@ -300,7 +308,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (profileError) {
           console.error('Error creating user profile during signup:', profileError);
         } else {
-          console.log('Successfully created user profile during signup');
+          console.log('Successfully created user profile during signup with full name:', fullName);
         }
       } catch (profileError) {
         console.error('Error in profile creation during signup:', profileError);
@@ -338,6 +346,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return await updateUserProfile(userId, updates)
   }
 
+  const handleDeleteAccount = async () => {
+    return await deleteUserAccount()
+  }
+
   const value = {
     user,
     loading,
@@ -348,7 +360,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     resetPassword: handleResetPassword,
     updatePassword: handleUpdatePassword,
     getUserProfile: handleGetUserProfile,
-    updateUserProfile: handleUpdateUserProfile
+    updateUserProfile: handleUpdateUserProfile,
+    deleteAccount: handleDeleteAccount
   }
 
   return (

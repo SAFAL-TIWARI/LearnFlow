@@ -1,8 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import BlurTextAnimation from '../components/BlurTextAnimation';
 import { useTheme } from '../hooks/useTheme';
+import { useAuth } from '../hooks/useAuth';
 import BackButton from '../components/BackButton';
 
 // Icons
@@ -31,9 +32,13 @@ import {
 
 const HelpPage: React.FC = () => {
   const { theme } = useTheme();
+  const { user, deleteAccount } = useAuth();
+  const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState('getting-started');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedFaqs, setExpandedFaqs] = useState<number[]>([]);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Animation variants
@@ -223,8 +228,9 @@ const HelpPage: React.FC = () => {
       },
       {
         question: 'Can I delete my account?',
-        answer: 'Currently, account deletion must be requested manually. Please contact our support team at support@learnflow.edu with the subject "Account Deletion Request" and we will process your request within 48 hours.',
-        icon: <AlertTriangle className="w-5 h-5 text-red-500" />
+        answer: 'You can permanently delete your LearnFlow account at any time. This action will remove all your data including your profile, uploaded files, and account information. This action cannot be undone.',
+        icon: <AlertTriangle className="w-5 h-5 text-red-500" />,
+        hasDeleteButton: true
       },
       {
         question: 'How do I report inappropriate content?',
@@ -363,6 +369,32 @@ const HelpPage: React.FC = () => {
   const focusSearch = () => {
     if (searchInputRef.current) {
       searchInputRef.current.focus();
+    }
+  };
+
+  // Handle account deletion
+  const handleDeleteAccount = async () => {
+    if (!user) {
+      alert('You must be logged in to delete your account.');
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const { error } = await deleteAccount();
+      if (error) {
+        console.error('Error deleting account:', error);
+        alert('Failed to delete account. Please try again or contact support.');
+      } else {
+        alert('Your account has been successfully deleted.');
+        navigate('/');
+      }
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      alert('An unexpected error occurred. Please try again or contact support.');
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteConfirmation(false);
     }
   };
 
@@ -631,10 +663,14 @@ const HelpPage: React.FC = () => {
                                         <button
                                           onClick={() => {
                                             const mode = item.link.includes('/signup') ? 'signup' : 'signin';
+                                            const width = 500;
+                                            const height = 600;
+                                            const left = window.screenX + (window.outerWidth - width) / 2;
+                                            const top = window.screenY + (window.outerHeight - height) / 2;
                                             const loginWindow = window.open(
                                               `/login?mode=${mode}`, 
                                               '_blank', 
-                                              'width=500,height=600'
+                                              `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
                                             );
                                             if (loginWindow) loginWindow.focus();
                                           }}
@@ -653,6 +689,23 @@ const HelpPage: React.FC = () => {
                                         </Link>
                                       )
                                     )}
+                                  </motion.div>
+                                )}
+
+                                {/* Delete Account Button */}
+                                {(item as any).hasDeleteButton && user && (
+                                  <motion.div
+                                    className="mt-4"
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                  >
+                                    <button
+                                      onClick={() => setShowDeleteConfirmation(true)}
+                                      className="inline-flex items-center px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors font-medium"
+                                    >
+                                      <AlertTriangle className="w-4 h-4 mr-2" />
+                                      Delete My Account
+                                    </button>
                                   </motion.div>
                                 )}
                               </div>
@@ -823,6 +876,73 @@ const HelpPage: React.FC = () => {
           </motion.div>
         </div>
       </div>
+
+      {/* Delete Account Confirmation Modal */}
+      <AnimatePresence>
+        {showDeleteConfirmation && (
+          <motion.div
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowDeleteConfirmation(false)}
+          >
+            <motion.div
+              className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center mb-4">
+                <AlertTriangle className="w-6 h-6 text-red-500 mr-3" />
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Delete Account
+                </h3>
+              </div>
+              
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
+                Are you sure you want to permanently delete your account? This action cannot be undone and will remove:
+              </p>
+              
+              <ul className="text-sm text-gray-600 dark:text-gray-300 mb-6 space-y-1">
+                <li>• Your profile and personal information</li>
+                <li>• All uploaded files and resources</li>
+                <li>• Your account history and preferences</li>
+                <li>• Access to all LearnFlow services</li>
+              </ul>
+              
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={() => setShowDeleteConfirmation(false)}
+                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  disabled={isDeleting}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteAccount}
+                  disabled={isDeleting}
+                  className="flex-1 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                >
+                  {isDeleting ? (
+                    <>
+                      <motion.div
+                        className="w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      />
+                      Deleting...
+                    </>
+                  ) : (
+                    'Delete Account'
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };

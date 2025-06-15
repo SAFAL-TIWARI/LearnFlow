@@ -5,6 +5,8 @@ import MonkeyAvatar from '../components/MonkeyAvatar';
 import { CoolMode } from '../components/magicui/cool-mode';
 
 const Login = () => {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -48,9 +50,24 @@ const Login = () => {
     setError(null);
     setSuccessMessage(null);
 
+    // Validate required fields for sign up
+    if (isSignUp) {
+      if (!firstName.trim()) {
+        setError('First name is required');
+        setLoading(false);
+        return;
+      }
+
+      if (!lastName.trim()) {
+        setError('Last name is required');
+        setLoading(false);
+        return;
+      }
+    }
+
     try {
       const { error } = isSignUp
-        ? await signUp(email, password)
+        ? await signUp(email, password, firstName.trim(), lastName.trim())
         : await signIn(email, password);
 
       if (error) {
@@ -283,6 +300,8 @@ const Login = () => {
                 setIsSignUp(!isSignUp);
                 setError(null);
                 setSuccessMessage(null);
+                setFirstName('');
+                setLastName('');
               }}
               className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
             >
@@ -303,30 +322,73 @@ const Login = () => {
           </div>
         )}
 
-        <form className="mt-8 space-y-6" onSubmit={handleEmailAuth} id="login-form" autoComplete="on">
+        <form className="mt-8 space-y-4" onSubmit={handleEmailAuth} id="login-form" autoComplete="on">
           {/* Hidden username field to help browsers identify this as a login form */}
           {isSignUp && (
             <input type="text" name="username" autoComplete="username" style={{ display: 'none' }} />
           )}
 
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email-address" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email-address"
-                name="email"
-                type="email"
-                autoComplete={isSignUp ? "email" : "username"}
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm dark:bg-gray-700"
-                placeholder="Email address"
-                ref={emailFieldRef}
-              />
+          {/* Name fields section - only for sign up */}
+          {isSignUp && (
+            <div className="space-y-1">
+              <div className="flex space-x-2">
+                <div className="flex-1">
+                  <label htmlFor="first-name" className="sr-only">
+                    First name
+                  </label>
+                  <input
+                    id="first-name"
+                    name="first-name"
+                    type="text"
+                    autoComplete="given-name"
+                    required
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="appearance-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm dark:bg-gray-700"
+                    placeholder="First name"
+                  />
+                </div>
+                <div className="flex-1">
+                  <label htmlFor="last-name" className="sr-only">
+                    Last name
+                  </label>
+                  <input
+                    id="last-name"
+                    name="last-name"
+                    type="text"
+                    autoComplete="family-name"
+                    required
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="appearance-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm dark:bg-gray-700"
+                    placeholder="Last name"
+                  />
+                </div>
+              </div>
             </div>
+          )}
+
+          {/* Email field section */}
+          <div className="space-y-1">
+            <label htmlFor="email-address" className="sr-only">
+              Email address
+            </label>
+            <input
+              id="email-address"
+              name="email"
+              type="email"
+              autoComplete={isSignUp ? "email" : "username"}
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="appearance-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm dark:bg-gray-700"
+              placeholder="Email address"
+              ref={emailFieldRef}
+            />
+          </div>
+
+          {/* Password field section */}
+          <div className="space-y-1">
             <div className="relative">
               <label htmlFor="password" className="sr-only">
                 Password
@@ -339,7 +401,7 @@ const Login = () => {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700"
+                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700"
                 placeholder="Password"
                 ref={passwordFieldRef}
               />
@@ -369,8 +431,9 @@ const Login = () => {
             </div>
           </div>
 
+          {/* Forgot password section - only for sign in */}
           {!isSignUp && (
-            <div className="flex items-center justify-end">
+            <div className="flex items-center justify-end pt-2">
               <div className="text-sm">
                 <button
                   type="button"
@@ -383,7 +446,8 @@ const Login = () => {
             </div>
           )}
 
-          <div>
+          {/* Submit button section */}
+          <div className="pt-2">
             <CoolMode>
               <button
                 type="submit"

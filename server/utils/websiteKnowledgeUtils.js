@@ -35,55 +35,15 @@ let resourceDatabase = {
 };
 
 /**
- * Initialize the resource database by scanning files
+ * Initialize the resource database by scanning files (without creating directories)
  */
 export async function initializeResourceDatabase() {
   try {
-    // Create resources directory if it doesn't exist
-    if (!fs.existsSync(RESOURCES_DIR)) {
-      try {
-        fs.mkdirSync(RESOURCES_DIR, { recursive: true });
-        console.log('Created resources directory');
-      } catch (mkdirError) {
-        console.warn('Could not create resources directory:', mkdirError.message);
-        // Continue execution even if directory creation fails
-      }
-    }
-    
-    // Create required subdirectories
-    const requiredDirs = [
-      path.join(RESOURCES_DIR, 'assignments'),
-      path.join(RESOURCES_DIR, 'notes'),
-      path.join(RESOURCES_DIR, 'lab-manuals')
-    ];
-    
-    for (const dir of requiredDirs) {
-      if (!fs.existsSync(dir)) {
-        try {
-          fs.mkdirSync(dir, { recursive: true });
-          console.log(`Created directory: ${dir}`);
-        } catch (mkdirError) {
-          console.warn(`Could not create directory ${dir}:`, mkdirError.message);
-          // Continue execution even if directory creation fails
-        }
-      }
-    }
-    
-    // Scan resources directory
+    // Only scan existing directories, don't create new ones
     await scanResourceDirectory();
     
-    // Create empty downloads.json if it doesn't exist
+    // Load downloads.json if it exists (don't create it)
     const downloadsPath = path.join(RESOURCES_DIR, 'downloads.json');
-    if (!fs.existsSync(downloadsPath)) {
-      try {
-        fs.writeFileSync(downloadsPath, JSON.stringify([], null, 2));
-        console.log('Created empty downloads.json file');
-      } catch (writeError) {
-        console.warn('Could not create downloads.json:', writeError.message);
-      }
-    }
-    
-    // Load downloads.json if it exists
     if (fs.existsSync(downloadsPath)) {
       try {
         const downloadsData = await readFileAsync(downloadsPath, 'utf8');
@@ -111,6 +71,58 @@ export async function initializeResourceDatabase() {
       labManuals: [],
       downloads: []
     };
+  }
+}
+
+/**
+ * Create resource directories if they don't exist (call this only when needed)
+ */
+export async function createResourceDirectories() {
+  try {
+    // Create resources directory if it doesn't exist
+    if (!fs.existsSync(RESOURCES_DIR)) {
+      try {
+        fs.mkdirSync(RESOURCES_DIR, { recursive: true });
+        console.log('Created resources directory');
+      } catch (mkdirError) {
+        console.warn('Could not create resources directory:', mkdirError.message);
+        return false;
+      }
+    }
+    
+    // Create required subdirectories
+    const requiredDirs = [
+      path.join(RESOURCES_DIR, 'assignments'),
+      path.join(RESOURCES_DIR, 'notes'),
+      path.join(RESOURCES_DIR, 'lab-manuals')
+    ];
+    
+    for (const dir of requiredDirs) {
+      if (!fs.existsSync(dir)) {
+        try {
+          fs.mkdirSync(dir, { recursive: true });
+          console.log(`Created directory: ${dir}`);
+        } catch (mkdirError) {
+          console.warn(`Could not create directory ${dir}:`, mkdirError.message);
+        }
+      }
+    }
+    
+    // Create empty downloads.json if it doesn't exist
+    const downloadsPath = path.join(RESOURCES_DIR, 'downloads.json');
+    if (!fs.existsSync(downloadsPath)) {
+      try {
+        fs.writeFileSync(downloadsPath, JSON.stringify([], null, 2));
+        console.log('Created empty downloads.json file');
+      } catch (writeError) {
+        console.warn('Could not create downloads.json:', writeError.message);
+      }
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error creating resource directories:', error);
+    return false;
   }
 }
 
@@ -388,5 +400,6 @@ export function getQueryContext(query) {
   return context;
 }
 
-// Initialize the resource database when this module is imported
-initializeResourceDatabase();
+// Note: Resource database initialization is now done manually when needed
+// Call initializeResourceDatabase() explicitly if you need to scan existing resources
+// Call createResourceDirectories() if you need to create the directory structure

@@ -263,7 +263,7 @@ export default function ProfileMenu() {
           ref={dropdownRef}
           className="profile-dropdown-portal fixed w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-2 border border-gray-200 dark:border-gray-700 animate-fade-in-down relative"
           style={{
-            zIndex: 999999,
+            zIndex: 99,
             top: dropdownPosition.top,
             left: dropdownPosition.left,
             position: 'fixed',
