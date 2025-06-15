@@ -186,26 +186,64 @@ export const deleteUserAccount = async () => {
       return { error: { message: 'No user found' } }
     }
 
-    // Call the database function to delete the user
-    // This will handle both profile deletion and auth user deletion
-    const { error: deleteError } = await supabase.rpc('delete_user')
+    console.log('Attempting to delete user account:', user.id)
+
+    // First, get all user files that need to be deleted from storage
+    const { data: userFiles, error: filesError } = await supabase.rpc('get_user_files_for_deletion', { 
+      user_uuid: user.id 
+    })
+
+    if (filesError) {
+      console.warn('Could not retrieve user files for deletion:', filesError)
+    }
+
+    // Delete files from storage if we have any
+    if (userFiles && userFiles.length > 0) {
+      console.log(`Deleting ${userFiles.length} files from storage...`)
+      
+      for (const file of userFiles) {
+        try {
+          const { error: storageError } = await supabase.storage
+            .from(file.bucket_name || 'user-files')
+            .remove([file.file_path])
+          
+          if (storageError) {
+            console.warn(`Failed to delete file ${file.file_path}:`, storageError)
+          } else {
+            console.log(`Successfully deleted file: ${file.file_path}`)
+          }
+        } catch (fileError) {
+          console.warn(`Error deleting file ${file.file_path}:`, fileError)
+        }
+      }
+    }
+
+    // Call the database function to delete the user and all associated data
+    const { data, error: deleteError } = await supabase.rpc('delete_user')
 
     if (deleteError) {
       console.error('Error deleting user account:', deleteError)
-      return { error: deleteError }
+      return { 
+        error: { 
+          message: deleteError.message || 'Failed to delete account',
+          details: deleteError
+        } 
+      }
     }
 
-    // Clear local storage
-    localStorage.removeItem('supabase_user')
-    localStorage.removeItem('auth_completed')
-    localStorage.removeItem('auth_timestamp')
+    console.log('User account deleted successfully:', data)
 
-    return { error: null }
+    // Perform comprehensive cleanup using our utility function
+    const { performCompleteUserCleanup } = await import('../utils/userCleanup')
+    await performCompleteUserCleanup()
+
+    return { error: null, data }
   } catch (error) {
     console.error('Unexpected error deleting account:', error)
     return { 
       error: { 
-        message: error instanceof Error ? error.message : 'Failed to delete account' 
+        message: error instanceof Error ? error.message : 'Failed to delete account',
+        details: error
       } 
     }
   }

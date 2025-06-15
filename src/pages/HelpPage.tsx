@@ -381,11 +381,14 @@ const HelpPage: React.FC = () => {
 
     setIsDeleting(true);
     try {
+      console.log('Starting account deletion process...');
       const { error } = await deleteAccount();
       if (error) {
         console.error('Error deleting account:', error);
-        alert('Failed to delete account. Please try again or contact support.');
+        const errorMessage = error.message || 'Failed to delete account';
+        alert(`Failed to delete account: ${errorMessage}. Please try again or contact support.`);
       } else {
+        console.log('Account deleted successfully');
         alert('Your account has been successfully deleted.');
         navigate('/');
       }

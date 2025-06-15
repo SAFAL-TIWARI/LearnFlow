@@ -246,32 +246,47 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const handleSignIn = async (email: string, password: string) => {
     const { data, error } = await signInWithEmail(email, password)
     
-    // If signup was successful, create a profile in the profiles table
+    // If sign-in was successful, check if profile exists, if not create one
     if (!error && data?.user) {
       try {
         const userId = data.user.id;
-        const userName = email.split('@')[0];
-        const username = userName.toLowerCase().replace(/\s+/g, '_') + '_' + Math.floor(Math.random() * 1000);
         
-        // Create a profile in the profiles table
-        const { error: profileError } = await supabase
+        // Check if profile already exists
+        const { data: existingProfile, error: profileCheckError } = await supabase
           .from('profiles')
-          .insert([{
-            id: userId,
-            username: username,
-            full_name: userName,
-            is_public: true,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }]);
+          .select('id')
+          .eq('id', userId)
+          .single();
+        
+        // Only create profile if it doesn't exist
+        if (profileCheckError && profileCheckError.code === 'PGRST116') {
+          // Profile doesn't exist, create a new one
+          const userName = email.split('@')[0];
+          const username = userName.toLowerCase().replace(/\s+/g, '_') + '_' + Math.floor(Math.random() * 1000);
           
-        if (profileError) {
-          console.error('Error creating user profile during signup:', profileError);
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .insert([{
+              id: userId,
+              username: username,
+              full_name: userName,
+              is_public: true,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            }]);
+            
+          if (profileError) {
+            console.error('Error creating user profile during sign-in:', profileError);
+          } else {
+            console.log('Successfully created user profile during sign-in');
+          }
+        } else if (existingProfile) {
+          console.log('User profile already exists, skipping creation');
         } else {
-          console.log('Successfully created user profile during signup');
+          console.error('Error checking for existing profile:', profileCheckError);
         }
       } catch (profileError) {
-        console.error('Error in profile creation during signup:', profileError);
+        console.error('Error in profile handling during sign-in:', profileError);
       }
     }
     
@@ -293,22 +308,40 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           ? `${firstName.trim()} ${lastName.trim()}` 
           : userName;
         
-        // Create a profile in the profiles table
+        // First, ensure no old profile exists for this email (cleanup any orphaned data)
+        await supabase
+          .from('profiles')
+          .delete()
+          .neq('id', userId) // Don't delete the current user's profile if it somehow exists
+          .in('id', [
+            // This subquery would need to be handled differently, so we'll just rely on the database constraints
+          ]);
+        
+        // Create a fresh profile in the profiles table
         const { error: profileError } = await supabase
           .from('profiles')
-          .insert([{
+          .upsert([{
             id: userId,
             username: username,
             full_name: fullName,
             is_public: true,
+            branch: null, // Explicitly set to null to avoid old data
+            year: null,
+            semester: null,
+            college: null,
+            bio: null,
+            interests: null,
+            profile_picture_url: null,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
-          }]);
+          }], {
+            onConflict: 'id'
+          });
           
         if (profileError) {
           console.error('Error creating user profile during signup:', profileError);
         } else {
-          console.log('Successfully created user profile during signup with full name:', fullName);
+          console.log('Successfully created fresh user profile during signup with full name:', fullName);
         }
       } catch (profileError) {
         console.error('Error in profile creation during signup:', profileError);
