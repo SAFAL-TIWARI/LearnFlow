@@ -145,61 +145,49 @@ const OwnerProfilePage: React.FC = () => {
                     if (error) {
                         console.error('Error fetching user data:', error);
 
-                        // If user doesn't exist, create a new user record
+                        // If user doesn't exist, it might be because auth context hasn't created it yet
                         if (error.code === 'PGRST116') {
-                            console.log('User not found, creating new user');
-                            try {
-                                const { data: newUser, error: createError } = await supabase
-                                    .from('users')
-                                    .insert([
-                                        {
-                                            email: userEmail,
-                                            name: userEmail.split('@')[0]
-                                        }
-                                    ])
-                                    .select();
-
-                                if (createError) {
-                                    console.error('Error creating user:', createError);
-                                    // If table doesn't exist, we'll handle it below
-                                    if (createError.code === 'PGRST116' || createError.message.includes('does not exist')) {
-                                        throw new Error('users_table_not_found');
-                                    }
-                                    throw createError;
-                                }
-
-                                if (newUser && newUser.length > 0) {
-                                    setUserData(newUser[0]);
-                                }
-                            } catch (createError: any) {
-                                console.error('Error in user creation:', createError);
-
-                                // If the table doesn't exist, create a mock user for display
-                                if (createError.message === 'users_table_not_found' ||
-                                    createError.message.includes('does not exist')) {
-                                    console.log('Creating mock user data for display');
-                                    setUserData({
-                                        id: '1',
-                                        name: userEmail.split('@')[0],
-                                        email: userEmail
-                                    });
-                                }
-                            }
-                        } else if (error.code === '42P01' || error.message.includes('does not exist')) {
-                            // Table doesn't exist, create mock user
-                            console.log('Table does not exist, creating mock user');
-                            setUserData({
-                                id: '1',
+                            console.log('User not found in users table, using fallback data');
+                            // Use fallback data temporarily
+                            const fallbackUserData = {
+                                id: currentUserId,
+                                email: userEmail,
                                 name: userEmail.split('@')[0],
-                                email: userEmail
-                            });
+                                isCurrentUser: true
+                            };
+                            setUserData(fallbackUserData);
+                            
+                            // Try to refetch after a short delay
+                            setTimeout(async () => {
+                                try {
+                                    const { data: retryData } = await supabase
+                                        .from('users')
+                                        .select('*')
+                                        .eq('email', userEmail)
+                                        .single();
+                                    
+                                    if (retryData) {
+                                        console.log('Found user data on retry:', retryData);
+                                        setUserData({
+                                            ...retryData,
+                                            isCurrentUser: true
+                                        });
+                                    }
+                                } catch (error) {
+                                    console.log('User still not found on retry, keeping fallback data');
+                                }
+                            }, 2000);
+                            
+                            setLoading(false);
+                            return;
                         } else {
                             // Some other error
                             console.error('Unknown error:', error);
                             setUserData({
-                                id: '1',
+                                id: currentUserId,
                                 name: userEmail.split('@')[0],
-                                email: userEmail
+                                email: userEmail,
+                                isCurrentUser: true
                             });
                         }
                     } else {

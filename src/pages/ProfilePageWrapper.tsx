@@ -40,7 +40,7 @@ export const ProfilePageErrorFallback = () => {
                 const height = 600;
                 const left = window.screenX + (window.outerWidth - width) / 2;
                 const top = window.screenY + (window.outerHeight - height) / 2;
-                window.open('/login', '_blank', `width=${width},height=${height},left=${left},top=${top},menubar=no,toolbar=no,location=no,status=no,resizable=yes,scrollbars=yes`);
+                window.open('/login?mode=signup', '_blank', `width=${width},height=${height},left=${left},top=${top},menubar=no,toolbar=no,location=no,status=no,resizable=yes,scrollbars=yes`);
               }}
               className="btn-animated bg-learnflow-500 text-white w-full"
             >

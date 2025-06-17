@@ -62,84 +62,18 @@ const NoticesPage: React.FC = () => {
     { id: 'important', name: 'Important', icon: <AlertTriangle className="w-5 h-5" /> }
   ];
 
-  // Sample notices data (will be replaced with Supabase data in production)
+  // Syllabus notices data
   const sampleNotices: Notice[] = [
     {
       id: '1',
-      title: 'End Semester Examination Schedule',
-      content: 'The end semester examinations for all branches will commence from July 10, 2025. The detailed schedule has been attached. Students are advised to check their respective examination centers and timings.',
-      category: 'exam',
-      priority: 'high',
-      created_at: '2025-06-15T10:00:00Z',
-      expiry_date: '2025-07-15T00:00:00Z',
-      attachment_url: 'https://example.com/exam-schedule.pdf',
-      tags: ['examination', 'schedule', 'important']
-    },
-    {
-      id: '2',
-      title: 'Workshop on Artificial Intelligence',
-      content: 'The Department of Computer Science is organizing a two-day workshop on "Recent Advances in Artificial Intelligence and Machine Learning" on June 25-26, 2025. Interested students can register through the link provided.',
-      category: 'event',
-      priority: 'medium',
-      created_at: '2025-06-12T14:30:00Z',
-      expiry_date: '2025-06-26T00:00:00Z',
-      attachment_url: null,
-      tags: ['workshop', 'AI', 'ML', 'computer science']
-    },
-    {
-      id: '3',
-      title: 'Library Book Return Notice',
-      content: 'All students are hereby informed that library books must be returned by June 30, 2025. Failure to return books will result in a fine as per library rules. Students with pending returns will not be allowed to appear for the end semester examinations.',
+      title: '📚 Updated Syllabus Released for All Academic Years (2025-26)',
+      content: 'The Academic Council has officially released the updated and comprehensive syllabus for all undergraduate programs across 1st, 2nd, 3rd, and 4th year students for the academic year 2024-25. This revised syllabus incorporates the latest industry standards, emerging technologies, and academic best practices to ensure our students receive cutting-edge education. The syllabus includes detailed course outlines, learning objectives, assessment criteria, recommended textbooks, and practical lab requirements for each semester. Students are strongly advised to download and review their respective year-wise syllabus documents immediately to plan their academic journey effectively. Faculty members have been instructed to conduct orientation sessions for each year to explain the key changes and new additions. The syllabus is designed to enhance practical learning, industry readiness, and research capabilities among students.',
       category: 'academic',
-      priority: 'medium',
-      created_at: '2025-06-10T09:15:00Z',
-      expiry_date: '2025-06-30T00:00:00Z',
-      attachment_url: null,
-      tags: ['library', 'books', 'return']
-    },
-    {
-      id: '4',
-      title: 'Scholarship Application Deadline Extended',
-      content: 'The deadline for submitting applications for the Merit Scholarship has been extended to July 5, 2025. Eligible students who have not yet applied are encouraged to submit their applications at the earliest.',
-      category: 'important',
       priority: 'high',
-      created_at: '2025-06-08T11:45:00Z',
-      expiry_date: '2025-07-05T00:00:00Z',
-      attachment_url: 'https://example.com/scholarship-form.pdf',
-      tags: ['scholarship', 'application', 'deadline']
-    },
-    {
-      id: '5',
-      title: 'Summer Internship Opportunities',
-      content: 'Various companies have announced summer internship opportunities for pre-final year students. The Training and Placement Cell has organized an information session on June 20, 2025, at 3:00 PM in the Main Auditorium. All interested students are requested to attend.',
-      category: 'academic',
-      priority: 'medium',
-      created_at: '2025-06-05T16:20:00Z',
-      expiry_date: '2025-06-20T00:00:00Z',
-      attachment_url: null,
-      tags: ['internship', 'placement', 'career']
-    },
-    {
-      id: '6',
-      title: 'Campus Maintenance Schedule',
-      content: 'The campus maintenance work will be carried out from June 18-20, 2025. During this period, certain areas of the campus may have restricted access. Students are requested to cooperate with the maintenance staff.',
-      category: 'event',
-      priority: 'low',
-      created_at: '2025-06-02T13:10:00Z',
-      expiry_date: '2025-06-20T00:00:00Z',
-      attachment_url: null,
-      tags: ['maintenance', 'campus', 'facilities']
-    },
-    {
-      id: '7',
-      title: 'Change in Academic Calendar',
-      content: 'Due to unforeseen circumstances, there has been a slight modification in the academic calendar. The last working day for the current semester will now be July 5, 2025, instead of June 30, 2025. All other dates remain unchanged.',
-      category: 'important',
-      priority: 'high',
-      created_at: '2025-05-28T10:30:00Z',
-      expiry_date: null,
-      attachment_url: 'https://example.com/revised-academic-calendar.pdf',
-      tags: ['academic calendar', 'important', 'schedule change']
+      created_at: '2025-06-1T09:00:00Z',
+      expiry_date: '2026-08-31T23:59:59Z',
+      attachment_url: 'https://learn-flow-seven.vercel.app/resources',
+      tags: ['syllabus', '1st year', '2nd year', '3rd year', '4th year', 'academic', 'curriculum', 'important']
     }
   ];
 
@@ -426,12 +360,12 @@ const NoticesPage: React.FC = () => {
                     </button>
                   </div>
 
-                  {/* Preview content (always visible) */}
-                  <p className="text-gray-600 dark:text-gray-400 line-clamp-2">
+                  {/* Content - expands in place */}
+                  <p className={`text-gray-600 dark:text-gray-400 ${expandedNotice === notice.id ? '' : 'line-clamp-2'}`}>
                     {notice.content}
                   </p>
 
-                  {/* Expanded content */}
+                  {/* Additional content when expanded */}
                   <AnimatePresence>
                     {expandedNotice === notice.id && (
                       <motion.div
@@ -442,11 +376,6 @@ const NoticesPage: React.FC = () => {
                         className="overflow-hidden"
                       >
                         <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                          {/* Full content */}
-                          <p className="text-gray-600 dark:text-gray-400 mb-4">
-                            {notice.content}
-                          </p>
-
                           {/* Tags */}
                           {notice.tags && notice.tags.length > 0 && (
                             <div className="flex flex-wrap gap-2 mb-4">

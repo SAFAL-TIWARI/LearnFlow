@@ -88,7 +88,7 @@ export default function ProfileMenu() {
     
     // Open login page in a new window centered on screen
     const loginWindow = window.open(
-      '/login?mode=signin', 
+      '/login?mode=signup', 
       '_blank', 
       `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,status=yes`
     );

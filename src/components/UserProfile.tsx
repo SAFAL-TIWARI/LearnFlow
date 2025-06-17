@@ -33,7 +33,7 @@ export default function UserProfile() {
         const userName = user.user_metadata?.full_name || user.identities?.[0]?.identity_data?.full_name || user.email?.split('@')[0] || 'User';
         const userId = user.id;
 
-        // Check if user exists in Supabase
+        // Check if user exists in Supabase users table
         const { data, error } = await supabase
           .from('users')
           .select('*')
@@ -100,26 +100,37 @@ export default function UserProfile() {
           // User exists, use their data
           setUserData(data);
         } else {
-          // User doesn't exist, create a new record
-          const newUser = {
+          // User doesn't exist in users table yet
+          // This might happen if the auth context hasn't finished creating the user
+          // Let's wait a bit and try again, or use fallback data
+          console.log('User not found in users table, using fallback data');
+          
+          // Use fallback data temporarily
+          const fallbackUser = {
             id: userId,
             name: userName,
             email: userEmail,
-            created_at: new Date().toISOString(),
           };
-
-          const { data: createdUser, error: createError } = await supabase
-            .from('users')
-            .insert([newUser])
-            .select()
-            .single();
-
-          if (createError) {
-            console.error('Error creating user:', createError);
-            throw createError;
-          }
-
-          setUserData(createdUser);
+          
+          setUserData(fallbackUser);
+          
+          // Try to refetch after a short delay to see if auth context created the user
+          setTimeout(async () => {
+            try {
+              const { data: retryData } = await supabase
+                .from('users')
+                .select('*')
+                .eq('email', userEmail)
+                .single();
+              
+              if (retryData) {
+                console.log('Found user data on retry:', retryData);
+                setUserData(retryData);
+              }
+            } catch (error) {
+              console.log('User still not found on retry, keeping fallback data');
+            }
+          }, 2000);
         }
       } catch (error) {
         console.error('Error in user profile setup:', error);
@@ -133,6 +144,40 @@ export default function UserProfile() {
     } else {
       setLoading(false);
     }
+  }, [user]);
+
+  // Listen for user data updates
+  useEffect(() => {
+    const handleUserDataUpdate = () => {
+      console.log('User data update event received, refetching data');
+      if (user) {
+        const fetchUserData = async () => {
+          try {
+            const userEmail = user.email || user.identities?.[0]?.identity_data?.email || '';
+            const { data } = await supabase
+              .from('users')
+              .select('*')
+              .eq('email', userEmail)
+              .single();
+            
+            if (data) {
+              console.log('Refetched user data:', data);
+              setUserData(data);
+            }
+          } catch (error) {
+            console.error('Error refetching user data:', error);
+          }
+        };
+        
+        fetchUserData();
+      }
+    };
+
+    window.addEventListener('user-data-updated', handleUserDataUpdate);
+    
+    return () => {
+      window.removeEventListener('user-data-updated', handleUserDataUpdate);
+    };
   }, [user]);
 
   // Close dropdown when clicking outside

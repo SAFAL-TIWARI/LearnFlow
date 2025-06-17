@@ -68,7 +68,7 @@ const Login = () => {
     try {
       const { error } = isSignUp
         ? await signUp(email, password, firstName.trim(), lastName.trim())
-        : await signIn(email, password);
+        : await signIn(email, password, firstName.trim() || undefined, lastName.trim() || undefined);
 
       if (error) {
         setError(error.message);
@@ -473,22 +473,22 @@ const Login = () => {
         </form>
 
         {/* <div className="mt-6"> */}
-          {/* <div className="relative"> */}
-            {/* <div className="absolute inset-0 flex items-center"> */}
-              {/* <div className="w-full border-t border-gray-300 dark:border-gray-700"></div> */}
-            {/* </div> */}
-            {/* <div className="relative flex justify-center text-sm"> */}
-              {/* <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">Or continue with</span> */}
-            {/* </div> */}
-          {/* </div> */}
+        {/* <div className="relative"> */}
+        {/* <div className="absolute inset-0 flex items-center"> */}
+        {/* <div className="w-full border-t border-gray-300 dark:border-gray-700"></div> */}
+        {/* </div> */}
+        {/* <div className="relative flex justify-center text-sm"> */}
+        {/* <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">Or continue with</span> */}
+        {/* </div> */}
+        {/* </div> */}
 
-          {/* <div className="mt-6"> */}
-            {/* <button
+        {/* <div className="mt-6"> */}
+        {/* <button
               onClick={handleGoogleAuth}
               disabled={loading}
               className="w-full flex justify-center py-2 px-4 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
             > */}
-              {/* <svg className="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        {/* <svg className="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <path
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                   fill="#4285F4"
@@ -506,9 +506,9 @@ const Login = () => {
                   fill="#EA4335"
                 />
               </svg> */}
-              {/* Google */}
-            {/* </button> */}
-          {/* </div> */}
+        {/* Google */}
+        {/* </button> */}
+        {/* </div> */}
         {/* </div> */}
 
         <div className="mt-6 text-center">
