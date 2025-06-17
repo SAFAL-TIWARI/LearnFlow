@@ -15,45 +15,62 @@ Welcome to **LearnFlow**, a responsive and dynamic web application designed to s
 ## 🏗️ Project Structure
 
 ```
-learnflow/
+LearnFlow/
 │
-├── components/            # UI components (Navbar, Footer, etc.)
-│   └── Chatbot/           # Chatbot components with dedicated README
-├── pages/                 # Main pages (Home, Resources, Tools)
-├── data/                  # JSON files with subject mappings
+├── src/                   # Source code directory
+│   ├── components/        # UI components (Navbar, Footer, etc.)
+│   │   └── Chatbot/       # Chatbot components with dedicated README
+│   ├── pages/             # Main pages (Home, Resources, Tools)
+│   ├── data/              # JSON files with subject mappings
+│   ├── styles/            # CSS/SCSS styles
+│   ├── hooks/             # Custom React hooks
+│   ├── context/           # React context providers
+│   ├── lib/               # Utility libraries and configurations
+│   ├── services/          # API services and integrations
+│   ├── types/             # TypeScript type definitions
+│   └── utils/             # Utility functions
 ├── server/                # Backend server for chatbot
-├── styles/                # CSS/SCSS styles
-└── public/                # Static assets
+│   ├── api/               # API endpoints
+│   ├── services/          # Server-side services
+│   └── utils/             # Server utilities
+├── public/                # Static assets
+├── scripts/               # Build and deployment scripts
+└── .github/               # GitHub workflows and configurations
 ```
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: React.js, HTML5, CSS3, JavaScript, TypeScript
+- **Frontend**: React.js, TypeScript, Vite, Tailwind CSS
+- **UI Components**: Radix UI, shadcn/ui
 - **Authentication**: Supabase Auth (Google Sign-In And Email Login)
 - **AI Chatbot**: Google's Gemini API
 - **Backend**: Node.js, Express
-- **Animations**: Framer Motion
-- **Deployment**: Vercel, Netlify
+- **Animations**: Framer Motion, GSAP
+- **Analytics**: Vercel Analytics, Google Analytics
+- **Deployment**: Vercel, Netlify, GitHub Pages
 
 ## 🔧 Setup and Installation
 
 ### Prerequisites
-- Node.js 14+ and npm/yarn
+- Node.js 16+ and npm/yarn
 
 ### Quick Start
 1. Clone and install dependencies:
 ```bash
 git clone https://github.com/your-username/learnflow.git
-cd learnflow
+cd LearnFlow
 npm install
 cd server && npm install && cd ..
 ```
 
 2. Set up environment variables:
    - Create `.env` files in root and server directories
+   - See `.env.example` for required variables
 
 3. Start the application:
-   - Use `start-all.bat` or run `npm start`
+   - Development: `npm run dev` or use `start-all.bat`
+   - Production build: `npm run build`
+   - Start with server: `npm start`
 
 ## 📂 Subject Mapping Example
 
@@ -71,7 +88,11 @@ cd server && npm install && cd ..
 
 ## 🚀 Deployment
 
-- **Frontend**: Build with `npm run build` and deploy to Vercel
+- **Frontend**: 
+  - Vercel: `npm run vercel-build` or use `npm run build`
+  - Netlify: `npm run build:netlify`
+  - GitHub Pages: `npm run build:github`
+  - Static hosting: `npm run build:static`
 - **Chatbot Server**: Deploy to Railway.com or any Node.js hosting service
 
 ## 🔗 Links & Contributors
