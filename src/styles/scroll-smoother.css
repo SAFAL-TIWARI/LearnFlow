@@ -1,0 +1,70 @@
+/* ScrollSmoother Styles */
+#smooth-wrapper {
+  overflow: hidden;
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+#smooth-content {
+  overflow: visible;
+  width: 100%;
+  will-change: transform;
+}
+
+/* Prevent scrollbar issues */
+body {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+/* Ensure smooth scrolling elements have proper will-change */
+[data-speed],
+[data-lag] {
+  will-change: transform;
+}
+
+/* Fix for mobile devices */
+@media (max-width: 768px) {
+  #smooth-wrapper {
+    position: relative;
+    height: auto;
+    overflow: visible;
+  }
+  
+  body {
+    overflow: auto;
+  }
+}
+
+/* Accessibility: Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  #smooth-wrapper {
+    position: relative;
+    height: auto;
+    overflow: visible;
+  }
+  
+  body {
+    overflow: auto;
+  }
+  
+  [data-speed],
+  [data-lag] {
+    will-change: auto;
+  }
+}
+
+/* Loading state */
+.scroll-smoother-loading {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.scroll-smoother-loaded {
+  opacity: 1;
+}

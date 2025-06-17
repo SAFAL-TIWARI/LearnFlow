@@ -38,6 +38,7 @@ import NoticesPage from "./pages/NoticesPage";
 import ReleaseNotesPage from "./pages/ReleaseNotesPage";
 import Search from "./pages/Search";
 import UserFiles from "./pages/UserFiles";
+// import ScrollDemo from "./components/ScrollDemo";
 // import CursorDemoPage from "./pages/cursor-demo";
 // import CursorSettingsPage from "./pages/CursorSettingsPage";
 import ChatbotWidget from "./components/Chatbot/ChatbotWidget";
@@ -48,9 +49,11 @@ import { SmartCursor } from "./components/SmartCursor";
 import { AuthProvider } from './context/SupabaseAuthContext';
 import { AcademicProvider } from './context/AcademicContext';
 import { CursorProvider } from './context/CursorContext';
+import { ScrollSmootherProvider } from './context/ScrollSmootherContext';
 import { ThemeProvider } from "./hooks/useTheme";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react"
+import ScrollSmootherWrapper from './components/ScrollSmootherWrapper';
 import ProfilePageWrapperComponent from './components/ProfilePageWrapper';
 import AuthTestButton from './components/AuthTestButton';
 // import './App.css';
@@ -127,12 +130,14 @@ const App = () => {
           <ThemeProvider>
             <AuthProvider>
               <CursorProvider>
-                <QueryClientProvider client={queryClient}>
-                  <TooltipProvider>
-                    <Toaster />
-                    <Sonner />
-                    <BrowserRouter>
-                    <AcademicProvider>
+                <ScrollSmootherProvider>
+                  <QueryClientProvider client={queryClient}>
+                    <TooltipProvider>
+                      <Toaster />
+                      <Sonner />
+                      <BrowserRouter>
+                      <ScrollSmootherWrapper>
+                      <AcademicProvider>
                     <Routes>
                       <Route path="/" element={<Index />} />
                       <Route path="/tools" element={<Tools />} />
@@ -160,6 +165,7 @@ const App = () => {
                       <Route path="/release-notes" element={<ReleaseNotesPage />} />
                       <Route path="/search" element={<Search />} />
                       <Route path="/user-files/:userId" element={<UserFiles />} />
+                      {/* <Route path="/scroll-demo" element={<ScrollDemo />} /> */}
 
                       {/* Auth Pages */}
                       <Route path="/auth-error" element={<AuthError />} />
@@ -194,14 +200,16 @@ const App = () => {
                   {/* Click Spark Animation */}
                   <ClickSparkAnimation />
 
-                  {/* Smooth Cursor Animation */}
-                  <SmartCursor />
-
                   {/* Auth Test Button (for development) */}
                   {process.env.NODE_ENV === 'development' && <AuthTestButton />}
+                  </ScrollSmootherWrapper>
+
+                  {/* Smooth Cursor Animation - Moved outside ScrollSmootherWrapper */}
+                  <SmartCursor />
                 </BrowserRouter>
                 </TooltipProvider>
               </QueryClientProvider>
+            </ScrollSmootherProvider>
             </CursorProvider>
           </AuthProvider>
         </ThemeProvider>
