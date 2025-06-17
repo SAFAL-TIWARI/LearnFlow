@@ -64,7 +64,7 @@ export const subjectsByYearAndSemester: Record<
       { code: 'IO 304', name: 'Electronic Devices & Circuits' },
       { code: 'IO 306', name: 'Internet Programming' },
       { code: 'OE 305 (OE-1A)', name: 'Computer System Organization' },
-      { code: 'IO 305 (OE-1B)', name: 'Data Structures' },
+      { code: 'OE 305 (OE-1B) ', name: 'Data Structures' },
       { code: 'CS 302', name: 'Analysis & Design of Algorithms' },
       { code: 'CS 303', name: 'Object-Oriented Programming' },
       { code: 'CS 304', name: 'Operating System' },
@@ -1157,7 +1157,7 @@ export const branchSubjects: Record<
         { code: 'IO 304', name: 'Electronic Devices & Circuits' },
         { code: 'IO 306', name: 'Internet Programming' },
         { code: 'OE 305 (OE-1A)', name: 'Computer System Organization' },
-        { code: 'IO 305 (OE-1B)', name: 'Data Structures' },
+        { code: 'OE 305 (OE-1B) ', name: 'Data Structures' },
       ],
       'it': [
         { code: 'IT 302', name: 'Communication System' },
