@@ -27,7 +27,7 @@ interface AuthContextType {
   updatePassword: (newPassword: string) => Promise<{ error: any }>
   getUserProfile: (userId: string) => Promise<{ data: any, error: any }>
   updateUserProfile: (userId: string, updates: any) => Promise<{ data: any, error: any }>
-  deleteAccount: () => Promise<{ error: any }>
+  deleteAccount: () => Promise<{ error: any; data?: any }>
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -41,7 +41,7 @@ const AuthContext = createContext<AuthContextType>({
   updatePassword: async () => ({ error: null }),
   getUserProfile: async () => ({ data: null, error: null }),
   updateUserProfile: async () => ({ data: null, error: null }),
-  deleteAccount: async () => ({ error: null })
+  deleteAccount: async () => ({ error: null, data: null })
 })
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {

@@ -382,19 +382,33 @@ const HelpPage: React.FC = () => {
     setIsDeleting(true);
     try {
       console.log('Starting account deletion process...');
-      const { error } = await deleteAccount();
+      const { error, data } = await deleteAccount();
+      
       if (error) {
         console.error('Error deleting account:', error);
         const errorMessage = error.message || 'Failed to delete account';
-        alert(`Failed to delete account: ${errorMessage}. Please try again or contact support.`);
+        
+        // Check if it's a partial deletion
+        if (errorMessage.includes('partially completed')) {
+          alert(`Account deletion partially completed: ${errorMessage}\n\nYour local data has been cleared. You may need to contact support to complete the process.`);
+          // Still redirect since local cleanup was performed
+          setTimeout(() => navigate('/'), 2000);
+        } else {
+          alert(`Failed to delete account: ${errorMessage}.\n\nPlease try again or contact support if the problem persists.`);
+        }
       } else {
-        console.log('Account deleted successfully');
-        alert('Your account has been successfully deleted.');
-        navigate('/');
+        console.log('Account deleted successfully:', data);
+        alert('Your account has been successfully deleted. You will be redirected to the home page.');
+        // The cleanup function will handle the redirect, but add a fallback
+        setTimeout(() => {
+          if (window.location.pathname !== '/') {
+            navigate('/');
+          }
+        }, 3000);
       }
     } catch (error) {
-      console.error('Unexpected error:', error);
-      alert('An unexpected error occurred. Please try again or contact support.');
+      console.error('Unexpected error during account deletion:', error);
+      alert('An unexpected error occurred during account deletion.\n\nPlease try again or contact support if the problem persists.');
     } finally {
       setIsDeleting(false);
       setShowDeleteConfirmation(false);

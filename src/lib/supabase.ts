@@ -218,28 +218,117 @@ export const deleteUserAccount = async () => {
       }
     }
 
-    // Call the database function to delete the user and all associated data
-    const { data, error: deleteError } = await supabase.rpc('delete_user')
+    // Call the comprehensive database function to delete user and all associated data
+    console.log('Calling delete_user database function...')
+    const { data: deleteResult, error: deleteError } = await supabase.rpc('delete_user')
 
     if (deleteError) {
-      console.error('Error deleting user account:', deleteError)
+      console.error('Error calling delete_user function:', deleteError)
+      
+      // Check if the error is due to missing function
+      if (deleteError.message?.includes('function delete_user() does not exist') || 
+          deleteError.code === '42883') {
+        console.error('Database function delete_user does not exist. Please run the setup script.')
+        
+        // Perform comprehensive cleanup anyway
+        const { performCompleteUserCleanup } = await import('../utils/userCleanup')
+        await performCompleteUserCleanup()
+        
+        return { 
+          error: { 
+            message: 'Database functions not set up. Please contact support to complete account deletion.',
+            details: 'The required database functions for user deletion have not been installed. Your local data has been cleared, but server-side data may remain.'
+          } 
+        }
+      }
+      
+      // If the main function fails, try manual cleanup
+      console.log('Attempting manual cleanup...')
+      
+      // Delete from profiles table
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', user.id)
+      
+      if (profileError) {
+        console.warn('Error deleting user profile:', profileError)
+      } else {
+        console.log('Successfully deleted user profile')
+      }
+
+      // Delete from user_files table
+      const { error: filesTableError } = await supabase
+        .from('user_files')
+        .delete()
+        .eq('user_id', user.id)
+      
+      if (filesTableError) {
+        console.warn('Error deleting user files from database:', filesTableError)
+      } else {
+        console.log('Successfully deleted user files from database')
+      }
+
+      // Delete from file_shares table
+      const { error: sharesError } = await supabase
+        .from('file_shares')
+        .delete()
+        .or(`user_id.eq.${user.id},shared_with_id.eq.${user.id}`)
+      
+      if (sharesError) {
+        console.warn('Error deleting file shares:', sharesError)
+      } else {
+        console.log('Successfully deleted file shares')
+      }
+
+      // Try to delete from users table if it exists
+      const { error: usersTableError } = await supabase
+        .from('users')
+        .delete()
+        .eq('id', user.id)
+      
+      if (usersTableError) {
+        console.warn('Error deleting from users table (might not exist):', usersTableError)
+      } else {
+        console.log('Successfully deleted from users table')
+      }
+
+      // The auth user deletion should be handled by the database function
+      // If it fails, we'll proceed with cleanup anyway
+      console.log('Manual cleanup completed, but auth user deletion may have failed')
+      
+      // Perform comprehensive cleanup
+      const { performCompleteUserCleanup } = await import('../utils/userCleanup')
+      await performCompleteUserCleanup()
+
       return { 
         error: { 
-          message: deleteError.message || 'Failed to delete account',
+          message: 'Account deletion partially completed. Some data may remain in the system.',
           details: deleteError
         } 
       }
     }
 
-    console.log('User account deleted successfully:', data)
+    console.log('User account deleted successfully via database function:', deleteResult)
 
     // Perform comprehensive cleanup using our utility function
     const { performCompleteUserCleanup } = await import('../utils/userCleanup')
     await performCompleteUserCleanup()
 
-    return { error: null, data }
+    console.log('User account deletion process completed successfully')
+    return { error: null, data: deleteResult }
+    
   } catch (error) {
     console.error('Unexpected error deleting account:', error)
+    
+    // Even if there's an error, try to clean up local data
+    try {
+      const { performCompleteUserCleanup } = await import('../utils/userCleanup')
+      await performCompleteUserCleanup()
+    } catch (cleanupError) {
+      console.error('Cleanup also failed:', cleanupError)
+    }
+    
     return { 
       error: { 
         message: error instanceof Error ? error.message : 'Failed to delete account',
