@@ -3,10 +3,19 @@
   position: fixed;
   bottom: 100px;
   right: 40px;
-  z-index: 99; /* Ensure it's above everything else including scroll smoother */
+  z-index: 9999;
+  /* Ensure it's above everything else including scroll smoother */
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  pointer-events: auto !important; /* Ensure it's clickable */
-  user-select: none; /* Prevent text selection outside the chatbox */
+  pointer-events: auto !important;
+  /* Ensure it's clickable */
+  user-select: none;
+  /* Prevent text selection outside the chatbox */
+  visibility: visible !important;
+  /* Force visibility */
+  opacity: 1 !important;
+  /* Force opacity */
+  display: block !important;
+  /* Force display */
 }
 
 /* Notification Bubble */
@@ -24,9 +33,9 @@
   opacity: 0;
   transform: translateY(20px);
   pointer-events: none;
-  animation: 
-    slideIn 0.8s ease-out forwards, 
-    bounce 1s 0.8s ease-in-out, 
+  animation:
+    slideIn 0.8s ease-out forwards,
+    bounce 1s 0.8s ease-in-out,
     pulseGlow 2s 1.5s infinite,
     slideOutIn 10s 5s ease-in-out infinite;
   z-index: 9999;
@@ -40,7 +49,8 @@
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
-  animation: none; /* Stop other animations when sliding down */
+  animation: none;
+  /* Stop other animations when sliding down */
 }
 
 /* Slide in animation - smoother with easing */
@@ -49,10 +59,12 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   70% {
     opacity: 0.9;
     transform: translateY(-3px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -61,12 +73,16 @@
 
 /* Continuous slide out and in animation */
 @keyframes slideOutIn {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0);
   }
+
   45% {
     transform: translateY(-8px);
   }
+
   55% {
     transform: translateY(-8px);
   }
@@ -74,15 +90,20 @@
 
 /* Bounce effect animation - smoother with better timing */
 @keyframes bounce {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0);
   }
+
   40% {
     transform: translateY(-12px);
   }
+
   60% {
     transform: translateY(-10px);
   }
+
   80% {
     transform: translateY(-5px);
   }
@@ -94,16 +115,20 @@
     box-shadow: 0 0 5px rgba(0, 80, 252, 0.5);
     filter: brightness(1);
   }
+
   25% {
     box-shadow: 0 0 10px rgba(0, 80, 252, 0.6), 0 0 15px rgba(0, 80, 252, 0.4);
   }
+
   50% {
     box-shadow: 0 0 15px rgba(0, 80, 252, 0.8), 0 0 25px rgba(0, 80, 252, 0.6), 0 0 35px rgba(0, 80, 252, 0.3);
     filter: brightness(1.1);
   }
+
   75% {
     box-shadow: 0 0 10px rgba(0, 80, 252, 0.6), 0 0 15px rgba(0, 80, 252, 0.4);
   }
+
   100% {
     box-shadow: 0 0 5px rgba(0, 80, 252, 0.5);
     filter: brightness(1);
@@ -143,7 +168,7 @@
 .chat-window {
   position: absolute;
   bottom: 80px;
-  right: 0;
+  right: 25px;
   width: 350px;
   height: 500px;
   background-color: white;
@@ -155,8 +180,12 @@
   transition: all 0.3s ease;
   animation: slideIn 0.3s forwards;
   z-index: 10001;
-  overscroll-behavior: contain; /* Prevents scroll chaining to parent elements */
-  touch-action: pan-y; /* Allow vertical scrolling but prevent horizontal */
+  overscroll-behavior: contain;
+  /* Prevents scroll chaining to parent elements */
+  touch-action: manipulation;
+  /* Optimize touch interactions */
+  -webkit-overflow-scrolling: touch;
+  /* Enable momentum scrolling on iOS */
 }
 
 /* Maximized Chat Window */
@@ -165,12 +194,13 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 80%;
-  height: 80%;
-  max-width: 1000px;
-  max-height: 800px;
+  width: 100%;
+  height: 100%;
+  max-width: 1800px;
+  max-height: 880px;
   animation: maximizeAnimation 0.3s forwards;
-  overscroll-behavior: contain; /* Prevents scroll chaining to parent elements */
+  overscroll-behavior: contain;
+  /* Prevents scroll chaining to parent elements */
 }
 
 @keyframes maximizeAnimation {
@@ -178,6 +208,7 @@
     opacity: 0.8;
     transform: translate(-50%, -50%) scale(0.9);
   }
+
   to {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
@@ -189,6 +220,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -219,7 +251,9 @@
   gap: 8px;
 }
 
-.close-btn, .help-btn, .maximize-btn {
+.close-btn,
+.help-btn,
+.maximize-btn {
   background: transparent;
   border: none;
   color: white;
@@ -236,7 +270,7 @@
   width: 24px;
   height: 24px;
   font-weight: bold;
-  font-size: 14px;
+  font-size: 17px;
 }
 
 .maximize-btn {
@@ -247,7 +281,9 @@
   justify-content: center;
 }
 
-.close-btn:hover, .help-btn:hover, .maximize-btn:hover {
+.close-btn:hover,
+.help-btn:hover,
+.maximize-btn:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
@@ -256,11 +292,17 @@
   flex: 1;
   padding: 16px;
   overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  overscroll-behavior: contain; /* Prevents scroll chaining to parent elements */
-  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  overscroll-behavior: contain;
+  /* Prevents scroll chaining to parent elements */
+  -webkit-overflow-scrolling: touch;
+  /* Smooth scrolling on iOS */
+  touch-action: pan-y;
+  /* Allow only vertical scrolling */
+  scroll-behavior: smooth;
 }
 
 /* Message Styles */
@@ -295,7 +337,8 @@
 .message-content {
   font-size: 14px;
   line-height: 1.5;
-  user-select: text; /* Allow text selection within messages */
+  user-select: text;
+  /* Allow text selection within messages */
 }
 
 .message-content.loading {
@@ -437,11 +480,16 @@
   outline: none;
   max-height: 100px;
   transition: border-color 0.2s;
-  background-color: white; /* Ensure background is visible */
-  color: #1f2937; /* Ensure text is visible */
-  pointer-events: auto !important; /* Ensure it's clickable */
-  cursor: text !important; /* Show text cursor */
-  user-select: text; /* Allow text selection in input */
+  background-color: white;
+  /* Ensure background is visible */
+  color: #1f2937;
+  /* Ensure text is visible */
+  pointer-events: auto !important;
+  /* Ensure it's clickable */
+  cursor: text !important;
+  /* Show text cursor */
+  user-select: text;
+  /* Allow text selection in input */
 }
 
 .chat-input:focus {
@@ -560,16 +608,20 @@
     box-shadow: 0 0 5px rgba(37, 99, 235, 0.5);
     filter: brightness(1);
   }
+
   25% {
     box-shadow: 0 0 10px rgba(37, 99, 235, 0.6), 0 0 15px rgba(37, 99, 235, 0.4);
   }
+
   50% {
     box-shadow: 0 0 15px rgba(37, 99, 235, 0.8), 0 0 25px rgba(37, 99, 235, 0.6), 0 0 35px rgba(37, 99, 235, 0.3);
     filter: brightness(1.15);
   }
+
   75% {
     box-shadow: 0 0 10px rgba(37, 99, 235, 0.6), 0 0 15px rgba(37, 99, 235, 0.4);
   }
+
   100% {
     box-shadow: 0 0 5px rgba(37, 99, 235, 0.5);
     filter: brightness(1);
@@ -577,44 +629,106 @@
 }
 
 .dark-theme .chat-notification {
-  animation: 
-    slideIn 0.8s ease-out forwards, 
-    bounce 1s 0.8s ease-in-out, 
+  animation:
+    slideIn 0.8s ease-out forwards,
+    bounce 1s 0.8s ease-in-out,
     pulseGlowDark 2s 1.5s infinite,
     slideOutIn 10s 5s ease-in-out infinite;
 }
 
-/* Responsive Design */
+/* Desktop-specific styles to ensure no scroll interference */
+@media (min-width: 769px) {
+  /* Ensure chatbot doesn't interfere with page scrolling on desktop */
+  body.chat-open:not(.chat-maximized) {
+    overflow: auto !important;
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    top: auto !important;
+  }
+  
+  /* Only prevent scrolling when chat is maximized on desktop - let JavaScript handle this */
+  /* Removed body style modifications for desktop maximized state to prevent scroll issues */
+}
+
+/* Tablet-specific styles */
+@media (min-width: 481px) and (max-width: 768px) {
+  .chat-window {
+    width: 400px;
+    height: 550px;
+  }
+  
+  .chat-window.maximized {
+    width: 90%;
+    height: 85%;
+    max-width: 800px;
+    max-height: 700px;
+  }
+  
+  /* Treat tablets like desktop for scroll behavior */
+  body.chat-open:not(.chat-maximized) {
+    overflow: auto !important;
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    top: auto !important;
+  }
+}
+
+/* Mobile-specific styles */
 @media (max-width: 480px) {
   .chat-window {
     width: calc(100vw - 40px);
-    height: 60vh;
+    height: 80vh;
     bottom: 80px;
-    right: 0;
+    right: 20px;
+    /* Prevent background scrolling on mobile */
+    position: fixed;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
   }
-  
+
   .chat-window.maximized {
     width: 95%;
     height: 90%;
     max-width: none;
     max-height: none;
+    /* Ensure maximized chat prevents background scrolling */
+    position: fixed;
+    top: 45%;
+    left: 50%;
+    transform: none;
   }
-  
+
   .chat-toggle-btn {
     min-width: 50px;
     height: 50px;
     padding: 0 15px;
   }
-  
+
   .chat-toggle-btn .chat-label {
     font-size: 14px;
   }
-  
+
   .chat-notification {
     top: -50px;
     right: 0;
     padding: 8px 14px;
     font-size: 13px;
+  }
+
+  .messages-container {
+    /* Enhanced mobile scrolling */
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    /* Prevent momentum scrolling from affecting parent */
+    overflow-anchor: none;
+  }
+
+  .chat-input {
+    /* Prevent zoom on iOS */
+    font-size: 16px;
   }
 }
 
@@ -626,16 +740,53 @@
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
-  z-index: 9998;
+  z-index: 99;
   animation: fadeIn 0.3s forwards;
-  overscroll-behavior: contain; /* Prevents scroll chaining */
+  overscroll-behavior: contain;
+  /* Prevents scroll chaining */
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
+}
+
+/* Prevent body scrolling when chat is open on mobile only */
+@media (max-width: 768px) {
+  body.chat-open {
+    overflow: hidden !important;
+    position: fixed !important;
+    width: 100% !important;
+    height: 100% !important;
+    touch-action: none !important;
+  }
+}
+
+/* Desktop-specific styles - ensure no interference with page scrolling */
+@media (min-width: 769px) {
+  .chatbot-container {
+    /* Ensure chatbot doesn't interfere with page scrolling on desktop */
+    pointer-events: auto;
+  }
+  
+  .messages-container {
+    /* Ensure messages container doesn't affect page scroll */
+    scroll-behavior: smooth;
+  }
+  
+  /* Never apply body scroll lock on desktop unless maximized */
+  body:not(.chat-maximized).chat-open {
+    overflow: auto !important;
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+  }
+  
+  /* When maximized on desktop - let JavaScript handle body scrolling to prevent issues */
+  /* Removed body style modifications for desktop maximized state to prevent scroll issues */
 }
