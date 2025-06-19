@@ -59,7 +59,7 @@ const applyParticleEffect = (
   const defaultParticle = "circle";
   const particleType = options?.particle || defaultParticle;
   const sizes = [15, 20, 25, 35, 45];
-  const limit = 45;
+  const limit = 50;
 
   let particles: CoolParticle[] = [];
   let autoAddParticle = false;
