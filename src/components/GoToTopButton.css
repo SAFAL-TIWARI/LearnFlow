@@ -1,8 +1,8 @@
 .go-to-top-container {
   position: fixed;
   bottom: 30px; /* Position it at the bottom */
-  right: 80px; /* Position to the left of the chat button */
-  z-index: 9998; /* One less than chatbot to ensure it doesn't overlay */
+  right: 90px; /* Position to the left of the chat button with more space */
+  z-index: 99; /* One less than chatbot to ensure it doesn't overlay */
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s ease, visibility 0.3s ease;
@@ -118,7 +118,7 @@
 @media (max-width: 480px) {
   .go-to-top-container {
     bottom: 30px; /* Keep at bottom on mobile */
-    right: 75px; /* Position to the left of the chat button */
+    right: 85px; /* Position to the left of the chat button with more space */
   }
 
   .go-to-top-button {
