@@ -1,0 +1,108 @@
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+  
+  <!-- Header -->
+  <div style="background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%); padding: 40px 30px; text-align: center; border-radius: 8px 8px 0 0;">
+    <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">LearnFlow</h1>
+    <p style="margin: 8px 0 0; color: rgba(255, 255, 255, 0.9); font-size: 16px;">You're Invited!</p>
+  </div>
+  
+  <!-- Content -->
+  <div style="padding: 40px 30px; background-color: #ffffff;">
+    <h2 style="margin: 0 0 20px; color: #1a202c; font-size: 24px; font-weight: 600; text-align: center;">Welcome to LearnFlow! 🎉</h2>
+    
+    <p style="margin: 0 0 24px; color: #4a5568; font-size: 16px; line-height: 1.6; text-align: center;">
+      You've been invited to join LearnFlow, where learning meets innovation.
+    </p>
+    
+    <!-- Invitation Details -->
+    <div style="background-color: #faf5ff; border-left: 4px solid #7c3aed; padding: 24px; margin: 24px 0; border-radius: 0 6px 6px 0;">
+      <h3 style="margin: 0 0 12px; color: #5b21b6; font-size: 18px; font-weight: 600;">🎯 Your Invitation Details</h3>
+      <p style="margin: 0 0 16px; color: #6b46c1; font-size: 16px; line-height: 1.6;">
+        You've been invited to create an account on <strong>{{ .SiteURL }}</strong>
+      </p>
+      <p style="margin: 0; color: #6b46c1; font-size: 14px;">
+        Click the button below to accept your invitation and start your learning journey with us.
+      </p>
+    </div>
+    
+    <!-- What You'll Get -->
+    <div style="background-color: #f0fff4; border: 1px solid #9ae6b4; padding: 20px; border-radius: 6px; margin: 24px 0;">
+      <h3 style="margin: 0 0 16px; color: #22543d; font-size: 16px; font-weight: 600;">🚀 What awaits you at LearnFlow:</h3>
+      <div style="display: grid; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span style="color: #22543d; font-size: 18px;">📚</span>
+          <span style="color: #22543d; font-size: 14px;">Access to thousands of educational resources</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span style="color: #22543d; font-size: 18px;">📊</span>
+          <span style="color: #22543d; font-size: 14px;">Personalized learning dashboard and progress tracking</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span style="color: #22543d; font-size: 18px;">🤝</span>
+          <span style="color: #22543d; font-size: 14px;">Connect with fellow learners and educators</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span style="color: #22543d; font-size: 18px;">🎯</span>
+          <span style="color: #22543d; font-size: 14px;">AI-powered learning recommendations</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- CTA Button -->
+    <div style="text-align: center; margin: 32px 0;">
+      <a href="{{ .ConfirmationURL }}" 
+         style="display: inline-block; background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%); color: #ffffff; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-size: 18px; font-weight: 600; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4); transition: all 0.3s ease;">
+        🎉 Accept Invitation
+      </a>
+    </div>
+    
+    <!-- Alternative Link -->
+    <div style="background-color: #f8f9fa; padding: 16px; border-radius: 6px; margin-top: 24px;">
+      <p style="margin: 0 0 8px; color: #6c757d; font-size: 13px; text-align: center;">
+        <strong>Button not working?</strong> Copy and paste this link into your browser:
+      </p>
+      <p style="margin: 0; word-break: break-all; text-align: center; font-size: 12px;">
+        <a href="{{ .ConfirmationURL }}" style="color: #7c3aed; text-decoration: none;">{{ .ConfirmationURL }}</a>
+      </p>
+    </div>
+    
+    <!-- Getting Started -->
+    <div style="margin-top: 32px; padding: 20px; background-color: #f0f9ff; border: 1px solid #bae6fd; border-radius: 6px;">
+      <h3 style="margin: 0 0 12px; color: #0369a1; font-size: 16px; font-weight: 600;">🏁 Getting Started is Easy:</h3>
+      <ol style="margin: 0; padding-left: 20px; color: #0369a1; font-size: 14px; line-height: 1.6;">
+        <li>Click the "Accept Invitation" button above</li>
+        <li>Create your secure password</li>
+        <li>Complete your profile setup</li>
+        <li>Start exploring and learning!</li>
+      </ol>
+    </div>
+    
+    <!-- Expiration Notice -->
+    <div style="margin-top: 24px; padding: 16px; background-color: #fffbeb; border: 1px solid #fed7aa; border-radius: 6px;">
+      <p style="margin: 0; color: #c2410c; font-size: 14px; text-align: center;">
+        <strong>⏰ Time Sensitive:</strong> This invitation will expire in 7 days. Don't miss out on your chance to join our learning community!
+      </p>
+    </div>
+    
+    <!-- Questions -->
+    <div style="margin-top: 24px; text-align: center;">
+      <p style="margin: 0; color: #6b7280; font-size: 14px;">
+        Have questions about your invitation? 
+        <a href="mailto:support@learnflow.com" style="color: #7c3aed; text-decoration: none; font-weight: 600;">We're here to help!</a>
+      </p>
+    </div>
+  </div>
+  
+  <!-- Footer -->
+  <div style="background-color: #f8f9fa; padding: 24px 30px; text-align: center; border-top: 1px solid #e9ecef; border-radius: 0 0 8px 8px;">
+    <p style="margin: 0 0 12px; color: #6c757d; font-size: 14px;">
+      This invitation was sent to you by a LearnFlow administrator
+    </p>
+    <p style="margin: 0; color: #6c757d; font-size: 12px;">
+      © 2024 LearnFlow. All rights reserved. | 
+      <a href="#" style="color: #7c3aed; text-decoration: none;">Privacy Policy</a> | 
+      <a href="#" style="color: #7c3aed; text-decoration: none;">Terms of Service</a>
+    </p>
+  </div>
+  
+</div>

@@ -6,8 +6,8 @@
 import fetch from 'node-fetch';
 
 // Google Search API key (replace with your actual key if you have one)
-const GOOGLE_SEARCH_API_KEY = process.env.GOOGLE_SEARCH_API_KEY || 'AIzaSyDjXHRQD2xGfp2nuM52SPFz9_srCQQDOf4';
-const GOOGLE_SEARCH_ENGINE_ID = process.env.GOOGLE_SEARCH_ENGINE_ID || '017576662512468239146:omuauf_lfve';
+const GOOGLE_SEARCH_API_KEY = process.env.GOOGLE_SEARCH_API_KEY ;
+const GOOGLE_SEARCH_ENGINE_ID = process.env.GOOGLE_SEARCH_ENGINE_ID ;
 
 /**
  * Determine if a query likely needs web search

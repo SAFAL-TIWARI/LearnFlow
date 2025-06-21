@@ -188,12 +188,6 @@ const App = () => {
                     </Routes>
                   </AcademicProvider>
 
-                  {/* Chatbot Widget */}
-                  <ChatbotWidget />
-
-                  {/* Go To Top Button */}
-                  <GoToTopButton />
-
                   {/* Notification Manager */}
                   <NotificationManager />
 
@@ -203,6 +197,13 @@ const App = () => {
                   {/* Auth Test Button (for development) */}
                   {process.env.NODE_ENV === 'development' && <AuthTestButton />}
                   </ScrollSmootherWrapper>
+
+                  {/* Fixed positioned elements outside ScrollSmootherWrapper */}
+                  {/* Chatbot Widget */}
+                  <ChatbotWidget />
+
+                  {/* Go To Top Button */}
+                  <GoToTopButton />
 
                   {/* Smooth Cursor Animation - Moved outside ScrollSmootherWrapper */}
                   <SmartCursor />
