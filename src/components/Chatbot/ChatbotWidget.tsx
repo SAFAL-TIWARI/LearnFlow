@@ -131,32 +131,43 @@ const ChatbotWidget: React.FC = () => {
   // Clean up body style and timers when component unmounts
   useEffect(() => {
     return () => {
-      document.body.style.overflow = '';
+      restoreBodyStyles();
       // Clear any timers to prevent memory leaks
       if (notificationTimerRef.current) {
         clearTimeout(notificationTimerRef.current);
       }
     };
   }, []);
-  
+
+  // Safety effect to ensure body styles are properly managed when chat state changes
+  useEffect(() => {
+    if (!isOpen && !isMaximized) {
+      // Only restore body styles on mobile devices or when maximized chat was closed
+      // On desktop, don't interfere with normal page scrolling when just opening/closing chat
+      if (isMobileDevice()) {
+        restoreBodyStyles();
+      }
+    }
+  }, [isOpen, isMaximized]);
+
   // Notification timer effect
   useEffect(() => {
     let notificationInterval: NodeJS.Timeout | null = null;
     let hideTimeout: NodeJS.Timeout | null = null;
-    
+
     const showAndHideNotification = () => {
       // Only show notification if chat is closed
       if (!isOpen) {
         // Reset leaving state and show notification
         setIsNotificationLeaving(false);
         setShowNotification(true);
-        
+
         // Hide notification after 5 seconds (full display time)
         if (hideTimeout) clearTimeout(hideTimeout);
         hideTimeout = setTimeout(() => {
           // Start slide down animation
           setIsNotificationLeaving(true);
-          
+
           // Actually hide the notification after animation completes
           setTimeout(() => {
             setShowNotification(false);
@@ -165,12 +176,12 @@ const ChatbotWidget: React.FC = () => {
         }, 5000);
       }
     };
-    
+
     // Start interval when chat is closed
     if (!isOpen) {
       // Show notification immediately on close
       showAndHideNotification();
-      
+
       // Set interval to show notification every 20 seconds
       // (5 seconds display + 15 seconds pause between notifications)
       notificationInterval = setInterval(showAndHideNotification, 20000);
@@ -184,7 +195,7 @@ const ChatbotWidget: React.FC = () => {
         }, 800);
       }
     }
-    
+
     // Cleanup function
     return () => {
       if (notificationInterval) clearInterval(notificationInterval);
@@ -194,16 +205,12 @@ const ChatbotWidget: React.FC = () => {
 
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
-      // Use scrollIntoView with a try-catch to handle any errors
       try {
-        // Use the parent container's scrollTop property instead of scrollIntoView
-        // This prevents affecting the page scroll
-        const container = messagesEndRef.current.parentElement;
+        // Find the messages container specifically
+        const container = messagesEndRef.current.closest('.messages-container');
         if (container) {
+          // Use scrollTop to scroll within the container only
           container.scrollTop = container.scrollHeight;
-        } else {
-          // Fallback to scrollIntoView if parent not found
-          messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
         }
       } catch (error) {
         console.error('Error scrolling to bottom:', error);
@@ -220,16 +227,64 @@ const ChatbotWidget: React.FC = () => {
     }, delay);
   };
 
+  // Helper function to check if device is mobile
+  const isMobileDevice = () => {
+    return window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  };
+
+  // Helper function to restore body styles
+  const restoreBodyStyles = () => {
+    document.body.classList.remove('chat-open');
+    document.body.classList.remove('chat-maximized');
+    // Only restore styles if they were set by the chatbot
+    if (document.body.style.overflow === 'hidden' || document.body.style.position === 'fixed') {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.height = '';
+      document.body.style.top = '';
+    }
+  };
+
   const toggleChat = () => {
     const newIsOpen = !isOpen;
     setIsOpen(newIsOpen);
 
-    // If opening the chat, focus on the input field
+    // If opening the chat, focus on the input field and prevent background scrolling
     if (newIsOpen) {
       focusInputField(300); // Slightly longer delay to allow animation to complete
+      
+      // Only prevent background scrolling on mobile devices
+      if (isMobileDevice()) {
+        // Store current scroll position to restore later
+        const scrollY = window.scrollY;
+        document.body.classList.add('chat-open');
+        document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.width = '100%';
+        document.body.style.height = '100%';
+        document.body.style.top = `-${scrollY}px`;
+      } else {
+        // On desktop, just add the class for CSS targeting but don't modify styles
+        document.body.classList.add('chat-open');
+      }
     } else {
-      // If closing the chat, ensure body overflow is restored
-      document.body.style.overflow = '';
+      // If closing the chat, restore body overflow and position
+      // Also reset maximized state to ensure proper cleanup
+      setIsMaximized(false);
+      
+      if (isMobileDevice()) {
+        // Restore scroll position on mobile
+        const scrollY = document.body.style.top;
+        const scrollPosition = scrollY ? parseInt(scrollY.replace('px', '')) * -1 : 0;
+        restoreBodyStyles();
+        if (scrollPosition > 0) {
+          window.scrollTo(0, scrollPosition);
+        }
+      } else {
+        // On desktop, just remove the CSS class but don't modify body styles
+        document.body.classList.remove('chat-open');
+      }
     }
   };
 
@@ -237,11 +292,55 @@ const ChatbotWidget: React.FC = () => {
     const newMaximizedState = !isMaximized;
     setIsMaximized(newMaximizedState);
 
-    // Add/remove overflow hidden to body when maximizing/minimizing
     if (newMaximizedState) {
-      document.body.style.overflow = 'hidden';
+      // Add maximized class for CSS targeting
+      document.body.classList.add('chat-maximized');
+      
+      // Only apply body style changes on mobile devices or when necessary
+      // On desktop, let CSS handle the maximized state without interfering with body scroll
+      if (isMobileDevice()) {
+        // Store current scroll position when maximizing on mobile
+        const scrollY = window.scrollY;
+        document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.width = '100%';
+        document.body.style.height = '100%';
+        document.body.style.top = `-${scrollY}px`;
+      }
     } else {
-      document.body.style.overflow = '';
+      // Remove maximized class
+      document.body.classList.remove('chat-maximized');
+      
+      // Only restore body styles if they were modified (mobile devices)
+      if (isMobileDevice()) {
+        // When minimizing on mobile, restore scroll position and body styles
+        const scrollY = document.body.style.top;
+        const scrollPosition = scrollY ? parseInt(scrollY.replace('px', '')) * -1 : 0;
+        
+        // Clear the fixed positioning styles
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.width = '';
+        document.body.style.height = '';
+        document.body.style.top = '';
+        
+        // Restore scroll position
+        if (scrollPosition > 0) {
+          window.scrollTo(0, scrollPosition);
+        }
+        
+        // If chat is still open on mobile, reapply mobile-specific styles for regular chat
+        if (isOpen) {
+          const newScrollY = window.scrollY;
+          document.body.classList.add('chat-open');
+          document.body.style.overflow = 'hidden';
+          document.body.style.position = 'fixed';
+          document.body.style.width = '100%';
+          document.body.style.height = '100%';
+          document.body.style.top = `-${newScrollY}px`;
+        }
+      }
+      // On desktop, no body style restoration needed - just removing the CSS class is enough
     }
 
     // Scroll to bottom when maximizing/minimizing
@@ -531,6 +630,49 @@ Always provide helpful, accurate, and educational responses.`
     e.stopPropagation();
   };
 
+  // Handle touch events to prevent background scrolling
+  const touchStartY = useRef<number>(0);
+
+  const handleChatTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+  };
+
+  const handleChatTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    e.preventDefault(); // Prevent all touch scrolling on the chat window itself
+  };
+
+  const handleChatTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+  };
+
+  // Separate handlers for messages container to allow internal scrolling
+  const handleMessagesTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleMessagesTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+
+    const target = e.currentTarget;
+    const currentY = e.touches[0].clientY;
+    const deltaY = touchStartY.current - currentY;
+    const scrollTop = target.scrollTop;
+    const scrollHeight = target.scrollHeight;
+    const height = target.clientHeight;
+
+    // Only prevent default if we're at the boundaries and trying to scroll beyond
+    if ((scrollTop <= 0 && deltaY < 0) ||
+      (scrollTop + height >= scrollHeight && deltaY > 0)) {
+      e.preventDefault();
+    }
+  };
+
+  const handleMessagesTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+  };
+
   return (
     <div className={`chatbot-container ${theme === 'dark' ? 'dark-theme' : 'light-theme'}`}>
       {/* Notification bubble */}
@@ -539,7 +681,7 @@ Always provide helpful, accurate, and educational responses.`
           Need Help
         </div>
       )}
-      
+
       {/* Chat toggle button */}
       <button
         className="chat-toggle-btn"
@@ -562,7 +704,9 @@ Always provide helpful, accurate, and educational responses.`
         <div
           className={`chat-window ${isMaximized ? 'maximized' : ''}`}
           onWheel={preventScrollPropagation}
-          onTouchMove={preventScrollPropagation}
+          onTouchStart={handleChatTouchStart}
+          onTouchMove={handleChatTouchMove}
+          onTouchEnd={handleChatTouchEnd}
         >
           <div className="chat-header">
             <h3>LearnFlow Assistant</h3>
@@ -597,7 +741,9 @@ Always provide helpful, accurate, and educational responses.`
             className="messages-container"
             onScroll={preventScrollPropagation}
             onWheel={preventScrollPropagation}
-            onTouchMove={preventScrollPropagation}
+            onTouchStart={handleMessagesTouchStart}
+            onTouchMove={handleMessagesTouchMove}
+            onTouchEnd={handleMessagesTouchEnd}
           >
             {messages.map((message, index) => (
               <div
